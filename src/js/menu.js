@@ -1,8 +1,3 @@
-// ============================================================
-//  menu.js  –  Menu page logic
-// ============================================================
-
-/* ── Cookie helpers ─────────────────────────────────────── */
 function getCookie(name) {
     const match = document.cookie.match(new RegExp('(?:^|; )' + name + '=([^;]*)'));
     return match ? decodeURIComponent(match[1]) : null;
@@ -12,7 +7,7 @@ function deleteCookie(name) {
     document.cookie = name + '=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/';
 }
 
-/* ── Auth guard + init ──────────────────────────────────── */
+
 window.addEventListener('DOMContentLoaded', () => {
     const session = getCookie('fh_session');
     if (!session) {
@@ -33,18 +28,19 @@ window.addEventListener('DOMContentLoaded', () => {
     });
 });
 
-/* ── Navigation ─────────────────────────────────────────── */
+/* Navigation for game page*/
 function startGame() {
     window.location.href = './game.html';
 }
 
+/* When logout is clicked */
 function logout() {
     deleteCookie('fh_session');
     sessionStorage.removeItem('fh_player');
     window.location.href = './index.html';
 }
 
-/* ── How to Play Modal ──────────────────────────────────── */
+/* How to Play Modal */
 function showHowToPlay() {
     document.getElementById('howToPlayModal').style.display = 'flex';
 }
@@ -53,7 +49,7 @@ function closeHowToPlay() {
     document.getElementById('howToPlayModal').style.display = 'none';
 }
 
-/* ── Floating Hearts  (🩷 only, continuous) ─────────────── */
+/* Floating Hearts */
 function spawnHearts() {
     const container = document.getElementById('heartsBg');
     if (!container) return;
@@ -82,10 +78,9 @@ function spawnHearts() {
 
         container.appendChild(el);
 
-        // Remove from DOM after animation ends (no memory leak)
         el.addEventListener('animationend', () => el.remove(), { once: true });
     }
 
-    createHeart();                       // spawn one immediately
-    setInterval(createHeart, 600);       // then every 600 ms
+    createHeart();                 
+    setInterval(createHeart, 600);  
 }
