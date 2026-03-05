@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flappy Heart – Play</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="src/style/game.css">
+</head>
+<body>
+
+<!-- ░░ HUD ░░ -->
+<div class="hud" id="hud">
+    <div class="hud-box">
+        <div class="hud-label">PLAYER</div>
+        <div class="hud-value" id="hudPlayer">—</div>
+    </div>
+    <div class="hud-box center">
+        <div class="hud-label">SCORE</div>
+        <div class="hud-value" id="hudScore">00</div>
+    </div>
+    <div class="hud-box">
+        <div class="hud-label">TIME</div>
+        <div class="hud-value" id="hudTime">02:00</div>
+    </div>
+</div>
+
+<!-- ░░ CANVAS ░░ -->
+<div class="canvas-wrap" id="canvasWrap">
+    <canvas id="board"></canvas>
+    <div class="overlay" id="startOverlay">
+        <p class="overlay-text">Press <kbd>SPACE</kbd> to Start!</p>
+    </div>
+</div>
+
+<!-- ░░ HEART API PUZZLE MODAL ░░ -->
+<div class="modal-overlay" id="puzzleModal" style="display:none">
+    <div class="modal-box puzzle-box">
+
+        <!-- ── Pink header bar ── -->
+        <div class="puzzle-header">
+            <h1 class="puzzle-title">💗 The Heart Game</h1>
+            <!-- 30-second countdown ring -->
+            <div class="puzzle-timer-wrap">
+                <svg class="timer-ring" viewBox="0 0 60 60">
+                    <circle class="timer-ring-bg"   cx="30" cy="30" r="26"/>
+                    <circle class="timer-ring-fill" cx="30" cy="30" r="26" id="timerRingFill"/>
+                </svg>
+                <span class="timer-num" id="puzzleTimerNum">30</span>
+            </div>
+        </div>
+
+        <!-- ── Loading spinner ── -->
+        <div id="puzzleLoading" class="puzzle-loading">
+            <div class="spinner"></div>
+            <p class="loading-text">Loading puzzle…</p>
+        </div>
+
+        <!-- ── Puzzle content (shown after API responds) ── -->
+        <div id="puzzleContent" style="display:none" class="puzzle-body">
+
+            <!-- Heart image — full width like original site -->
+            <img id="puzzleImage" src="" alt="Heart puzzle" class="puzzle-img">
+
+            <hr class="puzzle-hr">
+
+            <!-- "Quest is ready." status line -->
+            <h2 class="puzzle-note" id="puzzleNote">Quest is ready.</h2>
+
+            <!-- Input row — matches original layout -->
+            <h2 class="puzzle-question">
+                Enter the number of hearts in the picture:
+                <input type="number" id="puzzleAnswer" class="puzzle-input"
+                       step="1" min="0" max="9" placeholder="0"
+                       onkeydown="if(event.key==='Enter') submitPuzzle()">
+            </h2>
+
+            <p class="error-msg" id="puzzleError"></p>
+
+            <button class="btn-submit" onclick="submitPuzzle()">SUBMIT ANSWER</button>
+
+            <hr class="puzzle-hr">
+
+            <!-- Credit footer matching original page -->
+            <small class="puzzle-credit">
+                © by <strong>Marc Conrad</strong> 2025.
+                Material presented "as is". Not for commercial use.
+                <a href="https://marcconrad.com/uob/heart/doc.php" target="_blank">API docs</a>
+            </small>
+        </div>
+
+    </div>
+</div>
+
+<!-- ░░ GAME OVER MODAL ░░ -->
+<div class="modal-overlay" id="gameOverModal" style="display:none">
+    <div class="modal-box result-box">
+        <div class="result-icon">💔</div>
+        <h2 class="result-title">GAME OVER!</h2>
+        <div class="result-stats">
+            <div class="stat-box">
+                <div class="stat-label">SCORE</div>
+                <div class="stat-value" id="finalScore">0</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-label">PLAYER</div>
+                <div class="stat-value" id="finalPlayer">—</div>
+            </div>
+        </div>
+        <button class="btn-main"      onclick="restartGame()">PLAY AGAIN</button>
+        <button class="btn-secondary" onclick="changePlayer()">CHANGE PLAYER</button>
+    </div>
+</div>
+
+<!-- ░░ TIME UP MODAL ░░ -->
+<div class="modal-overlay" id="timeUpModal" style="display:none">
+    <div class="modal-box result-box">
+        <div class="result-icon">⏰</div>
+        <h2 class="result-title" style="color:#f9c74f">TIME'S UP!</h2>
+        <div class="result-stats">
+            <div class="stat-box">
+                <div class="stat-label">FINAL SCORE</div>
+                <div class="stat-value" id="timeUpScore">0</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-label">PLAYER</div>
+                <div class="stat-value" id="timeUpPlayer">—</div>
+            </div>
+        </div>
+        <button class="btn-main"      onclick="restartGame()">PLAY AGAIN</button>
+        <button class="btn-secondary" onclick="changePlayer()">CHANGE PLAYER</button>
+    </div>
+</div>
+
+<script src="src/js/game.js"></script>
+</body>
+</html>
