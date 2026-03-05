@@ -1,0 +1,322 @@
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+    font-family: 'Nunito', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    position: relative;
+    color: #fff;
+
+    background-color: #0d1b3e;
+    background-size: cover;
+    background-position: center center;
+    background-repeat: no-repeat;
+}
+
+/* Dark overlay over bg image */
+body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: rgba(5, 5, 18, 0.50);
+    z-index: 0;
+    pointer-events: none;
+}
+
+.ground {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 50px;
+    background: linear-gradient(180deg, #7a4a1e 0%, #5c3317 40%, #3d2010 100%);
+    border-top: 3px solid #a0622a;
+    z-index: 1;
+}
+
+/* Floating hearts container */
+.hearts-bg {
+    position: fixed;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+    overflow: hidden;
+}
+
+/* Each floating heart particle */
+.float-heart {
+    position: absolute;
+    bottom: -40px;
+    animation: floatHeart linear forwards;
+    opacity: 0;
+    pointer-events: none;
+    user-select: none;
+}
+
+@keyframes floatHeart {
+    0%   { transform: translateY(0) rotate(0deg);        opacity: 0;   }
+    10%  { opacity: 0.8; }
+    88%  { opacity: 0.4; }
+    100% { transform: translateY(-115vh) rotate(360deg);  opacity: 0;   }
+}
+
+.menu-wrapper {
+    position: relative;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 30px;
+    padding: 24px 20px;
+}
+
+.title-sign {
+    background: linear-gradient(180deg, #e05080 0%, #c0305a 62%, #901040 100%);
+    border: 4px solid #5a0020;
+    border-radius: 14px;
+    padding: 15px 40px 13px;
+    box-shadow:
+        0 7px 0 #4a0018,
+        0 14px 32px rgba(0, 0, 0, 0.65),
+        inset 0 2px 0 rgba(255, 255, 255, 0.36),
+        0 0 36px rgba(255, 60, 100, 0.55);
+    animation: signBob 2.6s ease-in-out infinite;
+    margin-bottom: 40px;
+}
+
+@keyframes signBob {
+    0%,  100% { transform: translateY(0)   rotate(-1deg); }
+    50%        { transform: translateY(-8px) rotate(1deg);  }
+}
+
+.title-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+}
+
+.title-text-block {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 7px;
+}
+
+.game-title {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 1.8rem;
+    color: #fff;
+    letter-spacing: 3px;
+    white-space: nowrap;
+    text-shadow: 2px 3px 0 #6a0025, 0 0 26px rgba(255, 190, 210, 0.8);
+}
+
+.game-sub {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 3px;
+    color: #ffb3cc;
+    text-shadow: 0 0 10px rgba(255, 150, 180, 0.7);
+}
+
+.title-heart {
+    font-size: 26px;
+    line-height: 1;
+    display: inline-block;
+    filter: drop-shadow(0 0 6px rgba(255, 100, 150, 0.85));
+}
+
+.left-heart  { animation: hbeat 0.85s ease-in-out infinite; }
+.right-heart { animation: hbeat 0.85s 0.43s ease-in-out infinite; }
+
+@keyframes hbeat {
+    0%,  100% { transform: scale(1);    }
+    40%        { transform: scale(1.38); }
+}
+
+.welcome-msg {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.7rem;
+    color: rgba(255, 255, 255, 0.72);
+    letter-spacing: 1px;
+    text-align: center;
+}
+
+.welcome-msg span {
+    color: #f48cb6;
+    text-shadow: 0 0 10px rgba(232, 67, 147, 0.6);
+}
+
+.menu-btns {
+    display: flex;
+    gap: 18px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+/* PLAY button */
+.btn-main {
+    background: linear-gradient(135deg, #e8437a 0%, #b02e5a 100%);
+    border: none;
+    border-radius: 10px;
+    color: #fff;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 2px;
+    padding: 16px 36px;
+    cursor: pointer;
+    box-shadow: 0 4px 18px rgba(232, 67, 147, 0.45);
+    transition: transform 0.12s, box-shadow 0.2s;
+}
+
+.btn-main:hover  { transform: translateY(-3px); box-shadow: 0 8px 26px rgba(232, 67, 147, 0.65); }
+.btn-main:active { transform: translateY(0); }
+
+/* HOW TO PLAY button */
+.btn-secondary {
+    background: rgba(255, 255, 255, 0.08);
+    border: 2px solid rgba(232, 67, 147, 0.5);
+    border-radius: 10px;
+    color: #f48cb6;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 2px;
+    padding: 16px 28px;
+    cursor: pointer;
+    transition: transform 0.12s, background 0.2s;
+}
+
+.btn-secondary:hover  {
+    background: rgba(232, 67, 147, 0.18); 
+    transform: translateY(-3px); 
+}
+
+.btn-secondary:active { 
+    transform: translateY(0); 
+}
+
+/* LOGOUT button */
+.btn-logout {
+    background: rgba(255, 255, 255, 0.08);
+    border: 2px solid rgba(232, 67, 147, 0.5);
+    border-radius: 10px;
+    color: #f48cb6;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 2px;
+    padding: 16px 28px;
+    cursor: pointer;
+    transition: transform 0.12s;
+}
+
+.btn-logout:hover { 
+    background: rgba(232, 67, 147, 0.18); 
+    transform: translateY(-3px);  
+}
+
+/* ══════════════════════════════════════
+   HOW TO PLAY MODAL
+══════════════════════════════════════ */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.75);
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(5px);
+    padding: 20px;
+}
+
+.modal-box {
+    background: rgba(8, 5, 22, 0.96);
+    border: 2px solid rgba(232, 67, 147, 0.4);
+    border-radius: 18px;
+    padding: 28px 28px 24px;
+    max-width: 520px;
+    width: 100%;
+    box-shadow: 0 0 55px rgba(232, 67, 147, 0.3);
+    animation: modalIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+@keyframes modalIn {
+    from { opacity: 0; transform: scale(0.88); }
+    to   { opacity: 1; transform: scale(1);    }
+}
+
+/* Mini title sign inside modal */
+.modal-title-sign {
+    background: linear-gradient(180deg, #e05080 0%, #c0305a 62%, #901040 100%);
+    border: 3px solid #5a0020;
+    border-radius: 11px;
+    padding: 11px 28px 9px;
+    margin-bottom: 22px;
+    box-shadow:
+        0 5px 0 #4a0018,
+        0 10px 22px rgba(0, 0, 0, 0.55),
+        inset 0 2px 0 rgba(255, 255, 255, 0.3),
+        0 0 24px rgba(255, 60, 100, 0.45);
+}
+
+/* Instructions list */
+.instructions {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-bottom: 22px;
+    counter-reset: inst;
+}
+
+.instructions li {
+    counter-increment: inst;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    font-family: 'Nunito', sans-serif;
+    font-size: 0.9rem;
+    line-height: 1.65;
+    color: rgba(255, 255, 255, 0.85);
+}
+
+.instructions li::before {
+    content: counter(inst) ".";
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.48rem;
+    color: #e8437a;
+    min-width: 20px;
+    margin-top: 4px;
+    flex-shrink: 0;
+}
+
+.instructions li strong { color: #f48cb6; }
+
+kbd {
+    background: rgba(232, 67, 147, 0.2);
+    border: 1px solid #e8437a;
+    border-radius: 4px;
+    padding: 1px 6px;
+    font-family: monospace;
+    font-size: 0.84em;
+    color: #f48cb6;
+}
+
+/* DONE button inside modal */
+.done-btn {
+    width: 100%;
+    padding: 14px;
+    font-size: 0.6rem;
+}
+
+/* ── Responsive ── */
+@media (max-width: 430px) {
+    .title-sign   { padding: 13px 22px 10px; }
+    .game-title   { font-size: 0.85rem; }
+    .title-heart  { font-size: 20px; }
+    .btn-main,
+    .btn-secondary { padding: 14px 20px; font-size: 0.58rem; }
+    .modal-box    { padding: 22px 18px 20px; }
+}
