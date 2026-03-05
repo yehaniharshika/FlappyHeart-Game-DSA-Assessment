@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Flappy Heart – Menu</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Nunito:wght@400;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="src/style/menu.css" />
+  </head>
+  <body>
+    <!-- FLOATING HEARTS BACKGROUND -->
+    <div class="hearts-bg" id="heartsBg"></div>
+    <div class="city-skyline"></div>
+
+    <!-- MAIN MENU -->
+    <div class="menu-wrapper">
+      <!-- Title Sign -->
+      <div class="title-sign">
+        <div class="title-row">
+          <span class="title-heart left-heart">💗</span>
+          <div class="title-text-block">
+            <div class="game-title">FLAPPY HEART</div>
+            <div class="game-sub">TAP TO LOVE</div>
+          </div>
+          <span class="title-heart right-heart">💗</span>
+        </div>
+      </div>
+
+      <!-- Welcome -->
+      <p class="welcome-msg">
+        Welcome back, <span id="playerNameDisplay">Player</span>!
+      </p>
+
+      <!-- Buttons -->
+      <div class="menu-btns">
+        <button class="btn-secondary" onclick="showHowToPlay()">
+          HOW TO PLAY
+        </button>
+        <button class="btn-main" onclick="startGame()">PLAY</button>
+        <button class="btn-logout" onclick="logout()">LOGOUT</button>
+      </div>
+    </div>
+
+    <!-- HOW TO PLAY MODAL -->
+    <div class="modal-overlay" id="howToPlayModal" style="display: none">
+      <div class="modal-box">
+        <!-- Mini title inside modal -->
+        <div class="modal-title-sign">
+          <div class="title-row">
+            <span class="title-heart left-heart" style="font-size: 18px"
+              >💗</span
+            >
+            <div class="title-text-block">
+              <div
+                class="game-title"
+                style="font-size: 0.72rem; letter-spacing: 2px"
+              >
+                FLAPPY HEART
+              </div>
+              <div class="game-sub" style="font-size: 0.34rem">TAP TO LOVE</div>
+            </div>
+            <span class="title-heart right-heart" style="font-size: 18px"
+              >💗</span
+            >
+          </div>
+        </div>
+
+        <!-- Instructions -->
+        <ol class="instructions">
+          <li>
+            <strong>Flap the Heart</strong> – Press <kbd>SPACE</kbd>,
+            <kbd>↑</kbd> or <kbd>X</kbd>
+            to fly up. Release to fall down. Avoid the pipes!
+          </li>
+          <li>
+            <strong>Score Points</strong> – Each pipe you pass earns
+            <strong>+25 points</strong>. Aim for the highest score!
+          </li>
+          <li>
+            <strong>Heart Puzzle!</strong> – When you hit a pipe the Heart API
+            shows a puzzle. Count the hearts correctly to
+            <strong>continue</strong> — a wrong answer means
+            <strong style="color: #e8437a">Game Over!</strong>
+          </li>
+          <li>
+            <strong>2 Minute Timer</strong> – Score as many points as you can
+            before time runs out!
+          </li>
+        </ol>
+
+        <button class="btn-main done-btn" onclick="closeHowToPlay()">
+          DONE
+        </button>
+      </div>
+    </div>
+
+    <script src="src/js/menu.js"></script>
+  </body>
+</html>
