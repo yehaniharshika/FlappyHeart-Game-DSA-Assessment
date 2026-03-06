@@ -9,6 +9,50 @@
 // ============================================================
 'use strict';
 
+
+let BOARD_W = 500;
+let BOARD_H = 640;
+let SCALE   = 4;
+let GROUND_H = 50;   // updated by computeBoard()
+
+function computeBoard() {
+    const wrap     = document.getElementById('canvasWrap');
+    const availW   = wrap.clientWidth;
+    const availH   = wrap.clientHeight;
+
+    // Maintain 9:16 portrait aspect ratio
+    const RATIO = 9 / 16;   // width / height
+    let h = availH - 2;
+    let w = Math.round(h * RATIO);
+
+    if (w > availW - 2) {
+        w = availW - 2;
+        h = Math.round(w / RATIO);
+    }
+
+    BOARD_W  = Math.max(w, 180);
+    BOARD_H  = Math.max(h, 320);
+    SCALE    = BOARD_H / 640;
+    GROUND_H = Math.round(50 * SCALE);
+
+    // Resize canvas element (native resolution — no CSS transform needed)
+    const canvas    = document.getElementById('board');
+    canvas.width    = BOARD_W;
+    canvas.height   = BOARD_H;
+
+    // Resize container div so overlay aligns perfectly with canvas
+    const container = document.getElementById('canvasContainer');
+    container.style.width  = BOARD_W + 'px';
+    container.style.height = BOARD_H + 'px';
+
+    // Re-init renderer with the new context dimensions
+    Renderer.init(canvas);
+
+    // Propagate scale to modules that need it
+    PipeManager.setScale(SCALE);
+    State.setScale(SCALE);
+}
+
 // ─────────────────────────────────────────────────────────────
 //  MODULE 1  –  Session  (Virtual Identity)
 // ─────────────────────────────────────────────────────────────
@@ -22,41 +66,41 @@ const Session = (() => {
     const guard = () => {
         if (!getCookie('fh_session')) window.location.href = './index.html';
     };
-    return { getPlayer, guard };
+    const deleteSession = () => {
+        document.cookie = 'fh_session=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/';
+        sessionStorage.removeItem('fh_player');
+    };
+    return { getPlayer, guard, deleteSession };
 })();
 
 // ─────────────────────────────────────────────────────────────
 //  MODULE 2  –  HeartAPI  (Interoperability)
-//  HTTP GET → external PHP REST service → JSON response
-//  Endpoint: https://marcconrad.com/uob/heart/api.php
 // ─────────────────────────────────────────────────────────────
 const HeartAPI = (() => {
     const ENDPOINT = 'https://marcconrad.com/uob/heart/api.php?out=json&decode=yes';
-
     async function fetchPuzzle() {
         try {
-            const res  = await fetch(ENDPOINT);           // HTTP GET (interoperability)
+            const res  = await fetch(ENDPOINT);
             if (!res.ok) throw new Error('HTTP ' + res.status);
-            const data = await res.json();                // JSON deserialization
-            // API returns: { question: "<img-url>", solution: <int> }
+            const data = await res.json();
             return { imageUrl: data.question, solution: Number(data.solution) };
         } catch (e) {
-            console.warn('[HeartAPI] fetch failed:', e.message);
-            return null;   // graceful degradation
+            console.warn('[HeartAPI]', e.message);
+            return null;
         }
     }
     return { fetchPuzzle };
 })();
 
 // ─────────────────────────────────────────────────────────────
-//  MODULE 3  –  GameTimer  (2-minute game countdown)
+//  MODULE 3  –  GameTimer  (1-minute countdown)
 // ─────────────────────────────────────────────────────────────
 const GameTimer = (() => {
-    const TOTAL = 120;
+    const TOTAL = 60;
     let remaining = TOTAL, id = null, _onTick, _onEnd;
 
     const fmt = s =>
-        `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`;
+        `${String(Math.floor(s / 60)).padStart(2,'0')}:${String(s % 60).padStart(2,'0')}`;
 
     function start(onTick, onEnd) {
         remaining = TOTAL; _onTick = onTick; _onEnd = onEnd;
@@ -79,35 +123,27 @@ const GameTimer = (() => {
 })();
 
 // ─────────────────────────────────────────────────────────────
-//  MODULE 4  –  PuzzleTimer  (30-second puzzle countdown)
-//  FIX: SVG elements don't support .className assignment —
-//       use element.setAttribute('class', ...) instead.
+//  MODULE 4  –  PuzzleTimer  (10-second countdown)
 // ─────────────────────────────────────────────────────────────
 const PuzzleTimer = (() => {
-    const TOTAL   = 30;
-    const CIRCUMF = 2 * Math.PI * 26;   // r=26 → ≈ 163.4
+    const TOTAL   = 10;
+    const CIRCUMF = 2 * Math.PI * 26;  // ≈ 163.4
     let remaining = TOTAL, id = null, _onEnd;
 
     function _update() {
         const offset = CIRCUMF * (1 - remaining / TOTAL);
         const ring   = document.getElementById('timerRingFill');
         const numEl  = document.getElementById('puzzleTimerNum');
-
         if (ring) {
             ring.style.strokeDashoffset = offset;
-            // ✅ FIX: SVGElement.className is read-only → must use setAttribute
-            const cls = 'timer-ring-fill' +
-                (remaining <= 5  ? ' urgent' :
-                 remaining <= 10 ? ' warn'   : '');
-            ring.setAttribute('class', cls);
+            ring.setAttribute('class', 'timer-ring-fill' +
+                (remaining <= 3 ? ' urgent' : remaining <= 6 ? ' warn' : ''));
         }
         if (numEl) numEl.textContent = remaining;
     }
 
     function start(onEnd) {
-        remaining = TOTAL;
-        _onEnd    = onEnd;
-        _update();
+        remaining = TOTAL; _onEnd = onEnd; _update();
         id = setInterval(() => {
             if (--remaining <= 0) { stop(); _onEnd(); } else _update();
         }, 1000);
@@ -121,15 +157,18 @@ const PuzzleTimer = (() => {
 // ─────────────────────────────────────────────────────────────
 const Renderer = (() => {
     let ctx, W, H;
-    function init(canvas) { ctx = canvas.getContext('2d'); W = canvas.width; H = canvas.height; }
-    function clear()  { ctx.clearRect(0, 0, W, H); }
+    function init(canvas) {
+        ctx = canvas.getContext('2d');
+        W   = canvas.width;
+        H   = canvas.height;
+    }
     function image(img, x, y, w, h) {
         if (img && img.complete && img.naturalWidth) ctx.drawImage(img, x, y, w, h);
     }
     function rect(color, x, y, w, h) { ctx.fillStyle = color; ctx.fillRect(x, y, w, h); }
     function get()  { return ctx; }
     function size() { return { W, H }; }
-    return { init, clear, image, rect, get, size };
+    return { init, image, rect, get, size };
 })();
 
 // ─────────────────────────────────────────────────────────────
@@ -145,18 +184,28 @@ const Collision = (() => {
 
 // ─────────────────────────────────────────────────────────────
 //  MODULE 7  –  PipeManager
+//  Pipe sizes and velocity scale with SCALE so pipes look the
+//  same relative to the board on every screen.
 // ─────────────────────────────────────────────────────────────
 const PipeManager = (() => {
     let pipes = [], topImg, botImg;
-    const PW = 64, PH = 512, VX = -2;
+
+    // Scaled constants – updated by setScale()
+    let PW = 64, PH = 512, VX = -2;
+
+    function setScale(s) {
+        PW = Math.round(64 * s);
+        PH = Math.round(512 * s);
+        VX = -(2 * s);
+    }
 
     function init(t, b) { topImg = t; botImg = b; pipes = []; }
     function reset()    { pipes = []; }
 
     function spawn(bw, bh) {
         const gapH = bh * 0.28;
-        const minY = -PH + 80;
-        const maxY = -PH + bh - gapH - 80;
+        const minY = -PH + Math.round(80 * SCALE);
+        const maxY = -PH + bh - gapH - Math.round(80 * SCALE);
         const topY = minY + Math.random() * (maxY - minY);
         pipes.push({ img: topImg, x: bw, y: topY,             w: PW, h: PH, isTop: true,  passed: false });
         pipes.push({ img: botImg, x: bw, y: topY + PH + gapH, w: PW, h: PH, isTop: false, passed: false });
@@ -171,56 +220,63 @@ const PipeManager = (() => {
                 _fallback(p);
             }
             if (!p.passed && p.isTop && birdX > p.x + p.w) {
-                p.passed = true;
-                onPass();
+                p.passed = true; onPass();
             }
         }
         while (pipes.length && pipes[0].x < -PW) pipes.splice(0, 2);
     }
 
     function _fallback(p) {
-        const ctx = Renderer.get();
-        const g   = ctx.createLinearGradient(p.x, 0, p.x + p.w, 0);
+        const ctx  = Renderer.get();
+        const g    = ctx.createLinearGradient(p.x, 0, p.x + p.w, 0);
         g.addColorStop(0, '#66bb6a'); g.addColorStop(.45, '#4caf50'); g.addColorStop(1, '#388e3c');
         ctx.fillStyle = g;
         ctx.fillRect(p.x, p.y, p.w, p.h);
-        const capY = p.isTop ? p.y + p.h - 22 : p.y;
+        const capH = Math.round(22 * SCALE);
+        const capY = p.isTop ? p.y + p.h - capH : p.y;
         ctx.fillStyle = '#2e7d32';
-        ctx.fillRect(p.x - 8, capY, p.w + 16, 22);
+        ctx.fillRect(p.x - Math.round(8 * SCALE), capY, p.w + Math.round(16 * SCALE), capH);
     }
 
     function getAll() { return pipes; }
 
-    // Remove pipes that overlap the bird (called after correct puzzle answer)
     function removeOverlapping(bird) {
-        // Find X positions of pipes overlapping the bird
         const hitXSet = new Set();
         for (const p of pipes) {
             if (Collision.hit(bird, p)) hitXSet.add(Math.round(p.x));
         }
-        // Remove both top and bottom of each hit pair
         if (hitXSet.size > 0) {
             pipes = pipes.filter(p => !hitXSet.has(Math.round(p.x)));
         }
     }
 
-    return { init, reset, spawn, update, getAll, removeOverlapping };
+    return { init, reset, spawn, update, getAll, removeOverlapping, setScale };
 })();
 
 // ─────────────────────────────────────────────────────────────
 //  MODULE 8  –  State
+//  Bird size and physics constants scale with SCALE.
 // ─────────────────────────────────────────────────────────────
 const State = (() => {
-    const BW = 34, BH = 24;
-    const GRAVITY = 0.40, JUMP = -6.2;
+    // Scaled constants – updated by setScale()
+    let BW = 34, BH = 24, GRAVITY = 0.40, JUMP_V = -6.2;
+
     let birdX, birdY, vy, score, started, over, paused;
 
+    function setScale(s) {
+        BW      = Math.round(34 * s);
+        BH      = Math.round(24 * s);
+        GRAVITY = 0.40 * s;
+        JUMP_V  = -6.2 * s;
+    }
+
     function reset(boardH) {
-        birdY = boardH / 2; birdX = 360 / 8;
-        vy = 0; score = 0;
+        birdY   = boardH / 2;
+        birdX   = Math.round(BOARD_W / 8);
+        vy      = 0; score = 0;
         started = false; over = false; paused = false;
     }
-    function jump() { vy = JUMP; }
+    function jump() { vy = JUMP_V; }
     function step() { vy += GRAVITY; birdY = Math.max(birdY + vy, 0); }
     function bird() { return { x: birdX, y: birdY, w: BW, h: BH }; }
     function addScore(n) { score += n; }
@@ -228,7 +284,8 @@ const State = (() => {
     function setStarted(v) { started = v; }
     function setOver(v)    { over    = v; }
     function setPaused(v)  { paused  = v; }
-    return { reset, jump, step, bird, addScore, get, setStarted, setOver, setPaused };
+    function getBirdSize() { return { BW, BH }; }
+    return { reset, jump, step, bird, addScore, get, setStarted, setOver, setPaused, setScale, getBirdSize };
 })();
 
 // ─────────────────────────────────────────────────────────────
@@ -237,7 +294,7 @@ const State = (() => {
 const HUD = (() => {
     function update(player, score, timeSec) {
         const p = document.getElementById('hudPlayer');
-        if (p) p.textContent = player.length > 9 ? player.slice(0, 9) + '…' : player;
+        if (p) p.textContent = player.length > 9 ? player.slice(0,9)+'…' : player;
         const s = document.getElementById('hudScore');
         if (s) s.textContent = String(score).padStart(2, '0');
         const t = document.getElementById('hudTime');
@@ -252,19 +309,13 @@ const HUD = (() => {
 
 // ─────────────────────────────────────────────────────────────
 //  PUZZLE CONTROLLER
-//  Wires PuzzleTimer + HeartAPI together.
-//  Flow: show modal → spinner → API fetch → image displayed
-//        30s countdown → timeout=fail | correct=resume | wrong=gameover
 // ─────────────────────────────────────────────────────────────
 const Puzzle = (() => {
     let solution = null, _onCorrect, _onFail;
 
     async function show(onCorrect, onFail) {
-        _onCorrect = onCorrect;
-        _onFail    = onFail;
-        solution   = null;
+        _onCorrect = onCorrect; _onFail = onFail; solution = null;
 
-        // Reset modal UI
         _el('puzzleError').textContent  = '';
         _el('puzzleAnswer').value       = '';
         _el('puzzleNote').textContent   = 'Loading quest…';
@@ -272,28 +323,23 @@ const Puzzle = (() => {
         _el('puzzleContent').style.display = 'none';
         _el('puzzleModal').style.display   = 'flex';
 
-        // Start 30-second puzzle timer — timeout = automatic fail
-        PuzzleTimer.start(() => {
-            _dismiss();
-            _onFail();
-        });
+        // 10-second timer starts immediately
+        PuzzleTimer.start(() => { _dismiss(); _onFail(); });
 
-        // HTTP GET to Heart API (Interoperability demo point)
         const data = await HeartAPI.fetchPuzzle();
 
         _el('puzzleLoading').style.display = 'none';
         _el('puzzleContent').style.display = 'block';
 
         if (!data) {
-            // API unavailable — benefit of the doubt, auto-continue
             _el('puzzleNote').textContent  = 'API unavailable.';
             _el('puzzleError').textContent = 'Could not load puzzle — continuing…';
-            setTimeout(() => { _dismiss(); _onCorrect(); }, 2000);
+            setTimeout(() => { _dismiss(); _onCorrect(); }, 1500);
             return;
         }
 
         solution = data.solution;
-        _el('puzzleImage').src      = data.imageUrl;
+        _el('puzzleImage').src        = data.imageUrl;
         _el('puzzleNote').textContent = 'Quest is ready.';
         _el('puzzleAnswer').focus();
     }
@@ -304,41 +350,30 @@ const Puzzle = (() => {
         const err = _el('puzzleError');
         err.textContent = '';
 
-        if (raw === '' || isNaN(ans)) {
-            err.textContent = 'Please enter a number!';
-            return;
-        }
+        if (raw === '' || isNaN(ans)) { err.textContent = 'Please enter a number!'; return; }
+
         if (ans === solution) {
-            _dismiss();
-            _onCorrect();
+            _dismiss(); _onCorrect();
         } else {
-            err.textContent = `✗ Wrong! The answer was ${solution}.`;
-            setTimeout(() => { _dismiss(); _onFail(); }, 1600);
+            err.textContent = `✗ Wrong! Answer was ${solution}.`;
+            setTimeout(() => { _dismiss(); _onFail(); }, 1400);
         }
     }
 
     function cancel() { _dismiss(); _onFail(); }
-
-    function _dismiss() {
-        PuzzleTimer.stop();
-        _el('puzzleModal').style.display = 'none';
-    }
-
-    function _el(id) { return document.getElementById(id); }
-
+    function _dismiss() { PuzzleTimer.stop(); _el('puzzleModal').style.display = 'none'; }
+    function _el(id)    { return document.getElementById(id); }
     return { show, submit, cancel };
 })();
 
 // ─────────────────────────────────────────────────────────────
 //  GAME CONTROLLER
 // ─────────────────────────────────────────────────────────────
-const BOARD_W = 360, BOARD_H = 640;
-
 let birdImg, topPipeImg, botPipeImg;
 let pipeSpawnId  = null;
 let playerName   = 'Player';
 let puzzleOpen   = false;
-let invincible   = false;   // true for 1.5s after correct answer → prevents re-collision
+let invincible   = false;
 
 /* ── Images ── */
 function loadImages() {
@@ -347,37 +382,33 @@ function loadImages() {
     botPipeImg = new Image(); botPipeImg.src = 'src/assets/images/bottompipe.png';
 }
 
-/* ── Background draw ── */
+/* ── Draw background (no clouds) ── */
 function drawBackground() {
     const ctx = Renderer.get();
 
     // Sky gradient
     const sky = ctx.createLinearGradient(0, 0, 0, BOARD_H);
     sky.addColorStop(0,    '#0d1b3e');
-    sky.addColorStop(0.55, '#1a3a6e');
+    sky.addColorStop(0.60, '#1a3a6e');
     sky.addColorStop(1,    '#2a5298');
     ctx.fillStyle = sky;
     ctx.fillRect(0, 0, BOARD_W, BOARD_H);
 
-    // Soft clouds
-    ctx.fillStyle = 'rgba(255,255,255,.09)';
-    [[50,110,70,22],[170,80,90,20],[270,130,60,18],[90,195,80,20],[230,255,55,16]]
-        .forEach(([cx, cy, cw, ch]) => {
-            ctx.beginPath();
-            ctx.ellipse(cx, cy, cw, ch, 0, 0, Math.PI * 2);
-            ctx.fill();
-        });
-
     // Ground
-    const grd = ctx.createLinearGradient(0, BOARD_H - 50, 0, BOARD_H);
-    grd.addColorStop(0, '#7a4a1e'); grd.addColorStop(.45, '#5c3317'); grd.addColorStop(1, '#3d2010');
+    const grd = ctx.createLinearGradient(0, BOARD_H - GROUND_H, 0, BOARD_H);
+    grd.addColorStop(0,    '#7a4a1e');
+    grd.addColorStop(0.45, '#5c3317');
+    grd.addColorStop(1,    '#3d2010');
     ctx.fillStyle = grd;
-    ctx.fillRect(0, BOARD_H - 50, BOARD_W, 50);
+    ctx.fillRect(0, BOARD_H - GROUND_H, BOARD_W, GROUND_H);
+
+    // Ground top edge line
+    const edgeH = Math.max(2, Math.round(3 * SCALE));
     ctx.fillStyle = '#a0622a';
-    ctx.fillRect(0, BOARD_H - 50, BOARD_W, 3);
+    ctx.fillRect(0, BOARD_H - GROUND_H, BOARD_W, edgeH);
 }
 
-/* ── Bird draw (image or heart shape fallback) ── */
+/* ── Draw bird ── */
 function drawBird(b) {
     if (birdImg && birdImg.complete && birdImg.naturalWidth) {
         Renderer.image(birdImg, b.x, b.y, b.w, b.h);
@@ -390,65 +421,62 @@ function _heartFallback(x, y, size) {
     const ctx = Renderer.get();
     ctx.save();
     ctx.fillStyle = '#e8437a';
-    ctx.shadowColor = '#e8437a'; ctx.shadowBlur = 10;
+    ctx.shadowColor = '#e8437a'; ctx.shadowBlur = Math.round(10 * SCALE);
     const s = size / 2;
     ctx.beginPath();
-    ctx.moveTo(x + s, y + s * 0.4);
-    ctx.bezierCurveTo(x + s, y,           x,         y,           x,         y + s * 0.5);
-    ctx.bezierCurveTo(x,     y + s * 1.1, x + s,     y + s * 1.5, x + s,     y + s * 1.7);
-    ctx.bezierCurveTo(x + s, y + s * 1.5, x + s * 2, y + s * 1.1, x + s * 2, y + s * 0.5);
-    ctx.bezierCurveTo(x + s * 2, y,       x + s,     y,           x + s,     y + s * 0.4);
+    ctx.moveTo(x+s, y+s*.4);
+    ctx.bezierCurveTo(x+s,y,           x,y,           x,y+s*.5);
+    ctx.bezierCurveTo(x,y+s*1.1,       x+s,y+s*1.5,   x+s,y+s*1.7);
+    ctx.bezierCurveTo(x+s,y+s*1.5,     x+s*2,y+s*1.1, x+s*2,y+s*.5);
+    ctx.bezierCurveTo(x+s*2,y,         x+s,y,         x+s,y+s*.4);
     ctx.fill();
     ctx.restore();
 }
 
-/* ── Responsive canvas scale ── */
-function scaleCanvas() {
-    const canvas = document.getElementById('board');
-    const wrap   = document.getElementById('canvasWrap');
-    const scale  = Math.min(
-        (wrap.clientHeight - 8)  / BOARD_H,
-        (wrap.clientWidth  - 16) / BOARD_W,
-        1
-    );
-    canvas.style.transform = `scale(${scale})`;
+/* ── Resize handler ── */
+function onResize() {
+    const wasStarted = State.get().started;
+    const wasOver    = State.get().over;
+
+    computeBoard();
+
+    // If game hasn't started yet, also reset bird position to new centre
+    if (!wasStarted || wasOver) {
+        State.reset(BOARD_H);
+        HUD.update(playerName, 0, 60);
+    }
+
+    PipeManager.init(topPipeImg, botPipeImg);
 }
 
 /* ── INIT ── */
 function init() {
     Session.guard();
     playerName = Session.getPlayer();
-
     loadImages();
 
-    const canvas = document.getElementById('board');
-    canvas.width  = BOARD_W;
-    canvas.height = BOARD_H;
-    Renderer.init(canvas);
-
+    computeBoard();
     PipeManager.init(topPipeImg, botPipeImg);
     State.reset(BOARD_H);
-    HUD.update(playerName, 0, 120);
+    HUD.update(playerName, 0, 60);
 
-    scaleCanvas();
-    window.addEventListener('resize', scaleCanvas);
+    window.addEventListener('resize', onResize);
 
-    // Event listeners (Event-Driven Programming)
-    document.addEventListener('keydown', onKeyDown);          // keyboard
-    canvas.addEventListener('click', onTap);                   // mouse/touch
+    // Event-Driven: keyboard, mouse/touch, render loop
+    document.addEventListener('keydown', onKeyDown);
+    document.getElementById('board').addEventListener('click', onTap);
     document.getElementById('startOverlay').addEventListener('click', onTap);
 
-    requestAnimationFrame(gameLoop);                           // render loop
+    requestAnimationFrame(gameLoop);
 }
 
-/* ── Input handlers ── */
+/* ── Input ── */
 function onKeyDown(e) {
     if (e.code === 'Space' || e.code === 'ArrowUp' || e.code === 'KeyX') {
-        e.preventDefault();
-        flap();
+        e.preventDefault(); flap();
     }
 }
-function onTap() { flap(); }
+function onTap()  { flap(); }
 
 function flap() {
     if (puzzleOpen) return;
@@ -458,23 +486,23 @@ function flap() {
     State.jump();
 }
 
-/* ── Start ── */
+/* ── Start game ── */
 function startGame() {
     document.getElementById('startOverlay').style.display = 'none';
     State.setStarted(true);
 
-    pipeSpawnId = setInterval(() => {                          // Event: pipe timer
+    pipeSpawnId = setInterval(() => {
         const { over, paused } = State.get();
         if (!over && !paused) PipeManager.spawn(BOARD_W, BOARD_H);
     }, 1500);
 
-    GameTimer.start(                                           // Event: game timer
+    GameTimer.start(
         rem => HUD.update(playerName, State.get().score, rem),
         ()  => onTimeUp()
     );
 }
 
-/* ── Render loop (requestAnimationFrame event) ── */
+/* ── Render loop ── */
 function gameLoop() {
     requestAnimationFrame(gameLoop);
     const { started, over, paused } = State.get();
@@ -496,10 +524,10 @@ function gameLoop() {
 
     drawBird(b);
 
-    // Ground hit (invincibility doesn't protect from ground)
-    if (b.y + b.h >= BOARD_H - 50) { onCollision(); return; }
+    // Ground collision
+    if (b.y + b.h >= BOARD_H - GROUND_H) { onCollision(); return; }
 
-    // Pipe hit — skip while invincible (brief grace after correct answer)
+    // Pipe collision (skipped during invincibility window)
     if (!invincible) {
         for (const p of PipeManager.getAll()) {
             if (Collision.hit(b, p)) { onCollision(); return; }
@@ -507,7 +535,7 @@ function gameLoop() {
     }
 }
 
-/* ── Collision → Heart API puzzle ── */
+/* ── Collision → puzzle ── */
 function onCollision() {
     if (puzzleOpen) return;
     puzzleOpen = true;
@@ -515,27 +543,19 @@ function onCollision() {
     GameTimer.pause();
 
     Puzzle.show(
-        () => {                                                // ✅ correct answer
+        () => {   // ✅ Correct
             puzzleOpen = false;
-
-            // Remove any pipe the bird is currently overlapping
-            // so it doesn't instantly re-trigger a collision
             PipeManager.removeOverlapping(State.bird());
-
-            // Give 1.5 s invincibility so the bird flies clear
             invincible = true;
             setTimeout(() => { invincible = false; }, 1500);
-
-            // Give a small upward boost so the player can react
             State.jump();
-
             State.setPaused(false);
             GameTimer.resume(
                 rem => HUD.update(playerName, State.get().score, rem),
                 ()  => onTimeUp()
             );
         },
-        () => {                                                // ❌ wrong / timeout
+        () => {   // ❌ Wrong / timeout
             puzzleOpen = false;
             triggerGameOver();
         }
@@ -569,9 +589,8 @@ function restartGame() {
     GameTimer.stop();
     PipeManager.reset();
     State.reset(BOARD_H);
-    puzzleOpen  = false;
-    invincible  = false;
-    HUD.update(playerName, 0, 120);
+    puzzleOpen = false; invincible = false;
+    HUD.update(playerName, 0, 60);
     document.getElementById('startOverlay').style.display = 'flex';
 }
 

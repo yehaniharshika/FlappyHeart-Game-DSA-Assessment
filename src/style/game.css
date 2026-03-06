@@ -1,365 +1,501 @@
 /* ============================================================
-   game.css  –  Flappy Heart game page
+   game.css  –  Flappy Heart  |  Fully responsive
    ============================================================ */
 
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+*,*::before,*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
 
 body {
-    font-family: 'Press Start 2P', monospace;
-    background: #0d1b3e;
-    color: #fff;
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
+  font-family: "Press Start 2P", monospace;
+  background: #07122a;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
 }
 
-/* ══════════════════════════════════════
-   HUD
-══════════════════════════════════════ */
-.hud {
-    flex-shrink: 0;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: linear-gradient(135deg, rgba(176,46,90,.72), rgba(140,20,68,.72));
-    border: 2px solid rgba(232,67,147,.55);
-    border-radius: 12px;
-    margin: 10px 14px 6px;
-    padding: 10px 22px;
-    box-shadow: 0 4px 20px rgba(232,67,147,.3);
+/* Detail Container Styles */
+.detail-container {
+  flex-shrink: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: linear-gradient(135deg, #b02e5a, #8a1540);
+  border-bottom: 2px solid rgba(232, 67, 147, 0.5);
+  padding: 18px 40px;
+  box-shadow: 0 4px 18px rgba(232, 67, 147, 0.3);
 }
-.hud-box        { text-align: center; flex: 1; }
-.hud-box.center { border-left: 1px solid rgba(255,255,255,.15); border-right: 1px solid rgba(255,255,255,.15); }
-.hud-label      { font-size: .38rem; letter-spacing: 2px; color: rgba(255,255,255,.5); margin-bottom: 4px; }
-.hud-value      { font-size: .65rem; color: #fff; letter-spacing: 1px; }
 
-.hud-value.danger { color: #ff6b6b; animation: blinkDanger .5s step-end infinite; }
-@keyframes blinkDanger { 50% { opacity: 0; } }
-
-/* ══════════════════════════════════════
-   CANVAS
-══════════════════════════════════════ */
-.canvas-wrap {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-    overflow: hidden;
+.detail-box {
+  text-align: center;
+  flex: 1;
 }
-canvas { display: block; image-rendering: pixelated; transform-origin: center center; }
 
-.overlay {
-    position: absolute; inset: 0;
-    display: flex; align-items: center; justify-content: center;
-    background: rgba(0,0,0,.30);
+.detail-box.center {
+  border-left: 1px solid rgba(255, 255, 255, 0.18);
+  border-right: 1px solid rgba(255, 255, 255, 0.18);
 }
+
+.detail-label {
+  font-size: 9px;
+  letter-spacing: 1px;
+  color: rgba(255, 255, 255, 0.55);
+  margin-bottom: 4px;
+  text-transform: uppercase;
+}
+
+.detail-value {
+  font-size: clamp(0.5rem, 1.8vw, 0.85rem);
+  color: #fff;
+  letter-spacing: 1px;
+}
+
+.detail-value.danger {
+  color: #ff6b6b;
+  animation: blinkDanger 0.5s step-end infinite;
+}
+
+@keyframes blinkDanger {
+  50% {
+    opacity: 0;
+  }
+}
+
+/* Game area styles */
+.game-main {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #ffe066;
+  overflow: hidden;
+  position: relative;
+}
+
+.game-container {
+  position: relative;
+  flex-shrink: 0;
+}
+
+canvas {
+  display: block;
+}
+
+/* ── Start overlay — covers only the canvas-container ── */
+.game-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.3);
+  pointer-events: all;
+  cursor: pointer;
+}
+
 .overlay-text {
-    font-family: 'Press Start 2P', monospace;
-    font-size: .82rem; color: #fff; text-align: center; padding: 0 20px;
-    text-shadow: 0 0 20px #e8437a, 2px 2px 0 #b02e5a;
-    animation: blinkMsg .7s step-end infinite;
+  font-family: "Press Start 2P", monospace;
+  font-size: 10px;
+  color: #fff;
+  text-align: center;
+  padding: 0 24px;
+  animation: blinkMsg 0.7s step-end infinite;
 }
-@keyframes blinkMsg { 50% { opacity: 0; } }
+
+@keyframes blinkMsg {
+  50% {
+    opacity: 0;
+  }
+}
 
 kbd {
-    background: rgba(232,67,147,.25); border: 1px solid #e8437a;
-    border-radius: 4px; padding: 1px 6px; font-family: monospace; color: #f48cb6;
+  background: rgba(232, 67, 147, 0.25);
+  border: 1px solid #e8437a;
+  border-radius: 4px;
+  padding: 2px 7px;
+  letter-spacing: 1px;
+  font-family: monospace;
+  color: #f48cb6;
 }
 
 /* ══════════════════════════════════════
    SHARED MODAL OVERLAY
 ══════════════════════════════════════ */
 .modal-overlay {
-    position: fixed; inset: 0;
-    background: rgba(0,0,0,.70);
-    z-index: 200;
-    display: flex; align-items: center; justify-content: center;
-    backdrop-filter: blur(6px);
-    padding: 16px;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.72);
+  z-index: 300;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(6px);
+  padding: 16px;
 }
 .modal-box {
-    width: 100%;
-    border-radius: 16px;
-    animation: modalPop .3s cubic-bezier(.34,1.56,.64,1) forwards;
-    position: relative;
-    box-shadow: 0 12px 60px rgba(0,0,0,.6);
+  width: 100%;
+  border-radius: 16px;
+  animation: modalPop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  box-shadow: 0 12px 60px rgba(0, 0, 0, 0.7);
 }
 @keyframes modalPop {
-    from { opacity: 0; transform: scale(.85); }
-    to   { opacity: 1; transform: scale(1);   }
+  from {
+    opacity: 0;
+    transform: scale(0.85);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 /* ══════════════════════════════════════
-   PUZZLE MODAL  –  Heart Game style
-   White card with pink header, mirrors
-   the original marcconrad.com/uob/heart
-   page layout.
+   PUZZLE MODAL
 ══════════════════════════════════════ */
 .puzzle-box {
-    max-width: 460px;
-    background: #ffffff;
-    color: #222;
-    border: none;
-    padding: 0;
-    overflow: hidden;
+  max-width: 460px;
+  background: #fff;
+  color: #222;
+  border: none;
+  padding: 0;
+  overflow: hidden;
 }
-
-/* ── Pink header bar (like a game title bar) ── */
 .puzzle-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    background: linear-gradient(135deg, #e8437a 0%, #b02e5a 100%);
-    padding: 14px 18px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: linear-gradient(135deg, #e8437a, #b02e5a);
+  padding: 14px 18px 12px;
 }
-
 .puzzle-title {
-    font-family: 'Press Start 2P', monospace;
-    font-size: .65rem;
-    color: #fff;
-    letter-spacing: 1.5px;
-    text-shadow: 1px 2px 0 rgba(0,0,0,.35);
+  font-family: "Press Start 2P", monospace;
+  font-size: 0.65rem;
+  color: #fff;
+  letter-spacing: 1.5px;
+  text-shadow: 1px 2px 0 rgba(0, 0, 0, 0.35);
 }
-
-/* ── 30-second SVG countdown ring ── */
 .puzzle-timer-wrap {
-    position: relative;
-    width: 52px; height: 52px;
-    flex-shrink: 0;
+  position: relative;
+  width: 52px;
+  height: 52px;
+  flex-shrink: 0;
 }
 .timer-ring {
-    width: 52px; height: 52px;
-    transform: rotate(-90deg);   /* 12 o'clock start */
+  width: 52px;
+  height: 52px;
+  transform: rotate(-90deg);
 }
 .timer-ring-bg {
-    fill: none;
-    stroke: rgba(255,255,255,.3);
-    stroke-width: 5;
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.3);
+  stroke-width: 5;
 }
 .timer-ring-fill {
-    fill: none;
-    stroke: #fff;
-    stroke-width: 5;
-    stroke-linecap: round;
-    stroke-dasharray: 163.4;    /* 2π × r(26) */
-    stroke-dashoffset: 0;
-    transition: stroke-dashoffset .9s linear, stroke .3s;
+  fill: none;
+  stroke: #fff;
+  stroke-width: 5;
+  stroke-linecap: round;
+  stroke-dasharray: 163.4;
+  stroke-dashoffset: 0;
+  transition:
+    stroke-dashoffset 0.9s linear,
+    stroke 0.3s;
 }
-/* colour shifts applied via setAttribute in JS */
-.timer-ring-fill.warn   { stroke: #ffe066; }
-.timer-ring-fill.urgent { stroke: #ff4d4d; animation: ringPulse .4s ease-in-out infinite alternate; }
-@keyframes ringPulse { to { stroke-width: 8; } }
-
+.timer-ring-fill.warn {
+  stroke: #ffe066;
+}
+.timer-ring-fill.urgent {
+  stroke: #ff4d4d;
+  animation: ringPulse 0.4s ease-in-out infinite alternate;
+}
+@keyframes ringPulse {
+  to {
+    stroke-width: 8;
+  }
+}
 .timer-num {
-    position: absolute; inset: 0;
-    display: flex; align-items: center; justify-content: center;
-    font-family: 'Press Start 2P', monospace;
-    font-size: .6rem; color: #fff;
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: "Press Start 2P", monospace;
+  font-size: 0.6rem;
+  color: #fff;
 }
-
-/* ── Loading spinner ── */
 .puzzle-loading {
-    display: flex; flex-direction: column; align-items: center;
-    gap: 14px; padding: 32px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding: 32px 24px;
 }
 .spinner {
-    width: 42px; height: 42px;
-    border: 3px solid rgba(232,67,147,.18);
-    border-top-color: #e8437a;
-    border-radius: 50%;
-    animation: spin .8s linear infinite;
+  width: 42px;
+  height: 42px;
+  border: 3px solid rgba(232, 67, 147, 0.18);
+  border-top-color: #e8437a;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
 }
-@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
 .loading-text {
-    font-family: 'Nunito', sans-serif;
-    font-size: .9rem; color: #888; font-weight: 600;
+  font-family: "Nunito", sans-serif;
+  font-size: 0.9rem;
+  color: #888;
+  font-weight: 600;
 }
 
-/* ── Puzzle body ── */
-.puzzle-body { padding: 20px 22px 18px; }
-
-/* Full-width heart image — just like original page */
+.puzzle-body {
+  padding: 20px 22px 18px;
+}
 .puzzle-img {
-    display: block;
-    width: 100%;
-    max-height: 240px;
-    object-fit: contain;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    background: #f9f0f5;
-    margin-bottom: 14px;
+  display: block;
+  width: 100%;
+  max-height: 240px;
+  object-fit: contain;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background: #f9f0f5;
+  margin-bottom: 14px;
 }
-
-/* Horizontal rule matching original */
 .puzzle-hr {
-    border: none;
-    border-top: 1px solid #ddd;
-    margin: 12px 0;
+  border: none;
+  border-top: 1px solid #ddd;
+  margin: 12px 0;
 }
-
-/* "Quest is ready." — <h2> like original */
 .puzzle-note {
-    font-family: 'Nunito', sans-serif;
-    font-size: 1rem;
-    font-weight: 700;
-    color: #c0306a;
-    margin-bottom: 14px;
+  font-family: "Nunito", sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #c0306a;
+  margin-bottom: 14px;
 }
-
-/* Question row — matches original <h2> layout */
 .puzzle-question {
-    font-family: 'Nunito', sans-serif;
-    font-size: .92rem;
-    font-weight: 700;
-    color: #333;
-    line-height: 1.7;
-    margin-bottom: 14px;
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 10px;
+  font-family: "Nunito", sans-serif;
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: #333;
+  line-height: 1.7;
+  margin-bottom: 14px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
 }
-
-/* Number input — styled like original .button-62 */
 .puzzle-input {
-    width: 80px;
-    text-align: center;
-    background: #fff;
-    border: 2px solid #e8437a;
-    border-radius: 8px;
-    padding: 9px 6px;
-    color: #222;
-    font-family: 'Nunito', sans-serif;
-    font-size: 1.1rem;
-    font-weight: 700;
-    outline: none;
-    transition: border-color .2s, box-shadow .2s;
-    -moz-appearance: textfield;
+  width: 80px;
+  text-align: center;
+  background: #fff;
+  border: 2px solid #e8437a;
+  border-radius: 8px;
+  padding: 9px 6px;
+  color: #222;
+  font-family: "Nunito", sans-serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  outline: none;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
+  -moz-appearance: textfield;
 }
 .puzzle-input::-webkit-inner-spin-button,
-.puzzle-input::-webkit-outer-spin-button { -webkit-appearance: none; }
+.puzzle-input::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+}
 .puzzle-input:focus {
-    border-color: #b02e5a;
-    box-shadow: 0 0 10px rgba(232,67,147,.3);
+  border-color: #b02e5a;
+  box-shadow: 0 0 10px rgba(232, 67, 147, 0.3);
 }
 
-/* Error text */
 .error-msg {
-    font-family: 'Nunito', sans-serif;
-    font-size: .84rem;
-    font-weight: 700;
-    color: #e74c3c;
-    min-height: 20px;
-    margin-bottom: 12px;
-    text-align: center;
+  font-family: "Nunito", sans-serif;
+  font-size: 0.84rem;
+  font-weight: 700;
+  color: #e74c3c;
+  min-height: 20px;
+  margin-bottom: 12px;
+  text-align: center;
 }
-
-/* Submit button */
 .btn-submit {
-    width: 100%;
-    background: linear-gradient(135deg, #e8437a, #b02e5a);
-    border: none;
-    border-radius: 8px;
-    color: #fff;
-    font-family: 'Press Start 2P', monospace;
-    font-size: .55rem;
-    letter-spacing: 2px;
-    padding: 13px;
-    cursor: pointer;
-    box-shadow: 0 4px 16px rgba(232,67,147,.4);
-    transition: transform .12s, box-shadow .2s;
-    margin-bottom: 14px;
+  width: 100%;
+  background: linear-gradient(135deg, #e8437a, #b02e5a);
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+  font-family: "Press Start 2P", monospace;
+  font-size: 0.55rem;
+  letter-spacing: 2px;
+  padding: 13px;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(232, 67, 147, 0.4);
+  transition:
+    transform 0.12s,
+    box-shadow 0.2s;
+  margin-bottom: 14px;
 }
-.btn-submit:hover  { transform: translateY(-2px); box-shadow: 0 8px 22px rgba(232,67,147,.6); }
-.btn-submit:active { transform: translateY(0); }
+.btn-submit:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 22px rgba(232, 67, 147, 0.6);
+}
+.btn-submit:active {
+  transform: translateY(0);
+}
 
-/* Credit footer — matches original <small> */
 .puzzle-credit {
-    font-family: 'Nunito', sans-serif;
-    font-size: .75rem;
-    color: #999;
-    display: block;
-    text-align: center;
-    line-height: 1.6;
+  font-family: "Nunito", sans-serif;
+  font-size: 0.75rem;
+  color: #999;
+  display: block;
+  text-align: center;
+  line-height: 1.6;
 }
-.puzzle-credit strong { color: #c0306a; }
-.puzzle-credit a      { color: #e8437a; text-decoration: none; }
-.puzzle-credit a:hover { text-decoration: underline; }
+.puzzle-credit strong {
+  color: #c0306a;
+}
+.puzzle-credit a {
+  color: #e8437a;
+  text-decoration: none;
+}
+.puzzle-credit a:hover {
+  text-decoration: underline;
+}
 
 /* ══════════════════════════════════════
-   RESULT MODALS  (Game Over / Time Up)
+   RESULT MODALS
 ══════════════════════════════════════ */
 .result-box {
-    max-width: 360px;
-    background: rgba(8,5,22,.97);
-    border: 2px solid rgba(232,67,147,.4);
-    padding: 28px 24px 22px;
-    text-align: center;
-    display: flex; flex-direction: column; align-items: center; gap: 14px;
+  max-width: 380px;
+  background: rgba(8, 5, 22, 0.97);
+  border: 2px solid rgba(232, 67, 147, 0.4);
+  padding: 28px 24px 22px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
 }
-
 .result-icon {
-    font-size: 3rem;
-    animation: iconDrop .5s cubic-bezier(.34,1.56,.64,1) forwards;
+  font-size: 3rem;
+  animation: iconDrop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
 }
 @keyframes iconDrop {
-    from { transform: scale(0) rotate(-25deg); opacity: 0; }
-    to   { transform: scale(1) rotate(0deg);   opacity: 1; }
+  from {
+    transform: scale(0) rotate(-25deg);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
 }
-
 .result-title {
-    font-family: 'Press Start 2P', monospace;
-    font-size: .9rem; letter-spacing: 2px;
-    color: #e8437a;
-    text-shadow: 0 0 20px rgba(232,67,147,.6);
+  font-family: "Press Start 2P", monospace;
+  font-size: 0.9rem;
+  letter-spacing: 2px;
+  color: #e8437a;
+  text-shadow: 0 0 20px rgba(232, 67, 147, 0.6);
 }
-
-.result-stats { display: flex; gap: 14px; width: 100%; }
-
+.result-stats {
+  display: flex;
+  gap: 14px;
+  width: 100%;
+}
 .stat-box {
-    flex: 1;
-    background: rgba(255,255,255,.06);
-    border: 1px solid rgba(232,67,147,.3);
-    border-radius: 10px; padding: 12px 8px;
+  flex: 1;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(232, 67, 147, 0.3);
+  border-radius: 10px;
+  padding: 12px 8px;
 }
 .stat-label {
-    font-size: .36rem; letter-spacing: 1px;
-    color: rgba(255,255,255,.45); margin-bottom: 6px;
+  font-size: 0.36rem;
+  letter-spacing: 1px;
+  color: rgba(255, 255, 255, 0.45);
+  margin-bottom: 6px;
 }
-.stat-value { font-size: .72rem; color: #fff; word-break: break-all; }
+.stat-value {
+  font-size: 0.72rem;
+  color: #fff;
+  word-break: break-all;
+}
 
 .btn-main {
-    width: 100%;
-    background: linear-gradient(135deg, #e8437a, #b02e5a);
-    border: none; border-radius: 9px; color: #fff;
-    font-family: 'Press Start 2P', monospace;
-    font-size: .58rem; letter-spacing: 2px; padding: 13px;
-    cursor: pointer;
-    box-shadow: 0 4px 18px rgba(232,67,147,.45);
-    transition: transform .12s, box-shadow .2s;
+  width: 100%;
+  background: linear-gradient(135deg, #e8437a, #b02e5a);
+  border: none;
+  border-radius: 9px;
+  color: #fff;
+  font-family: "Press Start 2P", monospace;
+  font-size: 0.58rem;
+  letter-spacing: 2px;
+  padding: 13px;
+  cursor: pointer;
+  box-shadow: 0 4px 18px rgba(232, 67, 147, 0.45);
+  transition:
+    transform 0.12s,
+    box-shadow 0.2s;
 }
-.btn-main:hover  { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(232,67,147,.65); }
-.btn-main:active { transform: translateY(0); }
+.btn-main:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(232, 67, 147, 0.65);
+}
+.btn-main:active {
+  transform: translateY(0);
+}
 
 .btn-secondary {
-    width: 100%;
-    background: rgba(255,255,255,.07);
-    border: 1.5px solid rgba(232,67,147,.4);
-    border-radius: 9px; color: #f48cb6;
-    font-family: 'Press Start 2P', monospace;
-    font-size: .52rem; letter-spacing: 2px; padding: 11px;
-    cursor: pointer;
-    transition: background .2s, transform .12s;
+  width: 100%;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1.5px solid rgba(232, 67, 147, 0.4);
+  border-radius: 9px;
+  color: #f48cb6;
+  font-family: "Press Start 2P", monospace;
+  font-size: 0.52rem;
+  letter-spacing: 2px;
+  padding: 11px;
+  cursor: pointer;
+  transition:
+    background 0.2s,
+    transform 0.12s;
 }
-.btn-secondary:hover  { background: rgba(232,67,147,.18); transform: translateY(-2px); }
-.btn-secondary:active { transform: translateY(0); }
+.btn-secondary:hover {
+  background: rgba(232, 67, 147, 0.18);
+  transform: translateY(-2px);
+}
+.btn-secondary:active {
+  transform: translateY(0);
+}
 
-/* ── Responsive ── */
-@media (max-width: 430px) {
-    .hud        { margin: 8px 8px 4px; padding: 8px 14px; }
-    .hud-value  { font-size: .55rem; }
-    .puzzle-box { max-width: 100%; }
-    .puzzle-body{ padding: 16px 14px 14px; }
+/* ── Mobile tweaks ── */
+@media (max-width: 480px) {
+  .hud {
+    padding: 8px 16px;
+  }
+  .control-bar {
+    gap: 10px;
+    padding: 8px 10px;
+  }
+  .ctrl-btn {
+    padding: 9px 14px;
+  }
+  .puzzle-box {
+    max-width: 100%;
+  }
+  .puzzle-body {
+    padding: 14px 12px;
+  }
 }
