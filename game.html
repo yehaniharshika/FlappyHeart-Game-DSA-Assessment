@@ -38,12 +38,12 @@
     </div>
 </div>
 
-<!-- ░░ HEART API PUZZLE MODAL ░░ -->
+<!-- Heart Game API Puzzle Modal -->
 <div class="modal-overlay" id="puzzleModal" style="display:none">
     <div class="modal-box puzzle-box">
 
         <div class="puzzle-header">
-            <h1 class="puzzle-title">💗 The Heart Game</h1>
+            <h1 class="puzzle-title">FlappyHeart</h1>
             <div class="puzzle-timer-wrap">
                 <svg class="timer-ring" viewBox="0 0 60 60">
                     <circle class="timer-ring-bg"   cx="30" cy="30" r="26"/>
@@ -65,23 +65,17 @@
             <h2 class="puzzle-question">
                 Enter the number of hearts in the picture:
                 <input type="number" id="puzzleAnswer" class="puzzle-input"
-                       step="1" min="0" max="9" placeholder="0"
+                       step="1" min="0" max="9" placeholder=""
                        onkeydown="if(event.key==='Enter') submitPuzzle()">
             </h2>
             <p class="error-msg" id="puzzleError"></p>
             <button class="btn-submit" onclick="submitPuzzle()">SUBMIT ANSWER</button>
-            <hr class="puzzle-hr">
-            <small class="puzzle-credit">
-                © by <strong>Marc Conrad</strong> 2025.
-                Material presented "as is". Not for commercial use.
-                <a href="https://marcconrad.com/uob/heart/doc.php" target="_blank">API docs</a>
-            </small>
         </div>
 
     </div>
 </div>
 
-<!-- ░░ GAME OVER MODAL ░░ -->
+<!-- Game over model -->
 <div class="modal-overlay" id="gameOverModal" style="display:none">
     <div class="modal-box result-box">
         <div class="result-icon">💔</div>
@@ -101,7 +95,7 @@
     </div>
 </div>
 
-<!-- TIME UP MODAL -->
+<!-- Time up Modal -->
 <div class="modal-overlay" id="timeUpModal" style="display:none">
     <div class="modal-box result-box">
         <div class="result-icon">⏰</div>

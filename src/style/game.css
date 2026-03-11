@@ -1,7 +1,3 @@
-/* ============================================================
-   game.css  –  Flappy Heart  |  Fully responsive
-   ============================================================ */
-
 *,*::before,*::after {
   box-sizing: border-box;
   margin: 0;
@@ -75,7 +71,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #ffe066;
+  background: #07122a;
   overflow: hidden;
   position: relative;
 }
@@ -89,7 +85,7 @@ canvas {
   display: block;
 }
 
-/* ── Start overlay — covers only the canvas-container ── */
+/* Start overlay — covers only the canvas-container ── */
 .game-overlay {
   position: absolute;
   inset: 0;
@@ -126,9 +122,7 @@ kbd {
   color: #f48cb6;
 }
 
-/* ══════════════════════════════════════
-   SHARED MODAL OVERLAY
-══════════════════════════════════════ */
+/* Heart game API popup modal styles */
 .modal-overlay {
   position: fixed;
   inset: 0;
@@ -157,9 +151,7 @@ kbd {
   }
 }
 
-/* ══════════════════════════════════════
-   PUZZLE MODAL
-══════════════════════════════════════ */
+/* Puzzle Modal */
 .puzzle-box {
   max-width: 460px;
   background: #fff;
@@ -355,14 +347,6 @@ kbd {
   transform: translateY(0);
 }
 
-.puzzle-credit {
-  font-family: "Nunito", sans-serif;
-  font-size: 0.75rem;
-  color: #999;
-  display: block;
-  text-align: center;
-  line-height: 1.6;
-}
 .puzzle-credit strong {
   color: #c0306a;
 }
@@ -374,9 +358,7 @@ kbd {
   text-decoration: underline;
 }
 
-/* ══════════════════════════════════════
-   RESULT MODALS
-══════════════════════════════════════ */
+/* Result showing Modal */
 .result-box {
   max-width: 380px;
   background: rgba(8, 5, 22, 0.97);
@@ -468,9 +450,7 @@ kbd {
   letter-spacing: 2px;
   padding: 11px;
   cursor: pointer;
-  transition:
-    background 0.2s,
-    transform 0.12s;
+  transition: transform 0.12s;
 }
 .btn-secondary:hover {
   background: rgba(232, 67, 147, 0.18);
@@ -480,22 +460,54 @@ kbd {
   transform: translateY(0);
 }
 
-/* ── Mobile tweaks ── */
+/* Responsive styles */
 @media (max-width: 480px) {
-  .hud {
+  .detail-container {
     padding: 8px 16px;
   }
-  .control-bar {
-    gap: 10px;
-    padding: 8px 10px;
+  .detail-label {
+    font-size: 8px;
   }
-  .ctrl-btn {
-    padding: 9px 14px;
+  .detail-value {
+    font-size: 0.7rem;
   }
   .puzzle-box {
     max-width: 100%;
   }
   .puzzle-body {
     padding: 14px 12px;
+  }
+  .puzzle-question {
+    font-size: 0.85rem;
+    gap: 8px;
+  }
+  .puzzle-input {
+    width: 70px;
+    padding: 7px 4px;
+    font-size: 1rem;
+  }
+  .btn-submit {
+    font-size: 0.5rem;
+    padding: 11px;
+  }
+  .result-box {
+    padding: 20px 16px 16px;
+  }
+  .result-title {
+    font-size: 0.8rem;
+  }
+  .stat-label {
+    font-size: 0.32rem;
+  }
+  .stat-value {
+    font-size: 0.65rem;
+  }
+  .btn-main {
+    font-size: 0.52rem;
+    padding: 11px;
+  }
+  .btn-secondary {
+    font-size: 0.48rem;
+    padding: 9px;
   }
 }

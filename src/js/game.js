@@ -1,61 +1,66 @@
-// ============================================================
-//  game.js  –  Flappy Heart Game Engine
-//
-//  CIS045-3 Themes:
 //  1. Software Design  – 9 IIFE modules, single-responsibility
 //  2. Event-Driven     – keydown, click, rAF, setInterval
 //  3. Interoperability – Heart API HTTP GET → JSON
 //  4. Virtual Identity – session cookie auth guard
-// ============================================================
+
 'use strict';
 
 
-let BOARD_W = 500;
-let BOARD_H = 640;
-let SCALE   = 4;
-let GROUND_H = 50;   // updated by computeBoard()
+let BOARD_W  = 360;
+let BOARD_H  = 640;
+let SCALE    = 1;
+let GROUND_H = 50;
 
+//   Desktop  (>= 1024px) : 500 x 800
+//   Tablet   (>=  600px) : 420 x 720
+//   Phone    (<  600px)  : 360 x 640
 function computeBoard() {
-    const wrap     = document.getElementById('canvasWrap');
-    const availW   = wrap.clientWidth;
-    const availH   = wrap.clientHeight;
+    const sw = window.innerWidth;
 
-    // Maintain 9:16 portrait aspect ratio
-    const RATIO = 9 / 16;   // width / height
-    let h = availH - 2;
-    let w = Math.round(h * RATIO);
-
-    if (w > availW - 2) {
-        w = availW - 2;
-        h = Math.round(w / RATIO);
+    let targetW, targetH;
+    if (sw >= 1024) {
+        targetW = 500; targetH = 800;
+    } else if (sw >= 600) {
+        targetW = 420; targetH = 720;
+    } else {
+        targetW = 360; targetH = 640;
     }
 
-    BOARD_W  = Math.max(w, 180);
-    BOARD_H  = Math.max(h, 320);
+    // Clamp to available wrapper height (28 = 14px top + 14px bottom padding)
+    const wrap  = document.getElementById('canvasWrap');
+    const maxH  = wrap.clientHeight - 28;
+    const ratio = targetW / targetH;
+
+    if (targetH > maxH && maxH > 0) {
+        targetH = Math.max(maxH, 320);
+        targetW = Math.round(targetH * ratio);
+    }
+
+    BOARD_W  = targetW;
+    BOARD_H  = targetH;
     SCALE    = BOARD_H / 640;
     GROUND_H = Math.round(50 * SCALE);
 
-    // Resize canvas element (native resolution — no CSS transform needed)
+    // Set canvas native resolution
     const canvas    = document.getElementById('board');
     canvas.width    = BOARD_W;
     canvas.height   = BOARD_H;
 
-    // Resize container div so overlay aligns perfectly with canvas
+    // Size container to match canvas so overlay aligns perfectly
     const container = document.getElementById('canvasContainer');
     container.style.width  = BOARD_W + 'px';
     container.style.height = BOARD_H + 'px';
 
-    // Re-init renderer with the new context dimensions
+    // Re-init renderer
     Renderer.init(canvas);
 
-    // Propagate scale to modules that need it
+    // Propagate scale to modules
     PipeManager.setScale(SCALE);
     State.setScale(SCALE);
 }
 
-// ─────────────────────────────────────────────────────────────
-//  MODULE 1  –  Session  (Virtual Identity)
-// ─────────────────────────────────────────────────────────────
+
+// Session  (Virtual Identity)
 const Session = (() => {
     const getCookie = n => {
         const m = document.cookie.match(new RegExp('(?:^|; )' + n + '=([^;]*)'));
@@ -73,9 +78,8 @@ const Session = (() => {
     return { getPlayer, guard, deleteSession };
 })();
 
-// ─────────────────────────────────────────────────────────────
-//  MODULE 2  –  HeartAPI  (Interoperability)
-// ─────────────────────────────────────────────────────────────
+
+// HeartAPI  (Interoperability)
 const HeartAPI = (() => {
     const ENDPOINT = 'https://marcconrad.com/uob/heart/api.php?out=json&decode=yes';
     async function fetchPuzzle() {
@@ -108,8 +112,15 @@ const GameTimer = (() => {
             if (--remaining <= 0) { stop(); _onEnd(); } else _onTick(remaining);
         }, 1000);
     }
-    function stop()  { clearInterval(id); id = null; }
-    function pause() { stop(); }
+
+    function stop()  { 
+        clearInterval(id); id = null; 
+    }
+
+    function pause() { 
+        stop(); 
+    }
+
     function resume(onTick, onEnd) {
         if (id) return;
         if (onTick) _onTick = onTick;
@@ -118,8 +129,15 @@ const GameTimer = (() => {
             if (--remaining <= 0) { stop(); _onEnd(); } else _onTick(remaining);
         }, 1000);
     }
-    function get() { return remaining; }
-    return { start, stop, pause, resume, fmt, get };
+
+    function get() { 
+        return remaining; 
+    } 
+
+    function heartAPITimeDeduct(seconds) {
+        remaining = Math.max(0, remaining - seconds, 0);
+    }
+    return { start, stop, pause, resume, fmt, get, heartAPITimeDeduct };
 })();
 
 // ─────────────────────────────────────────────────────────────
@@ -149,7 +167,8 @@ const PuzzleTimer = (() => {
         }, 1000);
     }
     function stop() { clearInterval(id); id = null; }
-    return { start, stop };
+    function getElapsed() { return TOTAL - remaining; }
+    return { start, stop, getElapsed };
 })();
 
 // ─────────────────────────────────────────────────────────────
@@ -171,9 +190,7 @@ const Renderer = (() => {
     return { init, image, rect, get, size };
 })();
 
-// ─────────────────────────────────────────────────────────────
-//  MODULE 6  –  Collision  (AABB)
-// ─────────────────────────────────────────────────────────────
+// Flapy Heart Collision Detection logic
 const Collision = (() => {
     function hit(a, b) {
         return a.x < b.x + b.w && a.x + a.w > b.x &&
@@ -211,7 +228,7 @@ const PipeManager = (() => {
         pipes.push({ img: botImg, x: bw, y: topY + PH + gapH, w: PW, h: PH, isTop: false, passed: false });
     }
 
-    function update(birdX, onPass) {
+    function update(heartX, onPass) {
         for (const p of pipes) {
             p.x += VX;
             if (p.img && p.img.complete && p.img.naturalWidth) {
@@ -219,7 +236,7 @@ const PipeManager = (() => {
             } else {
                 _fallback(p);
             }
-            if (!p.passed && p.isTop && birdX > p.x + p.w) {
+            if (!p.passed && p.isTop && heartX > p.x + p.w) {
                 p.passed = true; onPass();
             }
         }
@@ -240,10 +257,10 @@ const PipeManager = (() => {
 
     function getAll() { return pipes; }
 
-    function removeOverlapping(bird) {
+    function removeOverlapping(heart) {
         const hitXSet = new Set();
         for (const p of pipes) {
-            if (Collision.hit(bird, p)) hitXSet.add(Math.round(p.x));
+            if (Collision.hit(heart, p)) hitXSet.add(Math.round(p.x));
         }
         if (hitXSet.size > 0) {
             pipes = pipes.filter(p => !hitXSet.has(Math.round(p.x)));
@@ -369,7 +386,7 @@ const Puzzle = (() => {
 // ─────────────────────────────────────────────────────────────
 //  GAME CONTROLLER
 // ─────────────────────────────────────────────────────────────
-let birdImg, topPipeImg, botPipeImg;
+let heartImg, topPipeImg, botPipeImg;
 let pipeSpawnId  = null;
 let playerName   = 'Player';
 let puzzleOpen   = false;
@@ -377,12 +394,12 @@ let invincible   = false;
 
 /* ── Images ── */
 function loadImages() {
-    birdImg    = new Image(); birdImg.src    = 'src/assets/images/flappy-heart.png';
+    heartImg   = new Image(); heartImg.src   = 'src/assets/images/flappy-heart.png';
     topPipeImg = new Image(); topPipeImg.src = 'src/assets/images/toppipe.png';
     botPipeImg = new Image(); botPipeImg.src = 'src/assets/images/bottompipe.png';
 }
 
-/* ── Draw background (no clouds) ── */
+/* game background */
 function drawBackground() {
     const ctx = Renderer.get();
 
@@ -408,12 +425,12 @@ function drawBackground() {
     ctx.fillRect(0, BOARD_H - GROUND_H, BOARD_W, edgeH);
 }
 
-/* ── Draw bird ── */
-function drawBird(b) {
-    if (birdImg && birdImg.complete && birdImg.naturalWidth) {
-        Renderer.image(birdImg, b.x, b.y, b.w, b.h);
+/* ── Draw heart ── */
+function drawHeart(h) {
+    if (heartImg && heartImg.complete && heartImg.naturalWidth) {
+        Renderer.image(heartImg, h.x, h.y, h.w, h.h);
     } else {
-        _heartFallback(b.x, b.y, b.w);
+        _heartFallback(h.x, h.y, h.w);
     }
 }
 
@@ -437,16 +454,18 @@ function _heartFallback(x, y, size) {
 function onResize() {
     const wasStarted = State.get().started;
     const wasOver    = State.get().over;
+    const gameInProgress = wasStarted && !wasOver;
 
     computeBoard();
 
-    // If game hasn't started yet, also reset bird position to new centre
-    if (!wasStarted || wasOver) {
+    if (!gameInProgress) {
+        // Game not running — safe to fully reset
         State.reset(BOARD_H);
         HUD.update(playerName, 0, 60);
+        PipeManager.init(topPipeImg, botPipeImg);  // only clear pipes when game is NOT active
     }
-
-    PipeManager.init(topPipeImg, botPipeImg);
+    // If game is in progress: only scale is updated by computeBoard(),
+    // pipes and bird position are preserved — game continues normally
 }
 
 /* ── INIT ── */
@@ -472,10 +491,11 @@ function init() {
 
 /* ── Input ── */
 function onKeyDown(e) {
-    if (e.code === 'Space' || e.code === 'ArrowUp' || e.code === 'KeyX') {
+    if (e.code === 'Space' || e.code === 'ArrowUp') {
         e.preventDefault(); flap();
     }
 }
+
 function onTap()  { flap(); }
 
 function flap() {
@@ -486,7 +506,7 @@ function flap() {
     State.jump();
 }
 
-/* ── Start game ── */
+/*  Start game logic── */
 function startGame() {
     document.getElementById('startOverlay').style.display = 'none';
     State.setStarted(true);
@@ -562,7 +582,7 @@ function onCollision() {
     );
 }
 
-/* ── Game Over ── */
+/* Game Over */
 function triggerGameOver() {
     State.setOver(true);
     GameTimer.stop();
