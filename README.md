@@ -88,5 +88,5 @@ scores/
 
 ## 🪪 License
 © 2026 All Right Reserved Created By Yehani Harshika
-This project is licensed under the [MIT](License.txt)license
+This project is licensed under the [MIT](License.txt) License
  
