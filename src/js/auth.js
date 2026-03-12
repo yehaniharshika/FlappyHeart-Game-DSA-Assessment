@@ -211,7 +211,27 @@ async function handleUserRegister() {
             createdAt: new Date().toISOString()
         });
 
-        alert("✅ Account created!\nPlease log in with your credentials.");
+        // SweetAlert2 success popup
+        await Swal.fire({
+            icon:              'success',
+            title:             'Account Created! 🎉',
+            html:              `<p style="font-family:'Fredoka',sans-serif;font-size:16px;color:#e8c6d0;font-weight:400;line-height:1.6">
+                                    Welcome, <strong style="color:#ff9abf">${name} </strong>!<br>
+                                    Please log in with your credentials.
+                                </p>`,
+            confirmButtonText: 'GO TO LOGIN',
+            confirmButtonColor:'#e8437a',
+            background:        '#1a0d1a',
+            color:             '#ffffff',
+            iconColor:         '#4caf50',
+            width:             '400px',
+            height: "250px",
+            customClass: {
+                popup:         'swal-custom-popup',
+                title:         'swal-custom-title',
+                confirmButton: 'swal-custom-btn'
+            }
+        });
 
         // Clear form
         document.getElementById("registerName").value      = "";
