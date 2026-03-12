@@ -1,19 +1,33 @@
+// ============================================================
+//  game.js  –  Flappy Heart Game Engine
+//
+//  CIS045-3 Themes:
 //  1. Software Design  – 9 IIFE modules, single-responsibility
 //  2. Event-Driven     – keydown, click, rAF, setInterval
 //  3. Interoperability – Heart API HTTP GET → JSON
 //  4. Virtual Identity – session cookie auth guard
-
+// ============================================================
 'use strict';
 
-
+// ─────────────────────────────────────────────────────────────
+//  GLOBAL SCALE SYSTEM
+//  Reference design is 360×640. SCALE = actual_height / 640.
+//  All sizes (bird, pipes, ground, physics) scale with it so
+//  the game looks and feels identical on every screen size.
+// ─────────────────────────────────────────────────────────────
 let BOARD_W  = 360;
 let BOARD_H  = 640;
 let SCALE    = 1;
 let GROUND_H = 50;
 
+// ── Breakpoint target sizes (W x H) ─────────────────────────
 //   Desktop  (>= 1024px) : 500 x 800
 //   Tablet   (>=  600px) : 420 x 720
 //   Phone    (<  600px)  : 360 x 640
+//
+//   Canvas is also clamped to the ACTUAL available wrapper
+//   height so it never gets clipped and the ground always shows.
+// ─────────────────────────────────────────────────────────────
 function computeBoard() {
     const sw = window.innerWidth;
 
@@ -59,8 +73,9 @@ function computeBoard() {
     State.setScale(SCALE);
 }
 
-
-// Session  (Virtual Identity)
+// ─────────────────────────────────────────────────────────────
+//  MODULE 1  –  Session  (Virtual Identity)
+// ─────────────────────────────────────────────────────────────
 const Session = (() => {
     const getCookie = n => {
         const m = document.cookie.match(new RegExp('(?:^|; )' + n + '=([^;]*)'));
@@ -78,8 +93,9 @@ const Session = (() => {
     return { getPlayer, guard, deleteSession };
 })();
 
-
-// HeartAPI  (Interoperability)
+// ─────────────────────────────────────────────────────────────
+//  MODULE 2  –  HeartAPI  (Interoperability)
+// ─────────────────────────────────────────────────────────────
 const HeartAPI = (() => {
     const ENDPOINT = 'https://marcconrad.com/uob/heart/api.php?out=json&decode=yes';
     async function fetchPuzzle() {
@@ -112,15 +128,8 @@ const GameTimer = (() => {
             if (--remaining <= 0) { stop(); _onEnd(); } else _onTick(remaining);
         }, 1000);
     }
-
-    function stop()  { 
-        clearInterval(id); id = null; 
-    }
-
-    function pause() { 
-        stop(); 
-    }
-
+    function stop()  { clearInterval(id); id = null; }
+    function pause() { stop(); }
     function resume(onTick, onEnd) {
         if (id) return;
         if (onTick) _onTick = onTick;
@@ -129,15 +138,11 @@ const GameTimer = (() => {
             if (--remaining <= 0) { stop(); _onEnd(); } else _onTick(remaining);
         }, 1000);
     }
-
-    function get() { 
-        return remaining; 
-    } 
-
-    function heartAPITimeDeduct(seconds) {
-        remaining = Math.max(0, remaining - seconds, 0);
+    function get()           { return remaining; }
+    function deduct(seconds) {                            // subtract puzzle time used
+        remaining = Math.max(remaining - seconds, 0);
     }
-    return { start, stop, pause, resume, fmt, get, heartAPITimeDeduct };
+    return { start, stop, pause, resume, fmt, get, deduct };
 })();
 
 // ─────────────────────────────────────────────────────────────
@@ -166,8 +171,8 @@ const PuzzleTimer = (() => {
             if (--remaining <= 0) { stop(); _onEnd(); } else _update();
         }, 1000);
     }
-    function stop() { clearInterval(id); id = null; }
-    function getElapsed() { return TOTAL - remaining; }
+    function stop()       { clearInterval(id); id = null; }
+    function getElapsed() { return TOTAL - remaining; }   // seconds used so far
     return { start, stop, getElapsed };
 })();
 
@@ -190,7 +195,9 @@ const Renderer = (() => {
     return { init, image, rect, get, size };
 })();
 
-// Flapy Heart Collision Detection logic
+// ─────────────────────────────────────────────────────────────
+//  MODULE 6  –  Collision  (AABB)
+// ─────────────────────────────────────────────────────────────
 const Collision = (() => {
     function hit(a, b) {
         return a.x < b.x + b.w && a.x + a.w > b.x &&
@@ -228,7 +235,7 @@ const PipeManager = (() => {
         pipes.push({ img: botImg, x: bw, y: topY + PH + gapH, w: PW, h: PH, isTop: false, passed: false });
     }
 
-    function update(heartX, onPass) {
+    function update(birdX, onPass) {
         for (const p of pipes) {
             p.x += VX;
             if (p.img && p.img.complete && p.img.naturalWidth) {
@@ -236,7 +243,7 @@ const PipeManager = (() => {
             } else {
                 _fallback(p);
             }
-            if (!p.passed && p.isTop && heartX > p.x + p.w) {
+            if (!p.passed && p.isTop && birdX > p.x + p.w) {
                 p.passed = true; onPass();
             }
         }
@@ -257,10 +264,10 @@ const PipeManager = (() => {
 
     function getAll() { return pipes; }
 
-    function removeOverlapping(heart) {
+    function removeOverlapping(bird) {
         const hitXSet = new Set();
         for (const p of pipes) {
-            if (Collision.hit(heart, p)) hitXSet.add(Math.round(p.x));
+            if (Collision.hit(bird, p)) hitXSet.add(Math.round(p.x));
         }
         if (hitXSet.size > 0) {
             pipes = pipes.filter(p => !hitXSet.has(Math.round(p.x)));
@@ -295,14 +302,14 @@ const State = (() => {
     }
     function jump() { vy = JUMP_V; }
     function step() { vy += GRAVITY; birdY = Math.max(birdY + vy, 0); }
-    function bird() { return { x: birdX, y: birdY, w: BW, h: BH }; }
+    function heart() { return { x: birdX, y: birdY, w: BW, h: BH }; }
     function addScore(n) { score += n; }
     function get()         { return { score, started, over, paused }; }
     function setStarted(v) { started = v; }
     function setOver(v)    { over    = v; }
     function setPaused(v)  { paused  = v; }
     function getBirdSize() { return { BW, BH }; }
-    return { reset, jump, step, bird, addScore, get, setStarted, setOver, setPaused, setScale, getBirdSize };
+    return { reset, jump, step, heart, addScore, get, setStarted, setOver, setPaused, setScale, getBirdSize };
 })();
 
 // ─────────────────────────────────────────────────────────────
@@ -322,6 +329,52 @@ const HUD = (() => {
         }
     }
     return { update };
+})();
+
+// ─────────────────────────────────────────────────────────────
+//  MODULE 10  –  ScoreBoard  (High Cohesion: score persistence only)
+// ─────────────────────────────────────────────────────────────
+const ScoreBoard = (() => {
+
+    // Save or update player's best score in Firestore
+    async function saveScore(name, score) {
+        if (typeof db === 'undefined') return { isTopScore: false };
+        try {
+            const docId = name.toLowerCase().replace(/\s+/g, '_');
+            const ref   = db.collection('scores').doc(docId);
+            const snap  = await ref.get();
+            const prev  = snap.exists ? (snap.data().bestScore || 0) : 0;
+
+            // Get current #1 score on leaderboard BEFORE saving
+            const topSnap = await db.collection('scores')
+                .orderBy('bestScore', 'desc')
+                .limit(1)
+                .get();
+            const topScore = topSnap.empty ? 0 : topSnap.docs[0].data().bestScore || 0;
+            const topOwner = topSnap.empty ? '' : topSnap.docs[0].data().player || '';
+
+            // Save if personal best
+            if (score > prev) {
+                await ref.set({
+                    player:    name,
+                    bestScore: score,
+                    updatedAt: new Date().toISOString()
+                });
+            }
+
+            // Winner = beat the #1 leaderboard score
+            // (or score > topScore, OR they are already #1 and improved it)
+            const isTopScore = score > topScore ||
+                (topOwner.toLowerCase() === name.toLowerCase() && score > prev && score >= topScore);
+
+            return { isTopScore, isNewBest: score > prev };
+        } catch (e) {
+            console.warn('[ScoreBoard save]', e.message);
+            return { isTopScore: false, isNewBest: false };
+        }
+    }
+
+    return { saveScore };
 })();
 
 // ─────────────────────────────────────────────────────────────
@@ -386,7 +439,7 @@ const Puzzle = (() => {
 // ─────────────────────────────────────────────────────────────
 //  GAME CONTROLLER
 // ─────────────────────────────────────────────────────────────
-let heartImg, topPipeImg, botPipeImg;
+let birdImg, topPipeImg, botPipeImg;
 let pipeSpawnId  = null;
 let playerName   = 'Player';
 let puzzleOpen   = false;
@@ -394,12 +447,12 @@ let invincible   = false;
 
 /* ── Images ── */
 function loadImages() {
-    heartImg   = new Image(); heartImg.src   = 'src/assets/images/flappy-heart.png';
+    birdImg    = new Image(); birdImg.src    = 'src/assets/images/flappy-heart.png';
     topPipeImg = new Image(); topPipeImg.src = 'src/assets/images/toppipe.png';
     botPipeImg = new Image(); botPipeImg.src = 'src/assets/images/bottompipe.png';
 }
 
-/* game background */
+/* ── Draw background (no clouds) ── */
 function drawBackground() {
     const ctx = Renderer.get();
 
@@ -425,12 +478,12 @@ function drawBackground() {
     ctx.fillRect(0, BOARD_H - GROUND_H, BOARD_W, edgeH);
 }
 
-/* ── Draw heart ── */
-function drawHeart(h) {
-    if (heartImg && heartImg.complete && heartImg.naturalWidth) {
-        Renderer.image(heartImg, h.x, h.y, h.w, h.h);
+/* ── Draw bird ── */
+function drawBird(b) {
+    if (birdImg && birdImg.complete && birdImg.naturalWidth) {
+        Renderer.image(birdImg, b.x, b.y, b.w, b.h);
     } else {
-        _heartFallback(h.x, h.y, h.w);
+        _heartFallback(b.x, b.y, b.w);
     }
 }
 
@@ -491,11 +544,10 @@ function init() {
 
 /* ── Input ── */
 function onKeyDown(e) {
-    if (e.code === 'Space' || e.code === 'ArrowUp') {
+    if (e.code === 'Space' || e.code === 'ArrowUp' || e.code === 'KeyX') {
         e.preventDefault(); flap();
     }
 }
-
 function onTap()  { flap(); }
 
 function flap() {
@@ -506,7 +558,7 @@ function flap() {
     State.jump();
 }
 
-/*  Start game logic── */
+/* ── Start game ── */
 function startGame() {
     document.getElementById('startOverlay').style.display = 'none';
     State.setStarted(true);
@@ -530,12 +582,12 @@ function gameLoop() {
     drawBackground();
 
     if (!started || paused || over) {
-        drawBird(State.bird());
+        drawBird(State.heart());
         return;
     }
 
     State.step();
-    const b = State.bird();
+    const b = State.heart();
 
     PipeManager.update(b.x, () => {
         State.addScore(25);
@@ -565,11 +617,14 @@ function onCollision() {
     Puzzle.show(
         () => {   // ✅ Correct
             puzzleOpen = false;
-            PipeManager.removeOverlapping(State.bird());
+            const timeUsed = PuzzleTimer.getElapsed(); // puzzle ෙකොත් use කළ seconds
+            PipeManager.removeOverlapping(State.heart());
             invincible = true;
             setTimeout(() => { invincible = false; }, 1500);
             State.jump();
             State.setPaused(false);
+            GameTimer.deduct(timeUsed);                 // game timer ෙකොන් deduct
+            if (GameTimer.get() <= 0) { onTimeUp(); return; } // already 0 = time up
             GameTimer.resume(
                 rem => HUD.update(playerName, State.get().score, rem),
                 ()  => onTimeUp()
@@ -582,23 +637,52 @@ function onCollision() {
     );
 }
 
-/* Game Over */
-function triggerGameOver() {
+/* ── Game Over ── */
+async function triggerGameOver() {
     State.setOver(true);
     GameTimer.stop();
     clearInterval(pipeSpawnId);
-    document.getElementById('finalScore').textContent  = State.get().score;
+    const score = State.get().score;
+    document.getElementById('finalScore').textContent  = score;
     document.getElementById('finalPlayer').textContent = playerName;
     document.getElementById('gameOverModal').style.display = 'flex';
+    // Save to Firestore → show winner if new personal best
+    const result = await ScoreBoard.saveScore(playerName, score);
+    if (result.isTopScore && score > 0) showWinner();
 }
 
 /* ── Time Up ── */
-function onTimeUp() {
+async function onTimeUp() {
     State.setOver(true);
     clearInterval(pipeSpawnId);
-    document.getElementById('timeUpScore').textContent  = State.get().score;
+    const score = State.get().score;
+    document.getElementById('timeUpScore').textContent  = score;
     document.getElementById('timeUpPlayer').textContent = playerName;
     document.getElementById('timeUpModal').style.display = 'flex';
+    // Save to Firestore → show winner only if beat #1 leaderboard score
+    const result = await ScoreBoard.saveScore(playerName, score);
+    if (result.isTopScore && score > 0) showWinner();
+}
+
+/* ── Winner Animation ── */
+function showWinner() {
+    const overlay = document.getElementById('winnerOverlay');
+    if (!overlay) return;
+    overlay.style.display = 'flex';
+    const heartsEl = document.getElementById('winnerHearts');
+    let count = 0;
+    const symbols = ['💗','💖','💝','💓','💕'];
+    const iv = setInterval(() => {
+        const h = document.createElement('span');
+        h.textContent  = symbols[Math.floor(Math.random() * symbols.length)];
+        h.style.cssText = `position:absolute;font-size:${22 + Math.random()*28}px;`
+            + `left:${Math.random()*90}%;bottom:0;`
+            + `animation:winFloat 2.2s ease-out forwards;pointer-events:none;`;
+        heartsEl.appendChild(h);
+        setTimeout(() => h.remove(), 2300);
+        if (++count >= 24) clearInterval(iv);
+    }, 130);
+    setTimeout(() => { overlay.style.display = 'none'; }, 5000);
 }
 
 /* ── Restart ── */
