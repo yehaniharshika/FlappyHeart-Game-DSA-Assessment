@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flappy Heart – Leaderboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="src/style/score.css">
+</head>
+<body>
+
+<!-- Floating hearts background -->
+<div class="hearts-bg" id="heartsBg"></div>
+
+<div class="page-wrap">
+
+    
+
+    <!-- Trophy header -->
+    <div class="trophy-header">
+        <span class="trophy-icon">🏆</span>
+        <h1 class="page-title">TOP SCORES</h1>
+        <p class="page-sub">Flappy Heart Champions</p>
+    </div>
+
+    <!-- My rank banner (shown if logged in player has a score) -->
+    <div class="my-rank-banner" id="myRankBanner">
+        <span class="rank-icon"></span>
+        <span id="myRankText">Your Rank: </span>
+    </div>
+
+    <!-- Leaderboard card -->
+    <div class="lb-card">
+        <div class="lb-card-header">
+            <span class="lb-card-title">LEADERBOARD</span>
+            <span class="lb-card-sub">Top 10 Players</span>
+        </div>
+
+        <!-- Loading state -->
+        <div class="lb-loading-wrap" id="lbLoading">
+            <div class="spinner"></div>
+            <p></p>
+        </div>
+
+        <!-- Score list (populated by score.js) -->
+        <div class="lb-list" id="lbList" style="display:none"></div>
+    </div>
+
+    <!-- Play again button -->
+    <a href="game.html" class="btn-play">PLAY AGAIN</a>
+
+</div>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script src="src/js/config/firebase.config.js"></script>
+
+<!-- Floating hearts + leaderboard logic -->
+<script>
+(function spawnHearts() {
+    const container = document.getElementById("heartsBg");
+    if (!container) return;
+    function createHeart() {
+        const el        = document.createElement("span");
+        el.className    = "float-heart";
+        el.textContent  = ["💗","💖","💝","💓"][Math.floor(Math.random()*4)];
+        const size      = 10 + Math.random() * 16;
+        const duration  = 9  + Math.random() * 10;
+        el.style.left              = Math.random() * 100 + "vw";
+        el.style.bottom            = "-30px";
+        el.style.fontSize          = size + "px";
+        el.style.animationDuration = duration + "s";
+        el.style.animationDelay    = "0s";
+        el.style.opacity           = "0";
+        container.appendChild(el);
+        el.addEventListener("animationend", () => el.remove(), { once: true });
+    }
+    createHeart();
+    setInterval(createHeart, 800);
+})();
+</script>
+
+<script src="src/js/score.js"></script>
+</body>
+</html>
