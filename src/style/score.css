@@ -216,6 +216,12 @@ body::before {
     text-align: center;
     flex-shrink: 0;
 }
+.lb-rank-num {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    color: rgba(255,255,255,0.6);
+}
 .lb-name  {
     flex: 1;
     font-size: 15px;
@@ -252,9 +258,16 @@ body::before {
 }
 .lb-empty-icon { font-size: 48px; margin-bottom: 16px; display: block; }
 
+/* ── Action buttons row ── */
+.action-btns {
+    width: 100%;
+    display: flex;
+    gap: 12px;
+}
+
 /* ── Play Again button ── */
 .btn-play {
-    width: 100%;
+    flex: 1;
     padding: 16px;
     background: linear-gradient(135deg, #e8437a, #b02e5a);
     color: #fff;
@@ -275,6 +288,31 @@ body::before {
     box-shadow: 0 10px 32px rgba(232,67,122,0.55);
 }
 .btn-play:active { transform: translateY(0); }
+
+/* ── Logout button ── */
+.btn-logout {
+    flex: 1;
+    padding: 16px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.18);
+    color: rgba(255,255,255,0.75);
+    font-family: 'Press Start 2P', monospace;
+    font-size: 11px;
+    border-radius: 14px;
+    cursor: pointer;
+    letter-spacing: 1px;
+    transition: background .2s, transform .15s, color .2s;
+    text-decoration: none;
+    display: block;
+    text-align: center;
+}
+.btn-logout:hover {
+    background: rgba(255,80,80,0.15);
+    border-color: rgba(255,80,80,0.4);
+    color: #ff8080;
+    transform: translateY(-2px);
+}
+.btn-logout:active { transform: translateY(0); }
 
 /* ── Floating hearts bg ── */
 .hearts-bg {
