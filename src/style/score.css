@@ -107,9 +107,11 @@ body::before {
 
 .page-sub {
     margin-top: 8px;
-    font-size: 13px;
+    font-size: 14px;
     color: rgba(255,255,255,0.45);
     letter-spacing: 1px;
+    font-family: 'Fredoka', sans-serif;
+    font-weight: 600;
 }
 
 /* ── My rank banner ── */
@@ -157,7 +159,7 @@ body::before {
 }
 .lb-card-sub { font-size: 11px; color: rgba(255,255,255,0.55); }
 
-/* ── Loading spinner ── */
+/* Loading spinner */
 .lb-loading-wrap {
     display: flex;
     flex-direction: column;
@@ -166,6 +168,7 @@ body::before {
     padding: 48px 20px;
     gap: 16px;
     color: rgba(255,255,255,0.5);
+    font-family: 'Fredoka', sans-serif;
     font-size: 13px;
 }
 .spinner {
@@ -177,8 +180,14 @@ body::before {
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* ── Score list ── */
-.lb-list { padding: 10px 0; }
+/* Score list styles */
+.lb-list { 
+    padding: 10px 0; 
+    font-family: 'Fredoka', sans-serif;
+    letter-spacing: 1px;
+    font-size: 18px !important;
+    font-weight: none !important;
+}
 
 .lb-row {
     display: flex;

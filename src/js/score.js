@@ -121,8 +121,11 @@ async function loadScores() {
             s => s.player.toLowerCase() === currentPlayer.toLowerCase()
         );
         if (myIdx !== -1) {
+            const rankNum = myIdx + 1;
+            const rankStr = rankNum === 1 ? "🥇" : rankNum === 2 ? "🥈" : rankNum === 3 ? "🥉"
+                          : String(rankNum).padStart(2, "0");
             document.getElementById("myRankText").textContent =
-                `Your Rank: ${rankLabel(myIdx + 1)}  —  ${scores[myIdx].bestScore} pts`;
+                `Your Rank: ${rankStr}  —  ${scores[myIdx].bestScore} pts`;
             document.getElementById("myRankBanner").style.display = "flex";
         }
 

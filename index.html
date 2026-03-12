@@ -5,9 +5,40 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Flappy Heart</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Nunito:wght@400;600;700&family=Fredoka:wght@300..700&family=Rubik+Mono+One&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="src/style/auth.css">
-    
+    <style>
+        /* SweetAlert2 Custom Styles */
+        .swal-custom-popup {
+            border-radius: 18px !important;
+            border: 2px solid rgba(232, 67, 122, 0.6) !important;
+            box-shadow: 0 0 24px rgba(232, 67, 122, 0.35), 0 8px 32px rgba(0,0,0,0.5) !important;
+            padding: 28px 20px 22px !important;
+        }
+        .swal-custom-title {
+            font-family: 'Fredoka', sans-serif !important;
+            font-size: 22px !important;
+            font-weight: 600 !important;
+            color: #fff !important;
+            letter-spacing: 0.5px !important;
+        }
+        .swal-custom-btn {
+            font-family: 'Fredoka', sans-serif !important;
+            font-size: 14px !important;
+            font-weight: 600 !important;
+            letter-spacing: 1px !important;
+            border-radius: 10px !important;
+            border: 1px solid white !important;
+            outline: none !important;
+            box-shadow: none !important;
+            padding: 10px 24px !important;
+        }
+        .swal-custom-btn:focus,
+        .swal-custom-btn:active {
+            outline: none !important;
+            box-shadow: none !important;
+        }
+    </style>
 </head>
 <body>
 
@@ -36,10 +67,10 @@
             <button class="tab" onclick="showTab('register')">REGISTER</button>
         </div>
 
-        <!-- LOGIN FORM -->
+        <!-- ════ LOGIN FORM ════ -->
         <div id="loginForm">
 
-          
+            <!-- General "fill all fields" message -->
             <div class="error-msg" id="loginError"></div>
 
             <div class="input-group">
@@ -67,9 +98,10 @@
             </button>
         </div>
 
-        <!-- REGISTER FORM -->
+        <!-- ════ REGISTER FORM ════ -->
         <div id="registerForm" style="display:none">
 
+            <!-- General "fill all fields" message -->
             <div class="error-msg" id="ErrorEl"></div>
 
             <div class="input-group">
@@ -99,12 +131,15 @@
             <button class="btn-main" onclick="handleUserRegister()">CREATE ACCOUNT</button>
         </div>
 
-    </div>
-</div>
+    </div><!-- /auth-card -->
+</div><!-- /auth-wrapper -->
+
+<!-- SweetAlert2 -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.10.6/sweetalert2.all.min.js"></script>
+
 <!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
-
 <script src="src/js/config/firebase.config.js"></script>
 
 <script src="src/js/auth.js"></script>
