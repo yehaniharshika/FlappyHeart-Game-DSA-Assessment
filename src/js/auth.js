@@ -1,21 +1,25 @@
-/* Floating Hearts Background */
+// ============================================================
+//  auth.js  –  Flappy Heart Authentication
+//  Uses Firebase Firestore via global `db` from firebase.config.js
+//  NO import/export — plain script tag compatible
+// ============================================================
+
+// ─────────────────────────────────────────────────────────────
+//  Floating Hearts Background
+// ─────────────────────────────────────────────────────────────
 (function spawnHearts() {
     const container = document.getElementById("heartsBg");
     if (!container) return;
-
     const symbol = "🩷";
-
     function createHeart() {
-        const el = document.createElement("span");
-        el.className = "float-heart";
-        el.textContent = symbol;
-
+        const el        = document.createElement("span");
+        el.className    = "float-heart";
+        el.textContent  = symbol;
         const size      = 12 + Math.random() * 18;
         const duration  = 7  + Math.random() * 9;
         const startX    = Math.random() * 100;
         const hue       = 330 + Math.random() * 30;
         const lightness = 58  + Math.random() * 22;
-
         el.style.left              = startX + "vw";
         el.style.bottom            = "-" + (size + 10) + "px";
         el.style.fontSize          = size + "px";
@@ -24,37 +28,16 @@
         el.style.animationDuration = duration + "s";
         el.style.animationDelay    = "0s";
         el.style.opacity           = "0";
-
         container.appendChild(el);
         el.addEventListener("animationend", () => el.remove(), { once: true });
     }
-
     createHeart();
     setInterval(createHeart, 600);
 })();
 
-/* Tab Switching Part */
-function showTab(tab) {
-    document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
-
-    if (event && event.currentTarget) {
-        event.currentTarget.classList.add("active");
-    }
-
-    document.getElementById("loginForm").style.display    = tab === "login"    ? "block" : "none";
-    document.getElementById("registerForm").style.display = tab === "register" ? "block" : "none";
-
-    // clear all errors when switching tabs
-    clearAllErrors();
-
-    document.querySelectorAll(".tab").forEach(t => {
-        const txt = t.textContent.trim().toUpperCase();
-        if (tab === "login"    && txt.includes("LOGIN"))    t.classList.add("active");
-        if (tab === "register" && txt.includes("REGISTER")) t.classList.add("active");
-    });
-}
-
-/* Cookie Helpers */
+// ─────────────────────────────────────────────────────────────
+//  Cookie Helpers
+// ─────────────────────────────────────────────────────────────
 function setCookie(name, value, days) {
     const expires = new Date(Date.now() + days * 864e5).toUTCString();
     document.cookie = `${name}=${encodeURIComponent(value)}; expires=${expires}; path=/; SameSite=Lax`;
@@ -65,18 +48,37 @@ function getCookie(name) {
     return match ? decodeURIComponent(match[1]) : null;
 }
 
-/* User Storage (localStorage as simulated DB) */
-function getUserData()       { return JSON.parse(localStorage.getItem("game_user") || "[]"); }
-function saveUserData(data)  { localStorage.setItem("game_user", JSON.stringify(data)); }
-
-
+// ─────────────────────────────────────────────────────────────
+//  Page Load — already logged in → skip to menu
+// ─────────────────────────────────────────────────────────────
 window.addEventListener("DOMContentLoaded", () => {
     if (getCookie("fh_session")) {
         window.location.href = "./menu.html";
     }
 });
 
-/* shows fields errors part */
+// ─────────────────────────────────────────────────────────────
+//  Tab Switching
+// ─────────────────────────────────────────────────────────────
+function showTab(tab) {
+    document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+    if (event && event.currentTarget) event.currentTarget.classList.add("active");
+
+    document.getElementById("loginForm").style.display    = tab === "login"    ? "block" : "none";
+    document.getElementById("registerForm").style.display = tab === "register" ? "block" : "none";
+
+    clearAllErrors();
+
+    document.querySelectorAll(".tab").forEach(t => {
+        const txt = t.textContent.trim().toUpperCase();
+        if (tab === "login"    && txt.includes("LOGIN"))    t.classList.add("active");
+        if (tab === "register" && txt.includes("REGISTER")) t.classList.add("active");
+    });
+}
+
+// ─────────────────────────────────────────────────────────────
+//  Field Error Helpers
+// ─────────────────────────────────────────────────────────────
 function showFieldError(inputId, errorId, message) {
     const input = document.getElementById(inputId);
     const span  = document.getElementById(errorId);
@@ -108,22 +110,34 @@ function clearAllErrors() {
     });
 }
 
-/* User Registration Part */
-function handleUserRegister() {
+// ─────────────────────────────────────────────────────────────
+//  Button Loading State
+// ─────────────────────────────────────────────────────────────
+function setButtonLoading(btnId, loading, originalText) {
+    const btn = document.getElementById(btnId);
+    if (!btn) return;
+    btn.disabled    = loading;
+    btn.textContent = loading ? "Please wait..." : originalText;
+}
+
+// ─────────────────────────────────────────────────────────────
+//  REGISTER — Firebase Firestore save
+// ─────────────────────────────────────────────────────────────
+async function handleUserRegister() {
     const name      = document.getElementById("registerName").value.trim();
     const email     = document.getElementById("registerEmail").value.trim();
     const password  = document.getElementById("registerPassword").value;
     const confirmPW = document.getElementById("registerConfirmPW").value;
     const generalEl = document.getElementById("ErrorEl");
 
-    // Reset all errors first
+    // Reset errors
     generalEl.textContent = "";
     showFieldOk("registerName",      "registerNameErr");
     showFieldOk("registerEmail",     "registerEmailErr");
     showFieldOk("registerPassword",  "registerPasswordErr");
     showFieldOk("registerConfirmPW", "registerConfirmErr");
 
-    // field validation
+    // Validation
     let hasError = false;
 
     if (!name) {
@@ -163,43 +177,62 @@ function handleUserRegister() {
 
     if (hasError) return;
 
-    // Checks duplication
-    const users = getUserData();
+    // ── Firebase: duplicate check + save ─────────────────────
+    const registerBtn = document.querySelector("#registerForm .btn-main");
+    if (registerBtn) { registerBtn.disabled = true; registerBtn.textContent = "Please wait..."; }
 
-    if (users.find(u => u.name.toLowerCase() === name.toLowerCase())) {
-        showFieldError("registerName", "registerNameErr", "Name already taken.");
-        return;
+    try {
+        // Document ID = name lowercase (spaces → underscore)
+        const docId = name.toLowerCase().replace(/\s+/g, "_");
+
+        // Check username exists
+        const existingName = await db.collection("users").doc(docId).get();
+        if (existingName.exists) {
+            showFieldError("registerName", "registerNameErr", "Name already taken.");
+            if (registerBtn) { registerBtn.disabled = false; registerBtn.textContent = "CREATE ACCOUNT"; }
+            return;
+        }
+
+        // Check email exists
+        const existingEmail = await db.collection("users")
+            .where("email", "==", email.toLowerCase())
+            .get();
+        if (!existingEmail.empty) {
+            showFieldError("registerEmail", "registerEmailErr", "Email already registered.");
+            if (registerBtn) { registerBtn.disabled = false; registerBtn.textContent = "CREATE ACCOUNT"; }
+            return;
+        }
+
+        // Save to Firestore
+        await db.collection("users").doc(docId).set({
+            name:      name,
+            email:     email.toLowerCase(),
+            password:  password,
+            createdAt: new Date().toISOString()
+        });
+
+        alert("✅ Account created!\nPlease log in with your credentials.");
+
+        // Clear form
+        document.getElementById("registerName").value      = "";
+        document.getElementById("registerEmail").value     = "";
+        document.getElementById("registerPassword").value  = "";
+        document.getElementById("registerConfirmPW").value = "";
+
+        showTab("login");
+
+    } catch (err) {
+        console.error("[Register Error]", err);
+        generalEl.textContent = "Registration failed. Check your internet connection.";
     }
-    if (users.find(u => u.email.toLowerCase() === email.toLowerCase())) {
-        showFieldError("registerEmail", "registerEmailErr", "Email already registered.");
-        return;
-    }
 
-    // Save & auto-login 
-    users.push({ name, email, password, createdAt: new Date().toISOString() });
-    saveUserData(users);
-
-    // Show success alert and switch to Login tab — user must login manually
-    alert("\u2705 Account created successfully!\nPlease log in with your credentials.");
-
-    // Clear all register fields
-    document.getElementById("registerName").value      = "";
-    document.getElementById("registerEmail").value     = "";
-    document.getElementById("registerPassword").value  = "";
-    document.getElementById("registerConfirmPW").value = "";
-    document.getElementById("ErrorEl").textContent     = "";
-
-    // Switch to Login tab
-    document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
-    document.querySelectorAll(".tab").forEach(t => {
-        if (t.textContent.trim().toUpperCase().includes("LOGIN")) t.classList.add("active");
-    });
-    document.getElementById("loginForm").style.display    = "block";
-    document.getElementById("registerForm").style.display = "none";
+    if (registerBtn) { registerBtn.disabled = false; registerBtn.textContent = "CREATE ACCOUNT"; }
 }
 
-/* User Login Part */
-function handleUserLogin() {
+// ─────────────────────────────────────────────────────────────
+//  LOGIN — Firebase Firestore check
+// ─────────────────────────────────────────────────────────────
+async function handleUserLogin() {
     const username  = document.getElementById("loginUsername").value.trim();
     const password  = document.getElementById("loginPassword").value;
     const generalEl = document.getElementById("loginError");
@@ -213,61 +246,63 @@ function handleUserLogin() {
         return;
     }
 
-    // Individual empty check validation
     let hasError = false;
-
     if (!username) {
         showFieldError("loginUsername", "loginUsernameErr", "Username is required.");
         hasError = true;
     }
-
     if (!password) {
         showFieldError("loginPassword", "loginPasswordErr", "Password is required.");
         hasError = true;
     }
-
     if (hasError) return;
 
-    // Credentials check
-    const user = getUserData().find(
-        u => u.name.toLowerCase() === username.toLowerCase() && u.password === password
-    );
+    // ── Firebase: read + verify ───────────────────────────────
+    const loginBtn = document.querySelector("#loginForm .btn-main");
+    if (loginBtn) { loginBtn.disabled = true; loginBtn.textContent = "Please wait..."; }
 
-    if (!user) {
-        // Show error on both fields (invalid combo)
-        showFieldError("loginUsername", "loginUsernameErr", "Invalid username or password.");
-        showFieldError("loginPassword", "loginPasswordErr", " ");   // highlights field
-        return;
+    try {
+        const docId   = username.toLowerCase().replace(/\s+/g, "_");
+        const userDoc = await db.collection("users").doc(docId).get();
+
+        if (!userDoc.exists) {
+            showFieldError("loginUsername", "loginUsernameErr", "Invalid username or password.");
+            showFieldError("loginPassword", "loginPasswordErr", " ");
+            if (loginBtn) { loginBtn.disabled = false; loginBtn.textContent = "LOGIN"; }
+            return;
+        }
+
+        const userData = userDoc.data();
+
+        if (userData.password !== password) {
+            showFieldError("loginUsername", "loginUsernameErr", "Invalid username or password.");
+            showFieldError("loginPassword", "loginPasswordErr", " ");
+            if (loginBtn) { loginBtn.disabled = false; loginBtn.textContent = "LOGIN"; }
+            return;
+        }
+
+        // Login success
+        loginUser(userData.name);
+
+    } catch (err) {
+        console.error("[Login Error]", err);
+        generalEl.textContent = "Login failed. Check your internet connection.";
+        if (loginBtn) { loginBtn.disabled = false; loginBtn.textContent = "LOGIN"; }
     }
-
-    loginUser(user.name);
 }
 
-/* Google Signin */
-
-// function handleGoogleLogin() {
-//     const name = prompt("Simulated Google Sign-In\nEnter your display name:");
-//     if (!name || !name.trim()) return;
-
-//     const username = name.trim().replace(/\s+/g, "_");
-//     const users    = getUserData();
-
-//     if (!users.find(u => u.name.toLowerCase() === username.toLowerCase())) {
-//         users.push({
-//             name:      username,
-//             email:     username + "@gmail.com",
-//             password:  null,
-//             provider:  "google",
-//             createdAt: new Date().toISOString()
-//         });
-//         saveUserData(users);
-//     }
-
-//     loginUser(username);
-// }
-
+// ─────────────────────────────────────────────────────────────
+//  Cookie Set + Redirect
+// ─────────────────────────────────────────────────────────────
 function loginUser(name) {
     setCookie("fh_session", name, 1);
     sessionStorage.setItem("fh_player", name);
     window.location.href = "./menu.html";
+}
+
+// ─────────────────────────────────────────────────────────────
+//  Google Login — disabled for now
+// ─────────────────────────────────────────────────────────────
+function handleGoogleLogin() {
+    alert("Google Sign-In is not enabled yet.");
 }
