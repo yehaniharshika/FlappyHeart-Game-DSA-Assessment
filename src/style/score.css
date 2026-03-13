@@ -1,8 +1,3 @@
-/* ============================================================
-   score.css  –  Flappy Heart Leaderboard Page
-   Dark arcade theme — matches game aesthetic
-   ============================================================ */
-
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 html, body {
@@ -13,7 +8,7 @@ html, body {
     overflow-x: hidden;
 }
 
-/* ── Animated star background ── */
+/* Animated star background */
 body::before {
     content: '';
     position: fixed;
@@ -26,7 +21,7 @@ body::before {
     z-index: 0;
 }
 
-/* ── Page wrapper ── */
+/* Page wrapper */
 .page-wrap {
     position: relative;
     z-index: 1;
@@ -40,45 +35,7 @@ body::before {
     gap: 20px;
 }
 
-/* ── Top nav bar ── */
-.top-bar {
-    width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 4px;
-}
-
-.btn-back {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    background: rgba(255,255,255,0.08);
-    border: 1px solid rgba(255,255,255,0.15);
-    border-radius: 10px;
-    padding: 10px 18px;
-    color: #fff;
-    font-family: 'Press Start 2P', monospace;
-    font-size: 9px;
-    cursor: pointer;
-    text-decoration: none;
-    transition: background .2s, transform .15s;
-}
-.btn-back:hover { background: rgba(255,255,255,0.14); transform: translateX(-3px); }
-
-.btn-refresh {
-    background: rgba(249,199,79,0.12);
-    border: 1px solid rgba(249,199,79,0.3);
-    border-radius: 10px;
-    padding: 10px 16px;
-    color: #f9c74f;
-    font-size: 18px;
-    cursor: pointer;
-    transition: background .2s, transform .2s;
-}
-.btn-refresh:hover { background: rgba(249,199,79,0.22); transform: rotate(180deg); }
-
-/* ── Trophy header ── */
+/* Trophy header */
 .trophy-header {
     text-align: center;
     padding: 8px 0 4px;
@@ -91,6 +48,7 @@ body::before {
     filter: drop-shadow(0 0 20px rgba(249,199,79,0.7));
     animation: trophyFloat 3s ease-in-out infinite;
 }
+
 @keyframes trophyFloat {
     0%, 100% { transform: translateY(0); }
     50%       { transform: translateY(-8px); }
@@ -114,7 +72,7 @@ body::before {
     font-weight: 600;
 }
 
-/* ── My rank banner ── */
+/* My rank banner */
 .my-rank-banner {
     display: none;
     width: 100%;
@@ -133,7 +91,7 @@ body::before {
 }
 .my-rank-banner span.rank-icon { font-size: 20px; }
 
-/* ── Leaderboard card ── */
+/* Leaderboard card */
 .lb-card {
     width: 100%;
     background: rgba(255,255,255,0.04);
@@ -151,13 +109,18 @@ body::before {
     justify-content: space-between;
     border-bottom: 1px solid rgba(255,255,255,0.1);
 }
+
 .lb-card-title {
     font-family: 'Press Start 2P', monospace;
     font-size: 10px;
     color: #fff;
     letter-spacing: 2px;
 }
-.lb-card-sub { font-size: 11px; color: rgba(255,255,255,0.55); }
+
+.lb-card-sub { 
+    font-size: 11px; 
+    color: rgba(255,255,255,0.55); 
+}
 
 /* Loading spinner */
 .lb-loading-wrap {
@@ -171,6 +134,7 @@ body::before {
     font-family: 'Fredoka', sans-serif;
     font-size: 13px;
 }
+
 .spinner {
     width: 36px; height: 36px;
     border: 3px solid rgba(249,199,79,0.15);
@@ -178,6 +142,7 @@ body::before {
     border-radius: 50%;
     animation: spin .8s linear infinite;
 }
+
 @keyframes spin { to { transform: rotate(360deg); } }
 
 /* Score list styles */
@@ -246,7 +211,7 @@ body::before {
     background: #e8437a;
     color: #fff;
     border-radius: 6px;
-    padding: 3px 7px;
+    padding:5px 7px;
     vertical-align: middle;
 }
 .lb-score {
@@ -257,7 +222,7 @@ body::before {
 }
 .lb-me .lb-score { color: #ffcce0; }
 
-/* ── Empty state ── */
+/* Empty state*/
 .lb-empty {
     text-align: center;
     padding: 48px 24px;
@@ -267,14 +232,14 @@ body::before {
 }
 .lb-empty-icon { font-size: 48px; margin-bottom: 16px; display: block; }
 
-/* ── Action buttons row ── */
+/* Action buttons row styles */
 .action-btns {
     width: 100%;
     display: flex;
     gap: 12px;
 }
 
-/* ── Play Again button ── */
+/* Play Again button styles */
 .btn-play {
     flex: 1;
     padding: 16px;
@@ -283,7 +248,7 @@ body::before {
     font-family: 'Press Start 2P', monospace;
     font-size: 11px;
     border: none;
-    border-radius: 14px;
+    border-radius: 10px;
     cursor: pointer;
     letter-spacing: 1px;
     box-shadow: 0 6px 24px rgba(232,67,122,0.45);
@@ -298,7 +263,7 @@ body::before {
 }
 .btn-play:active { transform: translateY(0); }
 
-/* ── Logout button ── */
+/* Logout button */
 .btn-logout {
     flex: 1;
     padding: 16px;
@@ -307,7 +272,7 @@ body::before {
     color: rgba(255,255,255,0.75);
     font-family: 'Press Start 2P', monospace;
     font-size: 11px;
-    border-radius: 14px;
+    border-radius: 10px;
     cursor: pointer;
     letter-spacing: 1px;
     transition: background .2s, transform .15s, color .2s;
@@ -321,9 +286,11 @@ body::before {
     color: #ff8080;
     transform: translateY(-2px);
 }
-.btn-logout:active { transform: translateY(0); }
+.btn-logout:active { 
+    transform: translateY(0); 
+}
 
-/* ── Floating hearts bg ── */
+/* Floating hearts background */
 .hearts-bg {
     position: fixed;
     inset: 0;
@@ -342,9 +309,18 @@ body::before {
     100% { transform: translateY(-105vh) rotate(25deg); opacity: 0; }
 }
 
-/* ── Responsive ── */
+/* Responsive styles */
 @media (max-width: 400px) {
-    .lb-name  { font-size: 13px; }
-    .lb-score { font-size: 11px; }
-    .lb-rank  { font-size: 18px; min-width: 30px; }
+    .lb-name  { 
+        font-size: 13px; 
+    }
+
+    .lb-score { 
+        font-size: 11px; 
+    }
+
+    .lb-rank  { 
+        font-size: 18px; 
+        min-width: 30px; 
+    }
 }

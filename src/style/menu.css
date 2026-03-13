@@ -216,9 +216,7 @@ body::before {
     transform: translateY(-3px);  
 }
 
-/* ══════════════════════════════════════
-   HOW TO PLAY MODAL
-══════════════════════════════════════ */
+/* HOW TO PLAY MODAL */
 .modal-overlay {
     position: fixed;
     inset: 0;
@@ -277,15 +275,15 @@ body::before {
     gap: 12px;
     align-items: flex-start;
     font-family: 'Nunito', sans-serif;
-    font-size: 0.9rem;
-    line-height: 1.65;
+    font-size: 1rem;
+    line-height: 1.5;
     color: rgba(255, 255, 255, 0.85);
 }
 
 .instructions li::before {
     content: counter(inst) ".";
     font-family: 'Press Start 2P', monospace;
-    font-size: 0.48rem;
+    font-size: 0.7rem;
     color: #e8437a;
     min-width: 20px;
     margin-top: 4px;
