@@ -27,6 +27,23 @@
     setInterval(createHeart, 600);
 })();
 
+// Password Eye toggle logic
+function togglePassword(inputId, btn) {
+    const input = document.getElementById(inputId);
+    if (!input) return;
+    const isHidden  = input.type === "password";
+    input.type      = isHidden ? "text" : "password";
+    btn.querySelector("img").src = isHidden
+        ? "src/assets/icon/eye-on.png"
+        : "src/assets/icon/eye-off.png";
+}
+ 
+function toggleEyeVisibility(input) {
+    const btn = input.parentElement.querySelector(".eye-toggle");
+    if (!btn) return;
+    if (input.value.length > 0) btn.classList.add("visible");
+    else                        btn.classList.remove("visible");
+}
 
 // Cookie Helpers
 function setCookie(name, value, days) {

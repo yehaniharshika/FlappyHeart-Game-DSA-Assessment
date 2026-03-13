@@ -1,142 +1,213 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FlappyHeart</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Flappy Heart</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link
       href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Nunito:wght@400;600;700;800&family=Fredoka:wght@300..700&family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap"
       rel="stylesheet"
     />
-    <link rel="icon" type="image/png" href="src/assets/images/heart.png">
-    <link rel="stylesheet" href="src/style/auth.css">
+    <link rel="stylesheet" href="src/style/auth.css" />
     <style>
-        /* SweetAlert2 Custom Styles */
-        .swal-custom-popup {
-            border-radius: 18px !important;
-            border: 2px solid rgba(232, 67, 122, 0.6) !important;
-            box-shadow: 0 0 24px rgba(232, 67, 122, 0.35), 0 8px 32px rgba(0,0,0,0.5) !important;
-            padding: 28px 20px 22px !important;
-        }
-        .swal-custom-title {
-            font-family: 'Fredoka', sans-serif !important;
-            font-size: 22px !important;
-            font-weight: 600 !important;
-            color: #fff !important;
-            letter-spacing: 0.5px !important;
-        }
-        .swal-custom-btn {
-            font-family: 'Fredoka', sans-serif !important;
-            font-size: 14px !important;
-            font-weight: 600 !important;
-            letter-spacing: 1px !important;
-            border-radius: 10px !important;
-            border: 1px solid white !important;
-            outline: none !important;
-            box-shadow: none !important;
-            padding: 10px 24px !important;
-        }
-        .swal-custom-btn:focus,
-        .swal-custom-btn:active {
-            outline: none !important;
-            box-shadow: none !important;
-        }
+      /* SweetAlert2 Custom Styles */
+      .swal-custom-popup {
+        border-radius: 18px !important;
+        border: 2px solid rgba(232, 67, 122, 0.6) !important;
+        box-shadow:
+          0 0 24px rgba(232, 67, 122, 0.35),
+          0 8px 32px rgba(0, 0, 0, 0.5) !important;
+        padding: 28px 20px 22px !important;
+      }
+      .swal-custom-title {
+        font-family: "Fredoka", sans-serif !important;
+        font-size: 22px !important;
+        font-weight: 600 !important;
+        color: #fff !important;
+        letter-spacing: 0.5px !important;
+      }
+      .swal-custom-btn {
+        font-family: "Fredoka", sans-serif !important;
+        font-size: 14px !important;
+        font-weight: 600 !important;
+        letter-spacing: 1px !important;
+        border-radius: 10px !important;
+        border: 1px solid white !important;
+        outline: none !important;
+        box-shadow: none !important;
+        padding: 10px 24px !important;
+      }
+      .swal-custom-btn:focus,
+      .swal-custom-btn:active {
+        outline: none !important;
+        box-shadow: none !important;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
+    <!-- FLOATING HEARTS BACKGROUND -->
+    <div class="hearts-bg" id="heartsBg"></div>
 
-<!-- FLOATING HEARTS BACKGROUND -->
-<div class="hearts-bg" id="heartsBg"></div>
-
-<!-- MAIN CONTENT -->
-<div class="auth-wrapper">
-
-    <!-- Main Game Tite Structure -->
-    <div class="title-sign">
+    <!-- MAIN CONTENT -->
+    <div class="auth-wrapper">
+      <!-- TITLE SIGN -->
+      <div class="title-sign">
         <div class="title-row">
-            <span class="title-heart left-heart">💗</span>
-            <div class="title-text-block">
-                <div class="game-title">FLAPPY HEART</div>
-                <div class="game-sub">TAP TO LOVE</div>
-            </div>
-            <span class="title-heart right-heart">💗</span>
+          <span class="title-heart left-heart">💗</span>
+          <div class="title-text-block">
+            <div class="game-title">FLAPPY HEART</div>
+            <div class="game-sub">TAP TO LOVE</div>
+          </div>
+          <span class="title-heart right-heart">💗</span>
         </div>
-    </div>
+      </div>
 
-    <!-- AUTH CARD -->
-    <div class="auth-card" id="loginCard">
+      <!-- AUTH CARD -->
+      <div class="auth-card" id="loginCard">
         <div class="tab-row">
-            <button class="tab active" onclick="showTab('login')">LOGIN</button>
-            <button class="tab" onclick="showTab('register')">REGISTER</button>
+          <button class="tab active" onclick="showTab('login')">LOGIN</button>
+          <button class="tab" onclick="showTab('register')">REGISTER</button>
         </div>
 
-        <!-- Login Form Structure -->
+        <!-- LOGIN FORM -->
         <div id="loginForm">
+          <!-- General "fill all fields" message -->
+          <div class="error-msg" id="loginError"></div>
 
-            <!-- General "fill all fields" message -->
-            <div class="error-msg" id="loginError"></div>
+          <div class="input-group">
+            <input
+              type="text"
+              id="loginUsername"
+              placeholder="Username"
+              autocomplete="off"
+              oninput="clearFieldError('loginUsernameErr')"
+            />
+            <span class="field-error" id="loginUsernameErr"></span>
+          </div>
 
-            <div class="input-group">
-                <input type="text" id="loginUsername" placeholder="Username" autocomplete="off"
-                       oninput="clearFieldError('loginUsernameErr')">
-                <span class="field-error" id="loginUsernameErr"></span>
-            </div>
+          <div class="input-group">
+            <input
+              type="password"
+              id="loginPassword"
+              placeholder="Password"
+              oninput="
+                clearFieldError('loginPasswordErr');
+                toggleEyeVisibility(this);
+              "
+            />
+            <button
+              type="button"
+              class="eye-toggle"
+              onclick="togglePassword('loginPassword', this)"
+              tabindex="-1"
+            >
+              <img
+                src="src/assets/icon/eye-off.png"
+                alt="toggle password"
+                width="18"
+                height="18"
+              />
+            </button>
+            <span class="field-error" id="loginPasswordErr"></span>
+          </div>
 
-            <div class="input-group">
-                <input type="password" id="loginPassword" placeholder="Password"
-                       oninput="clearFieldError('loginPasswordErr')">
-                <span class="field-error" id="loginPasswordErr"></span>
-            </div>
-
-            <button class="btn-main" onclick="handleUserLogin()">LOGIN</button>
-            
+          <button class="btn-main" onclick="handleUserLogin()">LOGIN</button>
         </div>
 
-        <!-- Register Form Structure -->
-        <div id="registerForm" style="display:none">
+        <!-- REGISTER FORM -->
+        <div id="registerForm" style="display: none">
+          <!-- General "fill all fields" message -->
+          <div class="error-msg" id="ErrorEl"></div>
 
-            <!-- General "fill all fields" message -->
-            <div class="error-msg" id="ErrorEl"></div>
+          <div class="input-group">
+            <input
+              type="text"
+              id="registerName"
+              placeholder="Name"
+              autocomplete="off"
+              oninput="clearFieldError('registerNameErr')"
+            />
+            <span class="field-error" id="registerNameErr"></span>
+          </div>
 
-            <div class="input-group">
-                <input type="text" id="registerName" placeholder="Name" autocomplete="off"
-                       oninput="clearFieldError('registerNameErr')">
-                <span class="field-error" id="registerNameErr"></span>
-            </div>
+          <div class="input-group">
+            <input
+              type="email"
+              id="registerEmail"
+              placeholder="Email Address"
+              oninput="clearFieldError('registerEmailErr')"
+            />
+            <span class="field-error" id="registerEmailErr"></span>
+          </div>
 
-            <div class="input-group">
-                <input type="email" id="registerEmail" placeholder="Email Address"
-                       oninput="clearFieldError('registerEmailErr')">
-                <span class="field-error" id="registerEmailErr"></span>
-            </div>
+          <div class="input-group">
+            <input
+              type="password"
+              id="registerPassword"
+              placeholder="Password"
+              oninput="
+                clearFieldError('registerPasswordErr');
+                toggleEyeVisibility(this);
+              "
+            />
+            <button
+              type="button"
+              class="eye-toggle"
+              onclick="togglePassword('registerPassword', this)"
+              tabindex="-1"
+            >
+              <img
+                src="src/assets/icon/eye-off.png"
+                alt="toggle password"
+                width="18"
+                height="18"
+              />
+            </button>
+            <span class="field-error" id="registerPasswordErr"></span>
+          </div>
 
-            <div class="input-group">
-                <input type="password" id="registerPassword" placeholder="Password"
-                       oninput="clearFieldError('registerPasswordErr')">
-                <span class="field-error" id="registerPasswordErr"></span>
-            </div>
+          <div class="input-group">
+            <input
+              type="password"
+              id="registerConfirmPW"
+              placeholder="Confirm Password"
+              oninput="
+                clearFieldError('registerConfirmErr');
+                toggleEyeVisibility(this);
+              "
+            />
+            <button
+              type="button"
+              class="eye-toggle"
+              onclick="togglePassword('registerConfirmPW', this)"
+              tabindex="-1"
+            >
+              <img
+                src="src/assets/icon/eye-off.png"
+                alt="toggle password"
+                width="18"
+                height="18"
+              />
+            </button>
+            <span class="field-error" id="registerConfirmErr"></span>
+          </div>
 
-            <div class="input-group">
-                <input type="password" id="registerConfirmPW" placeholder="Confirm Password"
-                       oninput="clearFieldError('registerConfirmErr')">
-                <span class="field-error" id="registerConfirmErr"></span>
-            </div>
-
-            <button class="btn-main" onclick="handleUserRegister()">CREATE ACCOUNT</button>
+          <button class="btn-main" onclick="handleUserRegister()">
+            CREATE ACCOUNT
+          </button>
         </div>
-
+      </div>
     </div>
-</div>
 
-<!-- SweetAlert2 -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.10.6/sweetalert2.all.min.js"></script>
+    <!-- SweetAlert2 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.10.6/sweetalert2.all.min.js"></script>
 
-<!-- Firebase SDK -->
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
-<script src="src/js/config/firebase.config.js"></script>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+    <script src="src/js/config/firebase.config.js"></script>
 
-<script src="src/js/auth.js"></script>
-</body>
+    <script src="src/js/auth.js"></script>
+  </body>
 </html>
