@@ -1,10 +1,8 @@
-// ============================================================
 //  score.js  –  Flappy Heart Leaderboard Page
 //  High Cohesion: score display ONLY
 //  Low Coupling:  reads from Firebase independently
-// ============================================================
 
-/* ── Floating Hearts Background ── */
+/* Floating Hearts Background */
 (function spawnHearts() {
     const container = document.getElementById("heartsBg");
     if (!container) return;
@@ -36,25 +34,25 @@
     setInterval(createHeart, 600);
 })();
 
-/* ── Cookie helper ── */
+/* Cookie helper */
 function getCookie(name) {
     const match = document.cookie.match(new RegExp("(?:^|; )" + name + "=([^;]*)"));
     return match ? decodeURIComponent(match[1]) : null;
 }
 
-/* ── Auth guard ── */
+/* Auth guard */
 function guard() {
     if (!getCookie("fh_session")) {
         window.location.href = "./index.html";
     }
 }
 
-/* ── Get current player ── */
+/* Get current player */
 function getCurrentPlayer() {
     return sessionStorage.getItem("fh_player") || getCookie("fh_session") || "Player";
 }
 
-/* ── Rank label helper ── */
+/* Rank label helper */
 // 1→🥇  2→🥈  3→🥉  4→04  5→05 ... 10→10
 function rankLabel(n) {
     if (n === 1) return "🥇";
@@ -63,7 +61,7 @@ function rankLabel(n) {
     return `<span class="lb-rank-num">${String(n).padStart(2, "0")}</span>`;
 }
 
-/* ── Render leaderboard rows ── */
+/* Render leaderboard rows */
 function renderRows(scores, currentPlayer) {
     const list = document.getElementById("lbList");
 
@@ -95,7 +93,7 @@ function renderRows(scores, currentPlayer) {
     }).join("");
 }
 
-/* ── Load scores from Firestore ── */
+/* Load scores from Firestore */
 async function loadScores() {
     const currentPlayer = getCurrentPlayer();
     const loadingEl = document.getElementById("lbLoading");
@@ -141,7 +139,7 @@ async function loadScores() {
     }
 }
 
-/* ── Logout ── */
+/* Logout */
 function logout() {
     // Clear cookie
     document.cookie = "fh_session=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/";
@@ -149,7 +147,7 @@ function logout() {
     window.location.href = "./index.html";
 }
 
-/* ── Boot ── */
+/* Boot */
 window.addEventListener("DOMContentLoaded", () => {
     guard();
     loadScores();

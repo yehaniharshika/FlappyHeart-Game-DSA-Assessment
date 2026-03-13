@@ -1,12 +1,4 @@
-// ============================================================
-//  auth.js  –  Flappy Heart Authentication
-//  Uses Firebase Firestore via global `db` from firebase.config.js
-//  NO import/export — plain script tag compatible
-// ============================================================
-
-// ─────────────────────────────────────────────────────────────
-//  Floating Hearts Background
-// ─────────────────────────────────────────────────────────────
+//  Floating Hearts Background logic
 (function spawnHearts() {
     const container = document.getElementById("heartsBg");
     if (!container) return;
@@ -35,9 +27,8 @@
     setInterval(createHeart, 600);
 })();
 
-// ─────────────────────────────────────────────────────────────
-//  Cookie Helpers
-// ─────────────────────────────────────────────────────────────
+
+// Cookie Helpers
 function setCookie(name, value, days) {
     const expires = new Date(Date.now() + days * 864e5).toUTCString();
     document.cookie = `${name}=${encodeURIComponent(value)}; expires=${expires}; path=/; SameSite=Lax`;
@@ -48,18 +39,14 @@ function getCookie(name) {
     return match ? decodeURIComponent(match[1]) : null;
 }
 
-// ─────────────────────────────────────────────────────────────
-//  Page Load — already logged in → skip to menu
-// ─────────────────────────────────────────────────────────────
+// Page Load — already logged in → skip to menu
 window.addEventListener("DOMContentLoaded", () => {
     if (getCookie("fh_session")) {
         window.location.href = "./menu.html";
     }
 });
 
-// ─────────────────────────────────────────────────────────────
-//  Tab Switching
-// ─────────────────────────────────────────────────────────────
+// Tab Switching logic
 function showTab(tab) {
     document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
     if (event && event.currentTarget) event.currentTarget.classList.add("active");
@@ -76,9 +63,7 @@ function showTab(tab) {
     });
 }
 
-// ─────────────────────────────────────────────────────────────
-//  Field Error Helpers
-// ─────────────────────────────────────────────────────────────
+// Field Error Helpers logic
 function showFieldError(inputId, errorId, message) {
     const input = document.getElementById(inputId);
     const span  = document.getElementById(errorId);
@@ -110,9 +95,7 @@ function clearAllErrors() {
     });
 }
 
-// ─────────────────────────────────────────────────────────────
-//  Button Loading State
-// ─────────────────────────────────────────────────────────────
+// Button Loading State
 function setButtonLoading(btnId, loading, originalText) {
     const btn = document.getElementById(btnId);
     if (!btn) return;
@@ -120,9 +103,7 @@ function setButtonLoading(btnId, loading, originalText) {
     btn.textContent = loading ? "Please wait..." : originalText;
 }
 
-// ─────────────────────────────────────────────────────────────
-//  REGISTER — Firebase Firestore save
-// ─────────────────────────────────────────────────────────────
+// REGISTER — Firebase Firestore save
 async function handleUserRegister() {
     const name      = document.getElementById("registerName").value.trim();
     const email     = document.getElementById("registerEmail").value.trim();
@@ -177,7 +158,7 @@ async function handleUserRegister() {
 
     if (hasError) return;
 
-    // ── Firebase: duplicate check + save ─────────────────────
+    // Firebase: duplicate check + save
     const registerBtn = document.querySelector("#registerForm .btn-main");
     if (registerBtn) { registerBtn.disabled = true; registerBtn.textContent = "Please wait..."; }
 
@@ -249,9 +230,7 @@ async function handleUserRegister() {
     if (registerBtn) { registerBtn.disabled = false; registerBtn.textContent = "CREATE ACCOUNT"; }
 }
 
-// ─────────────────────────────────────────────────────────────
-//  LOGIN — Firebase Firestore check
-// ─────────────────────────────────────────────────────────────
+// LOGIN — Firebase Firestore check
 async function handleUserLogin() {
     const username  = document.getElementById("loginUsername").value.trim();
     const password  = document.getElementById("loginPassword").value;
@@ -277,7 +256,7 @@ async function handleUserLogin() {
     }
     if (hasError) return;
 
-    // ── Firebase: read + verify ───────────────────────────────
+    // Firebase: read + verify
     const loginBtn = document.querySelector("#loginForm .btn-main");
     if (loginBtn) { loginBtn.disabled = true; loginBtn.textContent = "Please wait..."; }
 
@@ -311,18 +290,14 @@ async function handleUserLogin() {
     }
 }
 
-// ─────────────────────────────────────────────────────────────
 //  Cookie Set + Redirect
-// ─────────────────────────────────────────────────────────────
 function loginUser(name) {
     setCookie("fh_session", name, 1);
     sessionStorage.setItem("fh_player", name);
     window.location.href = "./menu.html";
 }
 
-// ─────────────────────────────────────────────────────────────
 //  Google Login — disabled for now
-// ─────────────────────────────────────────────────────────────
 function handleGoogleLogin() {
     alert("Google Sign-In is not enabled yet.");
 }

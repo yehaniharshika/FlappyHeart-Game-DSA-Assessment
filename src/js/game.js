@@ -93,7 +93,7 @@ const Session = (() => {
 })();
 
 
-//  MODULE 2  –  HeartAPI  (Interoperability)
+// MODULE 2 – HeartAPI(Interoperability)
 const HeartAPI = (() => {
     const ENDPOINT = 'https://marcconrad.com/uob/heart/api.php?out=json&decode=yes';
     async function fetchPuzzle() {
@@ -110,9 +110,7 @@ const HeartAPI = (() => {
     return { fetchPuzzle };
 })();
 
-// ─────────────────────────────────────────────────────────────
-//  MODULE 3  –  GameTimer  (1-minute countdown)
-// ─────────────────────────────────────────────────────────────
+// MODULE 3 – GameTimer(1-minute countdown)
 const GameTimer = (() => {
     const TOTAL = 60;
     let remaining = TOTAL, id = null, _onTick, _onEnd;
@@ -143,9 +141,7 @@ const GameTimer = (() => {
     return { start, stop, pause, resume, fmt, get, deduct };
 })();
 
-// ─────────────────────────────────────────────────────────────
-//  MODULE 4  –  PuzzleTimer  (10-second countdown)
-// ─────────────────────────────────────────────────────────────
+// MODULE 4 – PuzzleTimer(10-second countdown)
 const PuzzleTimer = (() => {
     const TOTAL   = 10;
     const CIRCUMF = 2 * Math.PI * 26;  // ≈ 163.4
@@ -174,9 +170,7 @@ const PuzzleTimer = (() => {
     return { start, stop, getElapsed };
 })();
 
-// ─────────────────────────────────────────────────────────────
-//  MODULE 5  –  Renderer
-// ─────────────────────────────────────────────────────────────
+// MODULE 5 – Renderer
 const Renderer = (() => {
     let ctx, W, H;
     function init(canvas) {
@@ -193,9 +187,7 @@ const Renderer = (() => {
     return { init, image, rect, get, size };
 })();
 
-// ─────────────────────────────────────────────────────────────
-//  MODULE 6  –  Collision  (AABB)
-// ─────────────────────────────────────────────────────────────
+// MODULE 6 – Collision
 const Collision = (() => {
     function hit(a, b) {
         return a.x < b.x + b.w && a.x + a.w > b.x &&
@@ -204,11 +196,9 @@ const Collision = (() => {
     return { hit };
 })();
 
-// ─────────────────────────────────────────────────────────────
 //  MODULE 7  –  PipeManager
 //  Pipe sizes and velocity scale with SCALE so pipes look the
 //  same relative to the board on every screen.
-// ─────────────────────────────────────────────────────────────
 const PipeManager = (() => {
     let pipes = [], topImg, botImg;
 
@@ -275,10 +265,8 @@ const PipeManager = (() => {
     return { init, reset, spawn, update, getAll, removeOverlapping, setScale };
 })();
 
-// ─────────────────────────────────────────────────────────────
 //  MODULE 8  –  State
 //  Bird size and physics constants scale with SCALE.
-// ─────────────────────────────────────────────────────────────
 const State = (() => {
     // Scaled constants – updated by setScale()
     let BW = 34, BH = 24, GRAVITY = 0.40, JUMP_V = -6.2;
@@ -310,9 +298,7 @@ const State = (() => {
     return { reset, jump, step, heart, addScore, get, setStarted, setOver, setPaused, setScale, getBirdSize };
 })();
 
-// ─────────────────────────────────────────────────────────────
-//  MODULE 9  –  HUD
-// ─────────────────────────────────────────────────────────────
+// MODULE 9 – HUD
 const HUD = (() => {
     function update(player, score, timeSec) {
         const p = document.getElementById('hudPlayer');
@@ -329,9 +315,7 @@ const HUD = (() => {
     return { update };
 })();
 
-// ─────────────────────────────────────────────────────────────
-//  MODULE 10  –  ScoreBoard  (High Cohesion: score persistence only)
-// ─────────────────────────────────────────────────────────────
+// MODULE 10 – ScoreBoard  (High Cohesion: score persistence only)
 const ScoreBoard = (() => {
 
     // Save or update player's best score in Firestore
@@ -375,9 +359,7 @@ const ScoreBoard = (() => {
     return { saveScore };
 })();
 
-// ─────────────────────────────────────────────────────────────
-//  PUZZLE CONTROLLER
-// ─────────────────────────────────────────────────────────────
+// Puzzle Controller
 const Puzzle = (() => {
     let solution = null, _onCorrect, _onFail;
 
@@ -434,23 +416,21 @@ const Puzzle = (() => {
     return { show, submit, cancel };
 })();
 
-// ─────────────────────────────────────────────────────────────
-//  GAME CONTROLLER
-// ─────────────────────────────────────────────────────────────
+// Game Controller
 let birdImg, topPipeImg, botPipeImg;
 let pipeSpawnId  = null;
 let playerName   = 'Player';
 let puzzleOpen   = false;
 let invincible   = false;
 
-/* ── Images ── */
+/* game related Images */
 function loadImages() {
     birdImg    = new Image(); birdImg.src    = 'src/assets/images/flappy-heart.png';
     topPipeImg = new Image(); topPipeImg.src = 'src/assets/images/toppipe.png';
     botPipeImg = new Image(); botPipeImg.src = 'src/assets/images/bottompipe.png';
 }
 
-/* ── Draw background (no clouds) ── */
+/* Draw background logic*/
 function drawBackground() {
     const ctx = Renderer.get();
 
@@ -476,8 +456,8 @@ function drawBackground() {
     ctx.fillRect(0, BOARD_H - GROUND_H, BOARD_W, edgeH);
 }
 
-/* ── Draw bird ── */
-function drawBird(b) {
+/* Draw Heart logic */
+function drawHeart(b) {
     if (birdImg && birdImg.complete && birdImg.naturalWidth) {
         Renderer.image(birdImg, b.x, b.y, b.w, b.h);
     } else {
@@ -501,7 +481,7 @@ function _heartFallback(x, y, size) {
     ctx.restore();
 }
 
-/* ── Resize handler ── */
+/* Resize handler */
 function onResize() {
     const wasStarted = State.get().started;
     const wasOver    = State.get().over;
@@ -515,8 +495,6 @@ function onResize() {
         HUD.update(playerName, 0, 60);
         PipeManager.init(topPipeImg, botPipeImg);  // only clear pipes when game is NOT active
     }
-    // If game is in progress: only scale is updated by computeBoard(),
-    // pipes and bird position are preserved — game continues normally
 }
 
 /* ── INIT ── */
@@ -540,7 +518,7 @@ function init() {
     requestAnimationFrame(gameLoop);
 }
 
-/* ── Input ── */
+/* Input */
 function onKeyDown(e) {
     if (e.code === 'Space' || e.code === 'ArrowUp' || e.code === 'KeyX') {
         e.preventDefault(); flap();
@@ -556,7 +534,7 @@ function flap() {
     State.jump();
 }
 
-/* ── Start game ── */
+/* Start game */
 function startGame() {
     document.getElementById('startOverlay').style.display = 'none';
     State.setStarted(true);
@@ -572,7 +550,7 @@ function startGame() {
     );
 }
 
-/* ── Render loop ── */
+/* Render loop */
 function gameLoop() {
     requestAnimationFrame(gameLoop);
     const { started, over, paused } = State.get();
@@ -605,7 +583,7 @@ function gameLoop() {
     }
 }
 
-/* ── Collision → puzzle ── */
+/* Collision → puzzle */
 function onCollision() {
     if (puzzleOpen) return;
     puzzleOpen = true;
@@ -613,22 +591,22 @@ function onCollision() {
     GameTimer.pause();
 
     Puzzle.show(
-        () => {   // ✅ Correct
+        () => { 
             puzzleOpen = false;
-            const timeUsed = PuzzleTimer.getElapsed(); // puzzle ෙකොත් use කළ seconds
+            const timeUsed = PuzzleTimer.getElapsed(); 
             PipeManager.removeOverlapping(State.heart());
             invincible = true;
             setTimeout(() => { invincible = false; }, 1500);
             State.jump();
             State.setPaused(false);
-            GameTimer.deduct(timeUsed);                 // game timer ෙකොන් deduct
-            if (GameTimer.get() <= 0) { onTimeUp(); return; } // already 0 = time up
+            GameTimer.deduct(timeUsed);                
+            if (GameTimer.get() <= 0) { onTimeUp(); return; } 
             GameTimer.resume(
                 rem => HUD.update(playerName, State.get().score, rem),
                 ()  => onTimeUp()
             );
         },
-        () => {   // ❌ Wrong / timeout
+        () => { 
             puzzleOpen = false;
             triggerGameOver();
         }
