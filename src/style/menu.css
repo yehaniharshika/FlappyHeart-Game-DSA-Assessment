@@ -137,8 +137,9 @@ body::before {
 }
 
 .welcome-msg {
-    font-family: 'Press Start 2P', monospace;
-    font-size: 0.7rem;
+    font-family: 'Fredoka', monospace;
+    font-size: 1.7rem;
+    font-weight: 700;
     color: rgba(255, 255, 255, 0.72);
     letter-spacing: 1px;
     text-align: center;
@@ -272,11 +273,12 @@ body::before {
 .instructions li {
     counter-increment: inst;
     display: flex;
-    gap: 12px;
+    gap: 10px;
     align-items: flex-start;
-    font-family: 'Nunito', sans-serif;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 550;
     font-size: 1rem;
-    line-height: 1.5;
+    line-height: 1.2;
     color: rgba(255, 255, 255, 0.85);
 }
 
@@ -286,7 +288,7 @@ body::before {
     font-size: 0.7rem;
     color: #e8437a;
     min-width: 20px;
-    margin-top: 4px;
+    margin-top: 5px;
     flex-shrink: 0;
 }
 
@@ -309,12 +311,25 @@ kbd {
     font-size: 0.6rem;
 }
 
-/* ── Responsive ── */
+/* Responsive Styles */
 @media (max-width: 430px) {
-    .title-sign   { padding: 13px 22px 10px; }
-    .game-title   { font-size: 0.85rem; }
-    .title-heart  { font-size: 20px; }
+    .title-sign   { 
+        padding: 13px 22px 10px; 
+    }
+
+    .game-title   { 
+        font-size: 0.85rem; 
+    }
+
+    .title-heart  { 
+        font-size: 20px; 
+    }
+
     .btn-main,
-    .btn-secondary { padding: 14px 20px; font-size: 0.58rem; }
+    .btn-secondary { 
+        padding: 14px 20px; 
+        font-size: 0.58rem; 
+    }
+
     .modal-box    { padding: 22px 18px 20px; }
 }

@@ -65,7 +65,7 @@ body::before {
 
 .page-sub {
     margin-top: 8px;
-    font-size: 14px;
+    font-size: 15px;
     color: rgba(255,255,255,0.45);
     letter-spacing: 1px;
     font-family: 'Fredoka', sans-serif;
@@ -81,10 +81,12 @@ body::before {
     gap: 10px;
     background: linear-gradient(135deg, rgba(176,46,90,0.35), rgba(138,21,64,0.35));
     border: 1px solid rgba(232,67,147,0.4);
-    border-radius: 14px;
+    border-radius: 24px;
     padding: 14px 20px;
-    font-family: 'Press Start 2P', monospace;
-    font-size: 9px;
+    font-family: 'Fredoka', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 1px;
     color: #ff9abf;
     text-align: center;
     box-shadow: 0 4px 20px rgba(176,46,90,0.25);
@@ -120,6 +122,8 @@ body::before {
 .lb-card-sub { 
     font-size: 11px; 
     color: rgba(255,255,255,0.55); 
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 550;
 }
 
 /* Loading spinner */
@@ -150,7 +154,7 @@ body::before {
     padding: 10px 0; 
     font-family: 'Fredoka', sans-serif;
     letter-spacing: 1px;
-    font-size: 18px !important;
+    font-size: 23px !important;
     font-weight: none !important;
 }
 
@@ -198,8 +202,10 @@ body::before {
 }
 .lb-name  {
     flex: 1;
-    font-size: 15px;
-    font-weight: 700;
+    font-size: 18px;
+    font-weight: 600;
+    font-family: 'Fredoka', sans-serif;
+    letter-spacing: 0.5px;
     color: rgba(255,255,255,0.9);
     display: flex;
     align-items: center;
@@ -268,7 +274,7 @@ body::before {
     flex: 1;
     padding: 16px;
     background: rgba(255,255,255,0.06);
-    border: 1px solid rgba(255,255,255,0.18);
+    border: 2px solid rgba(232, 67, 147, 0.5);
     color: rgba(255,255,255,0.75);
     font-family: 'Press Start 2P', monospace;
     font-size: 11px;
@@ -281,10 +287,10 @@ body::before {
     text-align: center;
 }
 .btn-logout:hover {
-    background: rgba(255,80,80,0.15);
-    border-color: rgba(255,80,80,0.4);
-    color: #ff8080;
-    transform: translateY(-2px);
+    background: rgba(232, 67, 147, 0.18); 
+    transform: translateY(-3px);  
+    border-color: rgba(232, 67, 147, 0.4);
+    color: #e8437a;
 }
 .btn-logout:active { 
     transform: translateY(0); 

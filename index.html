@@ -5,7 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Flappy Heart</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Nunito:wght@400;600;700&family=Fredoka:wght@300..700&family=Rubik+Mono+One&display=swap" rel="stylesheet">
+    <link
+      href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Nunito:wght@400;600;700;800&family=Fredoka:wght@300..700&family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap"
+      rel="stylesheet"
+    />
     <link rel="stylesheet" href="src/style/auth.css">
     <style>
         /* SweetAlert2 Custom Styles */
@@ -48,7 +51,7 @@
 <!-- MAIN CONTENT -->
 <div class="auth-wrapper">
 
-    <!-- TITLE SIGN -->
+    <!-- Main Game Tite Structure -->
     <div class="title-sign">
         <div class="title-row">
             <span class="title-heart left-heart">💗</span>
@@ -67,7 +70,7 @@
             <button class="tab" onclick="showTab('register')">REGISTER</button>
         </div>
 
-        <!-- ════ LOGIN FORM ════ -->
+        <!-- Login Form Structure -->
         <div id="loginForm">
 
             <!-- General "fill all fields" message -->
@@ -89,7 +92,7 @@
             
         </div>
 
-        <!-- REGISTER FORM -->
+        <!-- Register Form Structure -->
         <div id="registerForm" style="display:none">
 
             <!-- General "fill all fields" message -->
@@ -122,8 +125,8 @@
             <button class="btn-main" onclick="handleUserRegister()">CREATE ACCOUNT</button>
         </div>
 
-    </div><!-- /auth-card -->
-</div><!-- /auth-wrapper -->
+    </div>
+</div>
 
 <!-- SweetAlert2 -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.10.6/sweetalert2.all.min.js"></script>

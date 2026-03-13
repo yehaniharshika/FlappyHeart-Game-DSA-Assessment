@@ -6,16 +6,16 @@ A browser-based game built with HTML, CSS, and JavaScript as part of the **CIS04
 
 ## 🎮 How to Play
 
-- Press **SPACE** or **click** the canvas to flap
-- Avoid the pipes
+- Press **SPACE** or **up arrow button** the canvas to flap
+- Navigate the heart through the gaps in the pipes to collect points.
 - When you hit a pipe, a **heart puzzle** appears — answer correctly to continue the game again!
-- Score as many points as possible before time runs out (**60 seconds**)
+- The game lasts for **60 seconds**, making it a fast-paced competition to reach the highest score.
 
 ---
 
 ## 📁 Project Structure
 ```
-flappy-heart-v2/
+flappy-heart-game/
 │
 ├── index.html          # Login & Register page
 ├── menu.html           # Main menu
@@ -23,7 +23,7 @@ flappy-heart-v2/
 ├── score.html          # Leaderboard page
 │
 ├── src/
-│   ├── css/
+│   ├── style/
 │   │   ├── auth.css
 │   │   ├── menu.css
 │   │   ├── game.css
@@ -57,10 +57,10 @@ flappy-heart-v2/
 
 ## 🧩 CIS045-3 Themes Covered
 
-1. **Software Design** — 10 IIFE modules in `game.js`, each with a single responsibility
-2. **Event-Driven Programming** — `keydown`, `click`, `requestAnimationFrame`, `setInterval`
-3. **Interoperability** — `HeartAPI` module fetches puzzle via HTTP GET → JSON
-4. **Virtual Identity** — Session cookie (`fh_session`) + Firebase Firestore user storage
+1. **Software Design**
+2. **Event-Driven Programming**
+3. **Interoperability**
+4. **Virtual Identity**
 
 ---
 

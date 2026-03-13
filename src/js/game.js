@@ -73,9 +73,8 @@ function computeBoard() {
     State.setScale(SCALE);
 }
 
-// ─────────────────────────────────────────────────────────────
+
 //  MODULE 1  –  Session  (Virtual Identity)
-// ─────────────────────────────────────────────────────────────
 const Session = (() => {
     const getCookie = n => {
         const m = document.cookie.match(new RegExp('(?:^|; )' + n + '=([^;]*)'));
@@ -93,9 +92,8 @@ const Session = (() => {
     return { getPlayer, guard, deleteSession };
 })();
 
-// ─────────────────────────────────────────────────────────────
+
 //  MODULE 2  –  HeartAPI  (Interoperability)
-// ─────────────────────────────────────────────────────────────
 const HeartAPI = (() => {
     const ENDPOINT = 'https://marcconrad.com/uob/heart/api.php?out=json&decode=yes';
     async function fetchPuzzle() {
@@ -637,7 +635,7 @@ function onCollision() {
     );
 }
 
-/* ── Game Over ── */
+/* Game Over Logic */
 async function triggerGameOver() {
     State.setOver(true);
     GameTimer.stop();
@@ -651,7 +649,7 @@ async function triggerGameOver() {
     if (result.isTopScore && score > 0) showWinner();
 }
 
-/* ── Time Up ── */
+/* Time Up logics(Game 60 second over) */
 async function onTimeUp() {
     State.setOver(true);
     clearInterval(pipeSpawnId);
@@ -664,14 +662,14 @@ async function onTimeUp() {
     if (result.isTopScore && score > 0) showWinner();
 }
 
-/* ── Winner Animation ── */
+/* Winner Animation Logic */
 function showWinner() {
     const overlay = document.getElementById('winnerOverlay');
     if (!overlay) return;
     overlay.style.display = 'flex';
     const heartsEl = document.getElementById('winnerHearts');
     let count = 0;
-    const symbols = ['💗','💖','💝','💓','💕'];
+    const symbols = ['🩷'];
     const iv = setInterval(() => {
         const h = document.createElement('span');
         h.textContent  = symbols[Math.floor(Math.random() * symbols.length)];
@@ -685,7 +683,7 @@ function showWinner() {
     setTimeout(() => { overlay.style.display = 'none'; }, 5000);
 }
 
-/* ── Restart ── */
+/* Restart Game */
 function restartGame() {
     document.getElementById('gameOverModal').style.display = 'none';
     document.getElementById('timeUpModal').style.display   = 'none';
@@ -698,12 +696,15 @@ function restartGame() {
     document.getElementById('startOverlay').style.display = 'flex';
 }
 
-/* ── Change player ── */
-function changePlayer() { window.location.href = './menu.html'; }
 
-/* ── HTML onclick hooks ── */
-function submitPuzzle() { Puzzle.submit(); }
-function failPuzzle()   { Puzzle.cancel(); }
+/* HTML onclick hooks */
+function submitPuzzle() { 
+    Puzzle.submit(); 
+}
+
+function failPuzzle()   { 
+    Puzzle.cancel(); 
+}
 
 // Boot
 window.addEventListener('DOMContentLoaded', init);

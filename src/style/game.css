@@ -49,7 +49,9 @@ body {
 }
 
 .detail-value {
-  font-size: clamp(0.5rem, 1.8vw, 0.85rem);
+  font-size: clamp(1.2rem, 2.8vw, 0.95rem);
+  font-family: 'Fredoka', sans-serif;
+  font-weight: 600;
   color: #fff;
   letter-spacing: 1px;
 }
@@ -269,14 +271,14 @@ kbd {
   margin: 12px 0;
 }
 .puzzle-note {
-  font-family: "Nunito", sans-serif;
+  font-family: "Montserrat", sans-serif;
   font-size: 1rem;
-  font-weight: 700;
+  font-weight: 800;
   color: #c0306a;
   margin-bottom: 14px;
 }
 .puzzle-question {
-  font-family: "Nunito", sans-serif;
+  font-family: "Montserrat", sans-serif;
   font-size: 0.92rem;
   font-weight: 700;
   color: #333;
@@ -404,13 +406,16 @@ kbd {
   padding: 12px 8px;
 }
 .stat-label {
-  font-size: 0.36rem;
+  font-size: 0.4rem;
   letter-spacing: 1px;
   color: rgba(255, 255, 255, 0.45);
   margin-bottom: 6px;
 }
+
 .stat-value {
-  font-size: 0.72rem;
+  font-size: 1rem;
+  font-family: 'Fredoka', sans-serif;
+  font-weight: 500;
   color: #fff;
   word-break: break-all;
 }

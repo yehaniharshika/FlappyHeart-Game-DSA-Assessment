@@ -1,178 +1,217 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Flappy Heart – Play</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Nunito:wght@400;600;700;800&family=Fredoka:wght@300..700&family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap"
+      rel="stylesheet"
+    />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.10.6/sweetalert2.all.min.js"></script>
-    <link rel="stylesheet" href="src/style/game.css">
-    <style> 
-        .winner-overlay {
-            position: fixed;
-            inset: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            background: rgba(0,0,0,0.75);
-            z-index: 9999;
-            pointer-events: none;
+    <link rel="stylesheet" href="src/style/game.css" />
+    <style>
+      .winner-overlay {
+        position: fixed;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        background: rgba(0, 0, 0, 0.75);
+        z-index: 9999;
+        pointer-events: none;
+      }
+      .winner-hearts {
+        position: absolute;
+        inset: 0;
+        overflow: hidden;
+      }
+      .winner-content {
+        position: relative;
+        text-align: center;
+        z-index: 1;
+        animation: winPop 0.5s cubic-bezier(0.17, 0.67, 0.39, 1.4) both;
+      }
+      .winner-title {
+        font-family: "Press Start 2P", monospace;
+        font-size: clamp(14px, 4vw, 22px);
+        color: #f9c74f;
+        text-shadow:
+          0 0 20px #f9c74f,
+          0 0 40px #f9c74f88;
+        margin-bottom: 12px;
+        line-height: 1.6;
+      }
+      .winner-sub {
+        font-family: "Nunito", sans-serif;
+        font-size: 18px;
+        color: #fff;
+        font-weight: 700;
+      }
+      @keyframes winPop {
+        from {
+          transform: scale(0.4);
+          opacity: 0;
         }
-        .winner-hearts {
-            position: absolute;
-            inset: 0;
-            overflow: hidden;
+        to {
+          transform: scale(1);
+          opacity: 1;
         }
-        .winner-content {
-            position: relative;
-            text-align: center;
-            z-index: 1;
-            animation: winPop 0.5s cubic-bezier(.17,.67,.39,1.4) both;
+      }
+      @keyframes winFloat {
+        0% {
+          transform: translateY(0) rotate(0deg);
+          opacity: 1;
         }
-        .winner-title {
-            font-family: 'Press Start 2P', monospace;
-            font-size: clamp(14px, 4vw, 22px);
-            color: #f9c74f;
-            text-shadow: 0 0 20px #f9c74f, 0 0 40px #f9c74f88;
-            margin-bottom: 12px;
-            line-height: 1.6;
+        100% {
+          transform: translateY(-90vh) rotate(360deg);
+          opacity: 0;
         }
-        .winner-sub {
-            font-family: 'Nunito', sans-serif;
-            font-size: 18px;
-            color: #fff;
-            font-weight: 700;
-        }
-        @keyframes winPop {
-            from { transform: scale(0.4); opacity: 0; }
-            to   { transform: scale(1);   opacity: 1; }
-        }
-        @keyframes winFloat {
-            0%   { transform: translateY(0)    rotate(0deg);   opacity: 1; }
-            100% { transform: translateY(-90vh) rotate(360deg); opacity: 0; }
-        }
+      }
     </style>
-</head>
-<body>
-
-<!-- Detail Container -->
-<div class="detail-container" id="hud">
-    <div class="detail-box">
+  </head>
+  <body>
+    <!-- Detail Container -->
+    <div class="detail-container" id="hud">
+      <div class="detail-box">
         <div class="detail-label">PLAYER</div>
         <div class="detail-value" id="hudPlayer">—</div>
-    </div>
-    <div class="detail-box center">
+      </div>
+      <div class="detail-box center">
         <div class="detail-label">SCORE</div>
         <div class="detail-value" id="hudScore">00</div>
-    </div>
-    <div class="detail-box">
+      </div>
+      <div class="detail-box">
         <div class="detail-label">TIME</div>
         <div class="detail-value" id="hudTime">01:00</div>
+      </div>
     </div>
-</div>
 
-<!-- Game Area -->
-<div class="game-main" id="canvasWrap">
-    <div class="game-container" id="canvasContainer">
+    <!-- Game Area -->
+    <div class="game-main" id="canvasWrap">
+      <div class="game-container" id="canvasContainer">
         <canvas id="board"></canvas>
         <div class="game-overlay" id="startOverlay">
-            <p class="overlay-text">Press <kbd>SPACE</kbd> to Start!</p>
+          <p class="overlay-text">Press <kbd>SPACE</kbd> to Start!</p>
         </div>
+      </div>
     </div>
-</div>
 
-<!--  Heart Game API Puzzle Modal -->
-<div class="modal-overlay" id="puzzleModal" style="display:none">
-    <div class="modal-box puzzle-box">
-
+    <!--  Heart Game API Puzzle Modal -->
+    <div class="modal-overlay" id="puzzleModal" style="display: none">
+      <div class="modal-box puzzle-box">
         <div class="puzzle-header">
-            <h1 class="puzzle-title">FlappyHeart</h1>
-            <div class="puzzle-timer-wrap">
-                <svg class="timer-ring" viewBox="0 0 60 60">
-                    <circle class="timer-ring-bg"   cx="30" cy="30" r="26"/>
-                    <circle class="timer-ring-fill" cx="30" cy="30" r="26" id="timerRingFill"/>
-                </svg>
-                <span class="timer-num" id="puzzleTimerNum">10</span>
-            </div>
+          <h1 class="puzzle-title">FlappyHeart</h1>
+          <div class="puzzle-timer-wrap">
+            <svg class="timer-ring" viewBox="0 0 60 60">
+              <circle class="timer-ring-bg" cx="30" cy="30" r="26" />
+              <circle
+                class="timer-ring-fill"
+                cx="30"
+                cy="30"
+                r="26"
+                id="timerRingFill"
+              />
+            </svg>
+            <span class="timer-num" id="puzzleTimerNum">10</span>
+          </div>
         </div>
 
         <div id="puzzleLoading" class="puzzle-loading">
-            <div class="spinner"></div>
-            <p class="loading-text">Loading puzzle…</p>
+          <div class="spinner"></div>
+          <p class="loading-text">Loading puzzle…</p>
         </div>
 
-        <div id="puzzleContent" style="display:none" class="puzzle-body">
-            <img id="puzzleImage" src="" alt="Heart puzzle" class="puzzle-img">
-            <hr class="puzzle-hr">
-            <h2 class="puzzle-note" id="puzzleNote">Quest is ready.</h2>
-            <h2 class="puzzle-question">
-                Enter the number of hearts in the picture:
-                <input type="number" id="puzzleAnswer" class="puzzle-input"
-                       step="1" min="0" max="9" placeholder=""
-                       onkeydown="if(event.key==='Enter') submitPuzzle()">
-            </h2>
-            <p class="error-msg" id="puzzleError"></p>
-            <button class="btn-submit" onclick="submitPuzzle()">SUBMIT ANSWER</button>
+        <div id="puzzleContent" style="display: none" class="puzzle-body">
+          <img id="puzzleImage" src="" alt="Heart puzzle" class="puzzle-img" />
+          <hr class="puzzle-hr" />
+          <h2 class="puzzle-note" id="puzzleNote">Quest is ready.</h2>
+          <h2 class="puzzle-question">
+            Enter the number of hearts in the picture:
+            <input
+              type="number"
+              id="puzzleAnswer"
+              class="puzzle-input"
+              step="1"
+              min="0"
+              max="9"
+              placeholder=""
+              onkeydown="if (event.key === 'Enter') submitPuzzle();"
+            />
+          </h2>
+          <p class="error-msg" id="puzzleError"></p>
+          <button class="btn-submit" onclick="submitPuzzle()">
+            SUBMIT ANSWER
+          </button>
         </div>
-
+      </div>
     </div>
-</div>
 
-<!--  Game Over Modal -->
-<div class="modal-overlay" id="gameOverModal" style="display:none">
-    <div class="modal-box result-box">
+    <!--  Game Over Modal -->
+    <div class="modal-overlay" id="gameOverModal" style="display: none">
+      <div class="modal-box result-box">
         <div class="result-icon">💔</div>
         <h2 class="result-title">GAME OVER!</h2>
         <div class="result-stats">
-            <div class="stat-box">
-                <div class="stat-label">SCORE</div>
-                <div class="stat-value" id="finalScore">0</div>
-            </div>
-            <div class="stat-box">
-                <div class="stat-label">PLAYER</div>
-                <div class="stat-value" id="finalPlayer">—</div>
-            </div>
+          <div class="stat-box">
+            <div class="stat-label">SCORE</div>
+            <div class="stat-value" id="finalScore">0</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">PLAYER</div>
+            <div class="stat-value" id="finalPlayer">—</div>
+          </div>
         </div>
-        <button class="btn-main"      onclick="restartGame()">PLAY AGAIN</button>
-        <button class="btn-secondary"     onclick="window.location.href='score.html'">VIEW SCORES</button>
+        <button class="btn-main" onclick="restartGame()">PLAY AGAIN</button>
+        <button
+          class="btn-secondary"
+          onclick="window.location.href = 'score.html'"
+        >
+          VIEW SCORES
+        </button>
+      </div>
     </div>
-</div>
 
-<!--  Time Up Modal -->
-<div class="modal-overlay" id="timeUpModal" style="display:none">
-    <div class="modal-box result-box">
+    <!--  Time Up Modal -->
+    <div class="modal-overlay" id="timeUpModal" style="display: none">
+      <div class="modal-box result-box">
         <div class="result-icon">⏰</div>
-        <h2 class="result-title" style="color:#f9c74f">TIME'S UP!</h2>
+        <h2 class="result-title" style="color: #f9c74f">TIME'S UP!</h2>
         <div class="result-stats">
-            <div class="stat-box">
-                <div class="stat-label">FINAL SCORE</div>
-                <div class="stat-value" id="timeUpScore">0</div>
-            </div>
-            <div class="stat-box">
-                <div class="stat-label">PLAYER</div>
-                <div class="stat-value" id="timeUpPlayer">—</div>
-            </div>
+          <div class="stat-box">
+            <div class="stat-label">FINAL SCORE</div>
+            <div class="stat-value" id="timeUpScore">0</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">PLAYER</div>
+            <div class="stat-value" id="timeUpPlayer">—</div>
+          </div>
         </div>
-        <button class="btn-main"      onclick="restartGame()">PLAY AGAIN</button>
-        <button class="btn-secondary"     onclick="window.location.href='score.html'">VIEW SCORES</button>
+        <button class="btn-main" onclick="restartGame()">PLAY AGAIN</button>
+        <button
+          class="btn-secondary"
+          onclick="window.location.href = 'score.html'"
+        >
+          VIEW SCORES
+        </button>
+      </div>
     </div>
-</div>
 
-<!--  Winner Overlay  -->
-<div id="winnerOverlay" class="winner-overlay" style="display:none">
-    <div class="winner-hearts" id="winnerHearts"></div>
-    <div class="winner-content">
+    <!--  Winner Overlay  -->
+    <div id="winnerOverlay" class="winner-overlay" style="display: none">
+      <div class="winner-hearts" id="winnerHearts"></div>
+      <div class="winner-content">
         <p class="winner-title">🏆 YOU ARE A WINNER! 🏆</p>
+      </div>
     </div>
-</div>
 
-<!-- Firebase SDK -->
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
-<script src="src/js/config/firebase.config.js"></script>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+    <script src="src/js/config/firebase.config.js"></script>
 
-<script src="src/js/game.js"></script>
-</body>
+    <script src="src/js/game.js"></script>
+  </body>
 </html>
