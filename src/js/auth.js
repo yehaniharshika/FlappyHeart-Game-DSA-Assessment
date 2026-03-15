@@ -313,8 +313,3 @@ function loginUser(name) {
     sessionStorage.setItem("fh_player", name);
     window.location.href = "./menu.html";
 }
-
-//  Google Login — disabled for now
-function handleGoogleLogin() {
-    alert("Google Sign-In is not enabled yet.");
-}

@@ -1,854 +1,701 @@
-//  CIS045-3 Themes:
 //  1. Software Design  – 9 IIFE modules, single-responsibility
 //  2. Event-Driven     – keydown, click, rAF, setInterval
 //  3. Interoperability – Heart API HTTP GET → JSON
 //  4. Virtual Identity – session cookie auth guard
-// ============================================================
-"use strict";
+'use strict';
 
-let BOARD_W = 360;
-let BOARD_H = 640;
-let SCALE = 1;
+let BOARD_W  = 360;
+let BOARD_H  = 640;
+let SCALE    = 1;
 let GROUND_H = 50;
 
+// Desktop (>= 1024px) : 500 x 800
+// Tablet (>=  600px) : 420 x 720
+// Phone (<  600px)  : 360 x 640 
+// change the canvas size according to user playing game device
 function computeBoard() {
-  const sw = window.innerWidth;
+    const sw = window.innerWidth;
 
-  let targetW, targetH;
-  if (sw >= 1024) {
-    targetW = 500;
-    targetH = 800;
-  } else if (sw >= 600) {
-    targetW = 420;
-    targetH = 720;
-  } else {
-    targetW = 360;
-    targetH = 640;
-  }
+    let targetW, targetH;
+    if (sw >= 1024) {
+        targetW = 500; targetH = 800;
+    } else if (sw >= 600) {
+        targetW = 420; targetH = 720;
+    } else {
+        targetW = 360; targetH = 640;
+    }
 
-  // Clamp to available wrapper height (28 = 14px top + 14px bottom padding)
-  const wrap = document.getElementById("canvasWrap");
-  const maxH = wrap.clientHeight - 28;
-  const ratio = targetW / targetH;
+    // Clamp to available wrapper height (28 = 14px top + 14px bottom padding)
+    const wrap  = document.getElementById('canvasWrap');
+    const maxH  = wrap.clientHeight - 28;
+    const ratio = targetW / targetH;
 
-  if (targetH > maxH && maxH > 0) {
-    targetH = Math.max(maxH, 320);
-    targetW = Math.round(targetH * ratio);
-  }
+    if (targetH > maxH && maxH > 0) {
+        targetH = Math.max(maxH, 320);
+        targetW = Math.round(targetH * ratio);
+    }
 
-  BOARD_W = targetW;
-  BOARD_H = targetH;
-  SCALE = BOARD_H / 640;
-  GROUND_H = Math.round(50 * SCALE);
+    BOARD_W  = targetW;
+    BOARD_H  = targetH;
+    SCALE    = BOARD_H / 640;
+    GROUND_H = Math.round(50 * SCALE);
 
-  // Set canvas native resolution
-  const canvas = document.getElementById("board");
-  canvas.width = BOARD_W;
-  canvas.height = BOARD_H;
+    // Set canvas native resolution
+    const canvas    = document.getElementById('board');
+    canvas.width    = BOARD_W;
+    canvas.height   = BOARD_H;
 
-  // Size container to match canvas so overlay aligns perfectly
-  const container = document.getElementById("canvasContainer");
-  container.style.width = BOARD_W + "px";
-  container.style.height = BOARD_H + "px";
+    // Size container to match canvas so overlay aligns perfectly
+    const container = document.getElementById('canvasContainer');
+    container.style.width  = BOARD_W + 'px';
+    container.style.height = BOARD_H + 'px';
 
-  // Re-init renderer
-  Renderer.init(canvas);
+    // Re-init renderer
+    Renderer.init(canvas);
 
-  // Propagate scale to modules
-  PipeManager.setScale(SCALE);
-  State.setScale(SCALE);
+    // Propagate scale to modules
+    PipeManager.setScale(SCALE);
+    HeartState.setScale(SCALE);
 }
 
-//  MODULE 1  –  Session  (Virtual Identity)
+// Session  (Virtual Identity)
+// check user has login or not, if not redirect to login page
 const Session = (() => {
-  const getCookie = (n) => {
-    const m = document.cookie.match(new RegExp("(?:^|; )" + n + "=([^;]*)"));
-    return m ? decodeURIComponent(m[1]) : null;
-  };
-  const getPlayer = () =>
-    sessionStorage.getItem("fh_player") || getCookie("fh_session") || "Player";
-  const guard = () => {
-    if (!getCookie("fh_session")) window.location.href = "./index.html";
-  };
-  const deleteSession = () => {
-    document.cookie =
-      "fh_session=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/";
-    sessionStorage.removeItem("fh_player");
-  };
-  return { getPlayer, guard, deleteSession };
+    const getCookie = n => {
+        const m = document.cookie.match(new RegExp('(?:^|; )' + n + '=([^;]*)'));
+        return m ? decodeURIComponent(m[1]) : null;
+    };
+    const getPlayer = () =>
+        sessionStorage.getItem('fh_player') || getCookie('fh_session') || 'Player';
+    const guard = () => {
+        if (!getCookie('fh_session')) window.location.href = './index.html';
+    };
+    const deleteSession = () => {
+        document.cookie = 'fh_session=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/';
+        sessionStorage.removeItem('fh_player');
+    };
+    return { getPlayer, guard, deleteSession };
 })();
 
-//  MODULE 2  –  HeartAPI  (Interoperability)
+// MODULE 2 - HeartAPI  (Interoperability)
+// use the heart game api to get puzzle question and answer
 const HeartAPI = (() => {
-  const ENDPOINT =
-    "https://marcconrad.com/uob/heart/api.php?out=json&decode=yes";
-  async function fetchPuzzle() {
-    try {
-      const res = await fetch(ENDPOINT);
-      if (!res.ok) throw new Error("HTTP " + res.status);
-      const data = await res.json();
-      return { imageUrl: data.question, solution: Number(data.solution) };
-    } catch (e) {
-      console.warn("[HeartAPI]", e.message);
-      return null;
+    const ENDPOINT = 'https://marcconrad.com/uob/heart/api.php?out=json&decode=yes';
+    async function fetchPuzzle() {
+        try {
+            const res  = await fetch(ENDPOINT);
+            if (!res.ok) throw new Error('HTTP ' + res.status);
+            const data = await res.json();
+            return { imageUrl: data.question, solution: Number(data.solution) };
+        } catch (e) {
+            console.warn('[HeartAPI]', e.message);
+            return null;
+        }
     }
-  }
-  return { fetchPuzzle };
+    return { fetchPuzzle };
 })();
 
-//  MODULE 3  –  GameTimer  (1-minute countdown)
+// MODULE 3 – GameTimer  (1-minute countdown)
 const GameTimer = (() => {
-  const TOTAL = 60;
-  let remaining = TOTAL,
-    id = null,
-    _onTick,
-    _onEnd;
+    const TOTAL = 60;
+    let remaining = TOTAL, id = null, _onTick, _onEnd;
 
-  const fmt = (s) =>
-    `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`;
+    const fmt = s =>
+        `${String(Math.floor(s / 60)).padStart(2,'0')}:${String(s % 60).padStart(2,'0')}`;
 
-  function start(onTick, onEnd) {
-    remaining = TOTAL;
-    _onTick = onTick;
-    _onEnd = onEnd;
-    id = setInterval(() => {
-      if (--remaining <= 0) {
-        stop();
-        _onEnd();
-      } else _onTick(remaining);
-    }, 1000);
-  }
-  function stop() {
-    clearInterval(id);
-    id = null;
-  }
-  function pause() {
-    stop();
-  }
-  function resume(onTick, onEnd) {
-    if (id) return;
-    if (onTick) _onTick = onTick;
-    if (onEnd) _onEnd = onEnd;
-    id = setInterval(() => {
-      if (--remaining <= 0) {
-        stop();
-        _onEnd();
-      } else _onTick(remaining);
-    }, 1000);
-  }
-  function get() {
-    return remaining;
-  }
-  function deduct(seconds) {
-    // subtract puzzle time used
-    remaining = Math.max(remaining - seconds, 0);
-  }
-  return { start, stop, pause, resume, fmt, get, deduct };
+    function start(onTick, onEnd) {
+        remaining = TOTAL; _onTick = onTick; _onEnd = onEnd;
+        id = setInterval(() => {
+            if (--remaining <= 0) { stop(); _onEnd(); } else _onTick(remaining);
+        }, 1000);
+    }
+    function stop()  { clearInterval(id); id = null; }
+    function pause() { stop(); }
+    function resume(onTick, onEnd) {
+        if (id) return;
+        if (onTick) _onTick = onTick;
+        if (onEnd)  _onEnd  = onEnd;
+        id = setInterval(() => {
+            if (--remaining <= 0) { stop(); _onEnd(); } else _onTick(remaining);
+        }, 1000);
+    }
+    function get()           { return remaining; }
+    function deduct(seconds) {                            // subtract puzzle time used
+        remaining = Math.max(remaining - seconds, 0);
+    }
+    return { start, stop, pause, resume, fmt, get, deduct };
 })();
 
-//  MODULE 4  –  PuzzleTimer  (10-second countdown)
+// MODULE 4  –  PuzzleTimer  (10-second countdown)
 const PuzzleTimer = (() => {
-  const TOTAL = 10;
-  const CIRCUMF = 2 * Math.PI * 26; // ≈ 163.4
-  let remaining = TOTAL,
-    id = null,
-    _onEnd;
+    const TOTAL   = 10;
+    const CIRCUMF = 2 * Math.PI * 26;  // ≈ 163.4
+    let remaining = TOTAL, id = null, _onEnd;
 
-  function _update() {
-    const offset = CIRCUMF * (1 - remaining / TOTAL);
-    const ring = document.getElementById("timerRingFill");
-    const numEl = document.getElementById("puzzleTimerNum");
-    if (ring) {
-      ring.style.strokeDashoffset = offset;
-      ring.setAttribute(
-        "class",
-        "timer-ring-fill" +
-          (remaining <= 3 ? " urgent" : remaining <= 6 ? " warn" : ""),
-      );
+    function _update() {
+        const offset = CIRCUMF * (1 - remaining / TOTAL);
+        const ring   = document.getElementById('timerRingFill');
+        const numEl  = document.getElementById('puzzleTimerNum');
+        if (ring) {
+            ring.style.strokeDashoffset = offset;
+            ring.setAttribute('class', 'timer-ring-fill' +
+                (remaining <= 3 ? ' urgent' : remaining <= 6 ? ' warn' : ''));
+        }
+        if (numEl) numEl.textContent = remaining;
     }
-    if (numEl) numEl.textContent = remaining;
-  }
 
-  function start(onEnd) {
-    remaining = TOTAL;
-    _onEnd = onEnd;
-    _update();
-    id = setInterval(() => {
-      if (--remaining <= 0) {
-        stop();
-        _onEnd();
-      } else _update();
-    }, 1000);
-  }
-  function stop() {
-    clearInterval(id);
-    id = null;
-  }
-  function getElapsed() {
-    return TOTAL - remaining;
-  } // seconds used so far
-  return { start, stop, getElapsed };
+    function start(onEnd) {
+        remaining = TOTAL; _onEnd = onEnd; _update();
+        id = setInterval(() => {
+            if (--remaining <= 0) { stop(); _onEnd(); } else _update();
+        }, 1000);
+    }
+    function stop()       { clearInterval(id); id = null; }
+    function getElapsed() { return TOTAL - remaining; }   // seconds used so far
+    return { start, stop, getElapsed };
 })();
 
-//  MODULE 5  –  Renderer
+// MODULE 5  –  Renderer
 const Renderer = (() => {
-  let ctx, W, H;
-  function init(canvas) {
-    ctx = canvas.getContext("2d");
-    W = canvas.width;
-    H = canvas.height;
-  }
-  function image(img, x, y, w, h) {
-    if (img && img.complete && img.naturalWidth) ctx.drawImage(img, x, y, w, h);
-  }
-  function rect(color, x, y, w, h) {
-    ctx.fillStyle = color;
-    ctx.fillRect(x, y, w, h);
-  }
-  function get() {
-    return ctx;
-  }
-  function size() {
-    return { W, H };
-  }
-  return { init, image, rect, get, size };
+    let ctx, W, H;
+    function init(canvas) {
+        ctx = canvas.getContext('2d');
+        W   = canvas.width;
+        H   = canvas.height;
+    }
+    function image(img, x, y, w, h) {
+        if (img && img.complete && img.naturalWidth) ctx.drawImage(img, x, y, w, h);
+    }
+    function rect(color, x, y, w, h) { ctx.fillStyle = color; ctx.fillRect(x, y, w, h); }
+    function get()  { return ctx; }
+    function size() { return { W, H }; }
+    return { init, image, rect, get, size };
 })();
 
-//  MODULE 6  –  Collision  (AABB)
+//  MODULE 6  –  Heart Collision Logic
 const Collision = (() => {
-  function hit(a, b) {
-    return (
-      a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y
-    );
-  }
-  return { hit };
+    function hit(a, b) {
+        return a.x < b.x + b.w && a.x + a.w > b.x &&
+               a.y < b.y + b.h && a.y + a.h > b.y;
+    }
+    return { hit };
 })();
 
-//  MODULE 7  –  PipeManager
-//  Pipe sizes and velocity scale with SCALE so pipes look the
-//  same relative to the board on every screen.
+// MODULE 7  –  PipeManager Logics
+// Move the pipes, spawn new ones, draw them, and handle pipe-passing logic for scoring.
 const PipeManager = (() => {
-  let pipes = [],
-    topImg,
-    botImg;
+    let pipes = [], topImg, botImg;
 
-  // Scaled constants – updated by setScale()
-  let PW = 64,
-    PH = 512,
-    VX = -2;
+    // Scaled constants – updated by setScale()
+    let PW = 64, PH = 512, VX = -2;
 
-  function setScale(s) {
-    PW = Math.round(64 * s);
-    PH = Math.round(512 * s);
-    VX = -(2 * s);
-  }
-
-  function init(t, b) {
-    topImg = t;
-    botImg = b;
-    pipes = [];
-  }
-  function reset() {
-    pipes = [];
-  }
-
-  function spawn(bw, bh) {
-    const gapH = bh * 0.28;
-    const minY = -PH + Math.round(80 * SCALE);
-    const maxY = -PH + bh - gapH - Math.round(80 * SCALE);
-    const topY = minY + Math.random() * (maxY - minY);
-    pipes.push({
-      img: topImg,
-      x: bw,
-      y: topY,
-      w: PW,
-      h: PH,
-      isTop: true,
-      passed: false,
-    });
-    pipes.push({
-      img: botImg,
-      x: bw,
-      y: topY + PH + gapH,
-      w: PW,
-      h: PH,
-      isTop: false,
-      passed: false,
-    });
-  }
-
-  function update(heartX, onPass) {
-    for (const p of pipes) {
-      p.x += VX;
-      if (p.img && p.img.complete && p.img.naturalWidth) {
-        Renderer.image(p.img, p.x, p.y, p.w, p.h);
-      } else {
-        _fallback(p);
-      }
-      if (!p.passed && p.isTop && heartX > p.x + p.w) {
-        p.passed = true;
-        onPass();
-      }
+    function setScale(s) {
+        PW = Math.round(64 * s);
+        PH = Math.round(512 * s);
+        VX = -(2 * s);
     }
-    while (pipes.length && pipes[0].x < -PW) pipes.splice(0, 2);
-  }
 
-  function _fallback(p) {
-    const ctx = Renderer.get();
-    const g = ctx.createLinearGradient(p.x, 0, p.x + p.w, 0);
-    g.addColorStop(0, "#66bb6a");
-    g.addColorStop(0.45, "#4caf50");
-    g.addColorStop(1, "#388e3c");
-    ctx.fillStyle = g;
-    ctx.fillRect(p.x, p.y, p.w, p.h);
-    const capH = Math.round(22 * SCALE);
-    const capY = p.isTop ? p.y + p.h - capH : p.y;
-    ctx.fillStyle = "#2e7d32";
-    ctx.fillRect(
-      p.x - Math.round(8 * SCALE),
-      capY,
-      p.w + Math.round(16 * SCALE),
-      capH,
-    );
-  }
+    function init(t, b) { topImg = t; botImg = b; pipes = []; }
+    function reset()    { pipes = []; }
 
-  function getAll() {
-    return pipes;
-  }
-
-  function removeOverlapping(bird) {
-    const hitXSet = new Set();
-    for (const p of pipes) {
-      if (Collision.hit(bird, p)) hitXSet.add(Math.round(p.x));
+    function spawn(bw, bh) {
+        const gapH = bh * 0.28;
+        const minY = -PH + Math.round(80 * SCALE);
+        const maxY = -PH + bh - gapH - Math.round(80 * SCALE);
+        const topY = minY + Math.random() * (maxY - minY);
+        pipes.push({ img: topImg, x: bw, y: topY,             w: PW, h: PH, isTop: true,  passed: false });
+        pipes.push({ img: botImg, x: bw, y: topY + PH + gapH, w: PW, h: PH, isTop: false, passed: false });
     }
-    if (hitXSet.size > 0) {
-      pipes = pipes.filter((p) => !hitXSet.has(Math.round(p.x)));
-    }
-  }
 
-  return { init, reset, spawn, update, getAll, removeOverlapping, setScale };
+    function update(heartX, onPass) {
+        for (const p of pipes) {
+            p.x += VX;
+            if (p.img && p.img.complete && p.img.naturalWidth) {
+                Renderer.image(p.img, p.x, p.y, p.w, p.h);
+            } else {
+                _fallback(p);
+            }
+            if (!p.passed && p.isTop && heartX > p.x + p.w) {
+                p.passed = true; onPass();
+            }
+        }
+        while (pipes.length && pipes[0].x < -PW) pipes.splice(0, 2);
+    }
+
+    function _fallback(p) {
+        const ctx  = Renderer.get();
+        const g    = ctx.createLinearGradient(p.x, 0, p.x + p.w, 0);
+        g.addColorStop(0, '#66bb6a'); g.addColorStop(.45, '#4caf50'); g.addColorStop(1, '#388e3c');
+        ctx.fillStyle = g;
+        ctx.fillRect(p.x, p.y, p.w, p.h);
+        const capH = Math.round(22 * SCALE);
+        const capY = p.isTop ? p.y + p.h - capH : p.y;
+        ctx.fillStyle = '#2e7d32';
+        ctx.fillRect(p.x - Math.round(8 * SCALE), capY, p.w + Math.round(16 * SCALE), capH);
+    }
+
+    function getAll() { return pipes; }
+
+    function removeOverlapping(bird) {
+        const hitXSet = new Set();
+        for (const p of pipes) {
+            if (Collision.hit(bird, p)) hitXSet.add(Math.round(p.x));
+        }
+        if (hitXSet.size > 0) {
+            pipes = pipes.filter(p => !hitXSet.has(Math.round(p.x)));
+        }
+    }
+
+    return { init, reset, spawn, update, getAll, removeOverlapping, setScale };
 })();
 
-//  MODULE 8  –  State
-const State = (() => {
-  // Scaled constants – updated by setScale()
-  let BW = 34,
-    BH = 24,
-    GRAVITY = 0.4,
-    JUMP_V = -6.2;
+// MODULE 8  –  HeartState
+// Bird size and physics constants scale with SCALE.
+const HeartState = (() => {
+    let HeartWidth = 42, HeartHeight = 30, GRAVITY = 0.40, JUMP_V = -6.2;
 
-  let heartX, heartY, vy, score, started, over, paused;
+    let heartX, heartY, vy, score, started, over, paused;
 
-  function setScale(s) {
-    BW = Math.round(34 * s);
-    BH = Math.round(24 * s);
-    GRAVITY = 0.4 * s;
-    JUMP_V = -6.2 * s;
-  }
-
-  function reset(boardH) {
-    heartY = boardH / 2;
-    heartX = Math.round(BOARD_W / 8);
-    vy = 0;
-    score = 0;
-    started = false;
-    over = false;
-    paused = false;
-  }
-  function jump() {
-    vy = JUMP_V;
-  }
-  function step() {
-    vy += GRAVITY;
-    heartY = Math.max(heartY + vy, 0);
-  }
-  function heart() {
-    return { x: heartX, y: heartY, w: BW, h: BH };
-  }
-  function addScore(n) {
-    score += n;
-  }
-  function get() {
-    return { score, started, over, paused };
-  }
-  function setStarted(v) {
-    started = v;
-  }
-  function setOver(v) {
-    over = v;
-  }
-  function setPaused(v) {
-    paused = v;
-  }
-  function getHeartSize() {
-    return { BW, BH };
-  }
-  return {
-    reset,
-    jump,
-    step,
-    heart,
-    addScore,
-    get,
-    setStarted,
-    setOver,
-    setPaused,
-    setScale,
-    getHeartSize,
-  };
-})();
-
-//  MODULE 9  –  HUD
-const HUD = (() => {
-  function update(player, score, timeSec) {
-    const p = document.getElementById("hudPlayer");
-    if (p)
-      p.textContent = player.length > 9 ? player.slice(0, 9) + "…" : player;
-    const s = document.getElementById("hudScore");
-    if (s) s.textContent = String(score).padStart(2, "0");
-    const t = document.getElementById("hudTime");
-    if (t) {
-      t.textContent = GameTimer.fmt(timeSec);
-      if (timeSec <= 10) t.classList.add("danger");
-      else t.classList.remove("danger");
+    function setScale(s) {
+        HeartWidth      = Math.round(42 * s);
+        HeartHeight      = Math.round(30 * s);
+        GRAVITY = 0.40 * s;
+        JUMP_V  = -6.2 * s;
     }
-  }
-  return { update };
+
+    function resetGame(boardH) {
+        heartY   = boardH / 2;
+        heartX   = Math.round(BOARD_W / 8);
+        vy      = 0; score = 0;
+        started = false; over = false; paused = false;
+    }
+    function flapHeart() { 
+        vy = JUMP_V; 
+    }
+
+    function updatePhysics() {
+        vy += GRAVITY; heartY = Math.max(heartY + vy, 0); 
+    }
+
+    function getHeartRect() { 
+        return { 
+            x: heartX, y: heartY, w: HeartWidth, h: HeartHeight 
+        }; 
+    }
+
+    function addPoints(n) { 
+        score += n; 
+    }
+
+    function getGameState() {
+        return { 
+            score, started, over, paused 
+        }; 
+    }
+
+    function markStarted(v) { 
+        started = v; 
+    }
+
+    function markGameOver(v)    { 
+        over    = v; 
+    }
+
+    function markPaused(v)  { 
+        paused  = v; 
+    }
+
+    function getHeartSize() {
+        return { HeartWidth, HeartHeight }; 
+    }
+
+    return { resetGame, flapHeart, updatePhysics, getHeartRect, addPoints, getGameState, markStarted, markGameOver, markPaused, setScale, getHeartSize };
 })();
 
-//  MODULE 10  –  ScoreBoard  (High Cohesion: score persistence only)
+// MODULE 9  –  GameDisplay Logic
+const GameDisplay = (() => {
+    function refreshDisplay(player, score, timeSec) {
+        const p = document.getElementById('hudPlayer');
+        if (p) p.textContent = player.length > 9 ? player.slice(0,9)+'…' : player;
+        const s = document.getElementById('hudScore');
+        if (s) s.textContent = String(score).padStart(2, '0');
+        const t = document.getElementById('hudTime');
+        if (t) {
+            t.textContent = GameTimer.fmt(timeSec);
+            if (timeSec <= 10) t.classList.add('danger');
+            else               t.classList.remove('danger');
+        }
+    }
+    return { refreshDisplay };
+})();
+
+// MODULE 10  –  ScoreBoard Logics (High Cohesion: score persistence only) 
 const ScoreBoard = (() => {
-  // Save or update player's best score in Firestore
-  async function saveScore(name, score) {
-    if (typeof db === "undefined") return { isTopScore: false };
-    try {
-      const docId = name.toLowerCase().replace(/\s+/g, "_");
-      const ref = db.collection("scores").doc(docId);
-      const snap = await ref.get();
-      const prev = snap.exists ? snap.data().bestScore || 0 : 0;
 
-      // Get current #1 score on leaderboard BEFORE saving
-      const topSnap = await db
-        .collection("scores")
-        .orderBy("bestScore", "desc")
-        .limit(1)
-        .get();
-      const topScore = topSnap.empty
-        ? 0
-        : topSnap.docs[0].data().bestScore || 0;
-      const topOwner = topSnap.empty ? "" : topSnap.docs[0].data().player || "";
+    // Save or update player's best score in Firestore
+    async function saveScore(name, score) {
+        if (typeof db === 'undefined') return { isTopScore: false };
+        try {
+            const docId = name.toLowerCase().replace(/\s+/g, '_');
+            const ref   = db.collection('scores').doc(docId);
+            const snap  = await ref.get();
+            const prev  = snap.exists ? (snap.data().bestScore || 0) : 0;
 
-      // Save if personal best
-      if (score > prev) {
-        await ref.set({
-          player: name,
-          bestScore: score,
-          updatedAt: new Date().toISOString(),
-        });
-      }
+            // Get current #1 score on leaderboard BEFORE saving
+            const topSnap = await db.collection('scores')
+                .orderBy('bestScore', 'desc')
+                .limit(1)
+                .get();
+            const topScore = topSnap.empty ? 0 : topSnap.docs[0].data().bestScore || 0;
+            const topOwner = topSnap.empty ? '' : topSnap.docs[0].data().player || '';
 
-      // Winner = beat the #1 leaderboard score
-      // (or score > topScore, OR they are already #1 and improved it)
-      const isTopScore =
-        score > topScore ||
-        (topOwner.toLowerCase() === name.toLowerCase() &&
-          score > prev &&
-          score >= topScore);
+            // Save if personal best
+            if (score > prev) {
+                await ref.set({
+                    player:    name,
+                    bestScore: score,
+                    updatedAt: new Date().toISOString()
+                });
+            }
 
-      return { isTopScore, isNewBest: score > prev };
-    } catch (e) {
-      console.warn("[ScoreBoard save]", e.message);
-      return { isTopScore: false, isNewBest: false };
+            // Winner = beat the #1 leaderboard score
+            // (or score > topScore, OR they are already #1 and improved it)
+            const isTopScore = score > topScore ||
+                (topOwner.toLowerCase() === name.toLowerCase() && score > prev && score >= topScore);
+
+            return { isTopScore, isNewBest: score > prev };
+        } catch (e) {
+            console.warn('[ScoreBoard save]', e.message);
+            return { isTopScore: false, isNewBest: false };
+        }
     }
-  }
 
-  return { saveScore };
+    return { saveScore };
 })();
 
-//  PUZZLE CONTROLLER
+// Puzzle Controller Logic(Low coupling)
 const Puzzle = (() => {
-  let solution = null,
-    _onCorrect,
-    _onFail;
+    let solution = null, _onCorrect, _onFail;
 
-  async function show(onCorrect, onFail) {
-    _onCorrect = onCorrect;
-    _onFail = onFail;
-    solution = null;
+    async function show(onCorrect, onFail) {
+        _onCorrect = onCorrect; _onFail = onFail; solution = null;
 
-    _el("puzzleError").textContent = "";
-    _el("puzzleAnswer").value = "";
-    _el("puzzleNote").textContent = "Loading quest…";
-    _el("puzzleLoading").style.display = "flex";
-    _el("puzzleContent").style.display = "none";
-    _el("puzzleModal").style.display = "flex";
+        _el('puzzleError').textContent  = '';
+        _el('puzzleAnswer').value       = '';
+        _el('puzzleNote').textContent   = 'Loading quest…';
+        _el('puzzleLoading').style.display = 'flex';
+        _el('puzzleContent').style.display = 'none';
+        _el('puzzleModal').style.display   = 'flex';
 
-    // 10-second timer starts immediately
-    PuzzleTimer.start(() => {
-      _dismiss();
-      _onFail();
-    });
+        // 10-second timer starts immediately
+        PuzzleTimer.start(() => { _dismiss(); _onFail(); });
 
-    const data = await HeartAPI.fetchPuzzle();
+        const data = await HeartAPI.fetchPuzzle();
 
-    _el("puzzleLoading").style.display = "none";
-    _el("puzzleContent").style.display = "block";
+        _el('puzzleLoading').style.display = 'none';
+        _el('puzzleContent').style.display = 'block';
 
-    if (!data) {
-      _el("puzzleNote").textContent = "API unavailable.";
-      _el("puzzleError").textContent = "Could not load puzzle — continuing…";
-      setTimeout(() => {
-        _dismiss();
-        _onCorrect();
-      }, 1500);
-      return;
+        if (!data) {
+            _el('puzzleNote').textContent  = 'API unavailable.';
+            _el('puzzleError').textContent = 'Could not load puzzle — continuing…';
+            setTimeout(() => { _dismiss(); _onCorrect(); }, 1500);
+            return;
+        }
+
+        solution = data.solution;
+        _el('puzzleImage').src        = data.imageUrl;
+        _el('puzzleNote').textContent = 'Quest is ready.';
+        _el('puzzleAnswer').focus();
     }
 
-    solution = data.solution;
-    _el("puzzleImage").src = data.imageUrl;
-    _el("puzzleNote").textContent = "Quest is ready.";
-    _el("puzzleAnswer").focus();
-  }
+    function submit() {
+        const raw = _el('puzzleAnswer').value;
+        const ans = parseInt(raw, 10);
+        const err = _el('puzzleError');
+        err.textContent = '';
 
-  function submit() {
-    const raw = _el("puzzleAnswer").value;
-    const ans = parseInt(raw, 10);
-    const err = _el("puzzleError");
-    err.textContent = "";
+        if (raw === '' || isNaN(ans)) { err.textContent = 'Please enter a number!'; return; }
 
-    if (raw === "" || isNaN(ans)) {
-      err.textContent = "Please enter a number!";
-      return;
+        if (ans === solution) {
+            _dismiss(); _onCorrect();
+        } else {
+            err.textContent = `Wrong! Answer was ${solution}.`;
+            setTimeout(() => { _dismiss(); _onFail(); }, 1400);
+        }
     }
 
-    if (ans === solution) {
-      _dismiss();
-      _onCorrect();
-    } else {
-      err.textContent = `Wrong! Answer was ${solution}.`;
-      setTimeout(() => {
-        _dismiss();
-        _onFail();
-      }, 1400);
-    }
-  }
-
-  function cancel() {
-    _dismiss();
-    _onFail();
-  }
-  function _dismiss() {
-    PuzzleTimer.stop();
-    _el("puzzleModal").style.display = "none";
-  }
-  function _el(id) {
-    return document.getElementById(id);
-  }
-  return { show, submit, cancel };
+    function cancel() { _dismiss(); _onFail(); }
+    function _dismiss() { PuzzleTimer.stop(); _el('puzzleModal').style.display = 'none'; }
+    function _el(id)    { return document.getElementById(id); }
+    return { show, submit, cancel };
 })();
 
 //  GAME CONTROLLER
 let heartImg, topPipeImg, botPipeImg;
-let pipeSpawnId = null;
-let playerName = "Player";
-let puzzleOpen = false;
-let invincible = false;
+let pipeSpawnId  = null;
+let playerName   = 'Player';
+let puzzleOpen   = false;
+let invincible   = false;
 
 /* Images */
 function loadImages() {
-  heartImg = new Image();
-  heartImg.src = "src/assets/images/flappy-heart.png";
-  topPipeImg = new Image();
-  topPipeImg.src = "src/assets/images/toppipe.png";
-  botPipeImg = new Image();
-  botPipeImg.src = "src/assets/images/bottompipe.png";
+    heartImg    = new Image(); heartImg.src    = 'src/assets/images/flappy-heart.png';
+    topPipeImg = new Image(); topPipeImg.src = 'src/assets/images/toppipe.png';
+    botPipeImg = new Image(); botPipeImg.src = 'src/assets/images/bottompipe.png';
 }
 
 /* Draw background */
 function drawBackground() {
-  const ctx = Renderer.get();
+    const ctx = Renderer.get();
 
-  // Sky gradient
-  const sky = ctx.createLinearGradient(0, 0, 0, BOARD_H);
-  sky.addColorStop(0, "#0d1b3e");
-  sky.addColorStop(0.6, "#1a3a6e");
-  sky.addColorStop(1, "#2a5298");
-  ctx.fillStyle = sky;
-  ctx.fillRect(0, 0, BOARD_W, BOARD_H);
+    // Sky gradient
+    const sky = ctx.createLinearGradient(0, 0, 0, BOARD_H);
+    sky.addColorStop(0,    '#0d1b3e');
+    sky.addColorStop(0.60, '#1a3a6e');
+    sky.addColorStop(1,    '#2a5298');
+    ctx.fillStyle = sky;
+    ctx.fillRect(0, 0, BOARD_W, BOARD_H);
 
-  // Ground
-  const grd = ctx.createLinearGradient(0, BOARD_H - GROUND_H, 0, BOARD_H);
-  grd.addColorStop(0, "#7a4a1e");
-  grd.addColorStop(0.45, "#5c3317");
-  grd.addColorStop(1, "#3d2010");
-  ctx.fillStyle = grd;
-  ctx.fillRect(0, BOARD_H - GROUND_H, BOARD_W, GROUND_H);
+    // Ground
+    const grd = ctx.createLinearGradient(0, BOARD_H - GROUND_H, 0, BOARD_H);
+    grd.addColorStop(0,    '#7a4a1e');
+    grd.addColorStop(0.45, '#5c3317');
+    grd.addColorStop(1,    '#3d2010');
+    ctx.fillStyle = grd;
+    ctx.fillRect(0, BOARD_H - GROUND_H, BOARD_W, GROUND_H);
 
-  // Ground top edge line
-  const edgeH = Math.max(2, Math.round(3 * SCALE));
-  ctx.fillStyle = "#a0622a";
-  ctx.fillRect(0, BOARD_H - GROUND_H, BOARD_W, edgeH);
+    // Ground top edge line
+    const edgeH = Math.max(2, Math.round(3 * SCALE));
+    ctx.fillStyle = '#a0622a';
+    ctx.fillRect(0, BOARD_H - GROUND_H, BOARD_W, edgeH);
 }
 
-/* Draw Heaart */
+/* Draw bird */
 function drawHeart(b) {
-  if (heartImg && heartImg.complete && heartImg.naturalWidth) {
-    Renderer.image(heartImg, b.x, b.y, b.w, b.h);
-  } else {
-    _heartFallback(b.x, b.y, b.w);
-  }
+    if (heartImg && heartImg.complete && heartImg.naturalWidth) {
+        Renderer.image(heartImg, b.x, b.y, b.w, b.h);
+    } else {
+        _heartFallback(b.x, b.y, b.w);
+    }
 }
 
 function _heartFallback(x, y, size) {
-  const ctx = Renderer.get();
-  ctx.save();
-  ctx.fillStyle = "#e8437a";
-  ctx.shadowColor = "#e8437a";
-  ctx.shadowBlur = Math.round(10 * SCALE);
-  const s = size / 2;
-  ctx.beginPath();
-  ctx.moveTo(x + s, y + s * 0.4);
-  ctx.bezierCurveTo(x + s, y, x, y, x, y + s * 0.5);
-  ctx.bezierCurveTo(x, y + s * 1.1, x + s, y + s * 1.5, x + s, y + s * 1.7);
-  ctx.bezierCurveTo(
-    x + s,
-    y + s * 1.5,
-    x + s * 2,
-    y + s * 1.1,
-    x + s * 2,
-    y + s * 0.5,
-  );
-  ctx.bezierCurveTo(x + s * 2, y, x + s, y, x + s, y + s * 0.4);
-  ctx.fill();
-  ctx.restore();
+    const ctx = Renderer.get();
+    ctx.save();
+    ctx.fillStyle = '#e8437a';
+    ctx.shadowColor = '#e8437a'; ctx.shadowBlur = Math.round(10 * SCALE);
+    const s = size / 2;
+    ctx.beginPath();
+    ctx.moveTo(x+s, y+s*.4);
+    ctx.bezierCurveTo(x+s,y,           x,y,           x,y+s*.5);
+    ctx.bezierCurveTo(x,y+s*1.1,       x+s,y+s*1.5,   x+s,y+s*1.7);
+    ctx.bezierCurveTo(x+s,y+s*1.5,     x+s*2,y+s*1.1, x+s*2,y+s*.5);
+    ctx.bezierCurveTo(x+s*2,y,         x+s,y,         x+s,y+s*.4);
+    ctx.fill();
+    ctx.restore();
 }
 
-/* Resize handler */
+/* Resize handler logics */
 function onResize() {
-  const wasStarted = State.get().started;
-  const wasOver = State.get().over;
-  const gameInProgress = wasStarted && !wasOver;
+    const wasStarted = HeartState.getGameState().started;
+    const wasOver    = HeartState.getGameState().over;
+    const gameInProgress = wasStarted && !wasOver;
 
-  computeBoard();
+    computeBoard();
 
-  if (!gameInProgress) {
-    // Game not running — safe to fully reset
-    State.reset(BOARD_H);
-    HUD.update(playerName, 0, 60);
-    PipeManager.init(topPipeImg, botPipeImg); // only clear pipes when game is NOT active
-  }
+    if (!gameInProgress) {
+        // Game not running — safe to fully reset
+        HeartState.resetGame(BOARD_H);
+        GameDisplay.refreshDisplay(playerName, 0, 60);
+        PipeManager.init(topPipeImg, botPipeImg);  // only clear pipes when game is NOT active
+    }
+    // If game is in progress: only scale is updated by computeBoard(),
+    // pipes and bird position are preserved — game continues normally
 }
 
-/* INIT */
+/* First  Initialization setup*/
 function init() {
-  Session.guard();
-  playerName = Session.getPlayer();
-  loadImages();
+    Session.guard();
+    playerName = Session.getPlayer();
+    loadImages();
 
-  computeBoard();
-  PipeManager.init(topPipeImg, botPipeImg);
-  State.reset(BOARD_H);
-  HUD.update(playerName, 0, 60);
+    computeBoard();
+    PipeManager.init(topPipeImg, botPipeImg);
+    HeartState.resetGame(BOARD_H);
+    GameDisplay.refreshDisplay(playerName, 0, 60);
 
-  window.addEventListener("resize", onResize);
+    window.addEventListener('resize', onResize);
 
-  // Event-Driven: keyboard, mouse/touch, render loop
-  document.addEventListener("keydown", onKeyDown);
-  document.getElementById("board").addEventListener("click", onTap);
-  document.getElementById("startOverlay").addEventListener("click", onTap);
+    // Event-Driven: keyboard, mouse/touch, render loop
+    document.addEventListener('keydown', onKeyDown);
+    document.getElementById('board').addEventListener('click', onTap);
+    document.getElementById('startOverlay').addEventListener('click', onTap);
 
-  requestAnimationFrame(gameLoop);
+    requestAnimationFrame(gameLoop);
 }
 
 /* Input */
 function onKeyDown(e) {
-  if (e.code === "Space" || e.code === "ArrowUp" || e.code === "KeyX") {
-    e.preventDefault();
-    flap();
-  }
+    if (e.code === 'Space' || e.code === 'ArrowUp') {
+        e.preventDefault(); flap();
+    }
 }
-function onTap() {
-  flap();
-}
+function onTap()  { flap(); }
 
 function flap() {
-  if (puzzleOpen) return;
-  const { started, over, paused } = State.get();
-  if (!started) {
-    startGame();
-    return;
-  }
-  if (over || paused) return;
-  State.jump();
+    if (puzzleOpen) return;
+    const { started, over, paused } = HeartState.getGameState();
+    if (!started) { startGame(); return; }
+    if (over || paused) return;
+    HeartState.flapHeart();
 }
 
-/* Start game LOGIC */
+/* Start game */
 function startGame() {
-  document.getElementById("startOverlay").style.display = "none";
-  State.setStarted(true);
+    document.getElementById('startOverlay').style.display = 'none';
+    HeartState.markStarted(true);
 
-  pipeSpawnId = setInterval(() => {
-    const { over, paused } = State.get();
-    if (!over && !paused) PipeManager.spawn(BOARD_W, BOARD_H);
-  }, 1500);
+    pipeSpawnId = setInterval(() => {
+        const { over, paused } = HeartState.getGameState();
+        if (!over && !paused) PipeManager.spawn(BOARD_W, BOARD_H);
+    }, 1500);
 
-  GameTimer.start(
-    (rem) => HUD.update(playerName, State.get().score, rem),
-    () => onTimeUp(),
-  );
+    GameTimer.start(
+        rem => GameDisplay.refreshDisplay(playerName, HeartState.getGameState().score, rem),
+        ()  => onTimeUp()
+    );
 }
 
-/* Render GAME loop logic */
+/* Render Game loop logic */
 function gameLoop() {
-  requestAnimationFrame(gameLoop);
-  const { started, over, paused } = State.get();
+    requestAnimationFrame(gameLoop);
+    const { started, over, paused } = HeartState.getGameState();
 
-  drawBackground();
+    drawBackground();
 
-  if (!started || paused || over) {
-    drawHeart(State.heart());
-    return;
-  }
-
-  State.step();
-  const b = State.heart();
-
-  PipeManager.update(b.x, () => {
-    State.addScore(25);
-    HUD.update(playerName, State.get().score, GameTimer.get());
-  });
-
-  drawHeart(b);
-
-  // Ground collision
-  if (b.y + b.h >= BOARD_H - GROUND_H) {
-    onCollision();
-    return;
-  }
-
-  // Pipe collision (skipped during invincibility window)
-  if (!invincible) {
-    for (const p of PipeManager.getAll()) {
-      if (Collision.hit(b, p)) {
-        onCollision();
+    if (!started || paused || over) {
+        drawHeart(HeartState.getHeartRect());
         return;
-      }
     }
-  }
+
+    HeartState.updatePhysics();
+    const b = HeartState.getHeartRect();
+
+    PipeManager.update(b.x, () => {
+        HeartState.addPoints(25);
+        GameDisplay.refreshDisplay(playerName, HeartState.getGameState().score, GameTimer.get());
+    });
+
+    drawHeart(b);
+
+    // Ground collision
+    if (b.y + b.h >= BOARD_H - GROUND_H) { onCollision(); return; }
+
+    // Pipe collision (skipped during invincibility window)
+    if (!invincible) {
+        for (const p of PipeManager.getAll()) {
+            if (Collision.hit(b, p)) { onCollision(); return; }
+        }
+    }
 }
 
-/* Collision → puzzle */
+/* Collision → popup puzzle logic*/
 function onCollision() {
-  if (puzzleOpen) return;
-  puzzleOpen = true;
-  State.setPaused(true);
-  GameTimer.pause();
+    if (puzzleOpen) return;
+    puzzleOpen = true;
+    HeartState.markPaused(true);
+    GameTimer.pause();
 
-  Puzzle.show(
-    () => {
-      puzzleOpen = false;
-      const timeUsed = PuzzleTimer.getElapsed();
-      PipeManager.removeOverlapping(State.heart());
-      invincible = true;
-      setTimeout(() => {
-        invincible = false;
-      }, 1500);
-      State.jump();
-      State.setPaused(false);
-      GameTimer.deduct(timeUsed);
-      if (GameTimer.get() <= 0) {
-        onTimeUp();
-        return;
-      } // already 0 = time up
-      GameTimer.resume(
-        (rem) => HUD.update(playerName, State.get().score, rem),
-        () => onTimeUp(),
-      );
-    },
-    () => {
-      puzzleOpen = false;
-      triggerGameOver();
-    },
-  );
+    Puzzle.show(
+        () => { 
+            // when answer is correct
+            puzzleOpen = false;
+            const timeUsed = PuzzleTimer.getElapsed();
+            PipeManager.removeOverlapping(HeartState.getHeartRect());
+            invincible = true;
+            setTimeout(() => { invincible = false; }, 1500);
+            HeartState.flapHeart();
+            HeartState.markPaused(false);
+            GameTimer.deduct(timeUsed);              
+            if (GameTimer.get() <= 0) { onTimeUp(); return; } 
+            GameTimer.resume(
+                rem => GameDisplay.refreshDisplay(playerName, HeartState.getGameState().score, rem),
+                ()  => onTimeUp()
+            );
+        },
+        () => { 
+            // when answer is wrong
+            puzzleOpen = false;
+            triggerGameOver();
+        }
+    );
 }
 
-/* Game Over */
+/* Game Over part */
 async function triggerGameOver() {
-  State.setOver(true);
-  GameTimer.stop();
-  clearInterval(pipeSpawnId);
-  const score = State.get().score;
-  document.getElementById("finalScore").textContent = score;
-  document.getElementById("finalPlayer").textContent = playerName;
-  document.getElementById("gameOverModal").style.display = "flex";
-  // Save to Firestore → show winner if new personal best
-  const result = await ScoreBoard.saveScore(playerName, score);
-  if (result.isTopScore && score > 0) showWinner();
+    HeartState.markGameOver(true);
+    GameTimer.stop();
+    clearInterval(pipeSpawnId);
+    const score = HeartState.getGameState().score;
+    document.getElementById('finalScore').textContent  = score;
+    document.getElementById('finalPlayer').textContent = playerName;
+    document.getElementById('gameOverModal').style.display = 'flex';
+    // Save to Firestore → show winner if new personal best
+    const result = await ScoreBoard.saveScore(playerName, score);
+    if (result.isTopScore && score > 0) showWinner();
 }
 
-/* Time Up Modal Logic */
+/* Time Up Modal logic */
 async function onTimeUp() {
-  State.setOver(true);
-  clearInterval(pipeSpawnId);
-  const score = State.get().score;
-  document.getElementById("timeUpScore").textContent = score;
-  document.getElementById("timeUpPlayer").textContent = playerName;
-  document.getElementById("timeUpModal").style.display = "flex";
-  // Save to Firestore → show winner only if beat #1 leaderboard score
-  const result = await ScoreBoard.saveScore(playerName, score);
-  if (result.isTopScore && score > 0) showWinner();
+    HeartState.markGameOver(true);
+    clearInterval(pipeSpawnId);
+    const score = HeartState.getGameState().score;
+    document.getElementById('timeUpScore').textContent  = score;
+    document.getElementById('timeUpPlayer').textContent = playerName;
+    document.getElementById('timeUpModal').style.display = 'flex';
+    // Save to Firestore → show winner only if beat #1 leaderboard score
+    const result = await ScoreBoard.saveScore(playerName, score);
+    if (result.isTopScore && score > 0) showWinner();
 }
 
-/* Winner Animation */
+/* Winner Animation Part */
 function showWinner() {
-  const overlay = document.getElementById("winnerOverlay");
-  if (!overlay) return;
-  overlay.style.display = "flex";
-  const heartsEl = document.getElementById("winnerHearts");
-  let count = 0;
-  const symbols = ["💗", "💖", "💝", "💓", "💕"];
-  const iv = setInterval(() => {
-    const h = document.createElement("span");
-    h.textContent = symbols[Math.floor(Math.random() * symbols.length)];
-    h.style.cssText =
-      `position:absolute;font-size:${22 + Math.random() * 28}px;` +
-      `left:${Math.random() * 90}%;bottom:0;` +
-      `animation:winFloat 2.2s ease-out forwards;pointer-events:none;`;
-    heartsEl.appendChild(h);
-    setTimeout(() => h.remove(), 2300);
-    if (++count >= 24) clearInterval(iv);
-  }, 130);
-  setTimeout(() => {
-    overlay.style.display = "none";
-  }, 5000);
+    const overlay = document.getElementById('winnerOverlay');
+    if (!overlay) return;
+    overlay.style.display = 'flex';
+    const heartsEl = document.getElementById('winnerHearts');
+    let count = 0;
+    const symbols = ['🩷'];
+    const iv = setInterval(() => {
+        const h = document.createElement('span');
+        h.textContent  = symbols[Math.floor(Math.random() * symbols.length)];
+        h.style.cssText = `position:absolute;font-size:${22 + Math.random()*28}px;`
+            + `left:${Math.random()*90}%;bottom:0;`
+            + `animation:winFloat 2.2s ease-out forwards;pointer-events:none;`;
+        heartsEl.appendChild(h);
+        setTimeout(() => h.remove(), 2300);
+        if (++count >= 24) clearInterval(iv);
+    }, 130);
+    setTimeout(() => { overlay.style.display = 'none'; }, 5000);
 }
 
-/* Restart Game Logic */
+/* Restart the game */
 function restartGame() {
-  document.getElementById("gameOverModal").style.display = "none";
-  document.getElementById("timeUpModal").style.display = "none";
-  clearInterval(pipeSpawnId);
-  GameTimer.stop();
-  PipeManager.reset();
-  State.reset(BOARD_H);
-  puzzleOpen = false;
-  invincible = false;
-  HUD.update(playerName, 0, 60);
-  document.getElementById("startOverlay").style.display = "flex";
+    document.getElementById('gameOverModal').style.display = 'none';
+    document.getElementById('timeUpModal').style.display   = 'none';
+    clearInterval(pipeSpawnId);
+    GameTimer.stop();
+    PipeManager.reset();
+    HeartState.resetGame(BOARD_H);
+    puzzleOpen = false; invincible = false;
+    GameDisplay.refreshDisplay(playerName, 0, 60);
+    document.getElementById('startOverlay').style.display = 'flex';
 }
 
-/* Change player */
-function changePlayer() {
-  window.location.href = "./menu.html";
-}
 
 /* HTML onclick hooks */
-function submitPuzzle() {
-  Puzzle.submit();
-}
-function failPuzzle() {
-  Puzzle.cancel();
-}
+function submitPuzzle() { Puzzle.submit(); }
+function failPuzzle()   { Puzzle.cancel(); }
 
 // Boot
-window.addEventListener("DOMContentLoaded", init);
+window.addEventListener('DOMContentLoaded', init);
