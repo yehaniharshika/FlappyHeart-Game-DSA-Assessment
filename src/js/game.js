@@ -1,4 +1,4 @@
-//  1. Software Design  – 9 IIFE modules, single-responsibility
+//  1. Software Design  – 9 modules, single-responsibility
 //  2. Event-Driven     – keydown, click, rAF, setInterval
 //  3. Interoperability – Heart API HTTP GET → JSON
 //  4. Virtual Identity – session cookie auth guard
@@ -95,7 +95,7 @@ const HeartAPI = (() => {
     return { fetchPuzzle };
 })();
 
-// MODULE 3 – GameTimer  (1-minute countdown)
+// MODULE 3 – GameTimer  (1-minute countdown)-High Cohesion
 const GameTimer = (() => {
     const TOTAL = 60;
     let remaining = TOTAL, id = null, _onTick, _onEnd;
@@ -126,7 +126,7 @@ const GameTimer = (() => {
     return { start, stop, pause, resume, fmt, get, deduct };
 })();
 
-// MODULE 4  –  PuzzleTimer  (10-second countdown)
+// MODULE 4  –  PuzzleTimer  (10-second countdown)-High Cohesion
 const PuzzleTimer = (() => {
     const TOTAL   = 10;
     const CIRCUMF = 2 * Math.PI * 26;  // ≈ 163.4
@@ -172,7 +172,7 @@ const Renderer = (() => {
     return { init, image, rect, get, size };
 })();
 
-//  MODULE 6  –  Heart Collision Logic
+//  MODULE 6  –  Heart Collision Logic-High Cohesion
 const Collision = (() => {
     function hit(a, b) {
         return a.x < b.x + b.w && a.x + a.w > b.x &&
@@ -341,7 +341,7 @@ const ScoreBoard = (() => {
             const snap  = await ref.get();
             const prev  = snap.exists ? (snap.data().bestScore || 0) : 0;
 
-            // Get current #1 score on leaderboard BEFORE saving
+            // Get current #1 score on leaderboard Before saving
             const topSnap = await db.collection('scores')
                 .orderBy('bestScore', 'desc')
                 .limit(1)
@@ -540,6 +540,7 @@ function onKeyDown(e) {
         e.preventDefault(); flap();
     }
 }
+
 function onTap()  { flap(); }
 
 function flap() {
@@ -658,7 +659,7 @@ async function onTimeUp() {
     if (result.isTopScore && score > 0) showWinner();
 }
 
-/* Winner Animation Part */
+/* Winner Animation Part - High Cohesion */
 function showWinner() {
     const overlay = document.getElementById('winnerOverlay');
     if (!overlay) return;
