@@ -1,0 +1,107 @@
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  font-family: 'Fredoka', sans-serif;
+  overflow: hidden;
+}
+
+/* Dark Blue Background */
+.dark-blue-bg {
+  min-height: 100vh;
+  background: linear-gradient(#0d1b3e, #1a2a5e);
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Floating Hearts */
+.floating-hearts {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 1;
+}
+
+@keyframes floatUp {
+  to { 
+    transform: translateY(-900px) rotate(360deg); 
+    opacity: 0; 
+  }
+}
+
+/* Main Content - Now Perfectly Centered */
+.content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  z-index: 10;
+  gap: 25px;          
+  max-width: 90%;
+}
+
+/* Title */
+.title-container {
+  text-align: center;
+}
+
+.game-title {
+  font-family: 'Bubblegum Sans', cursive;
+  font-size: clamp(3.2rem, 9vw, 6.5rem);
+  font-weight: 700;
+  background: linear-gradient(90deg, #ff9ecf, #ffffff, #ff9ecf);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 0 40px #ff4da6, 0 0 80px #ff4da6;
+  letter-spacing: 6px;
+}
+
+.heart-title {
+  margin-top: -35px;
+  font-size: clamp(3.8rem, 10vw, 7.5rem);
+}
+
+/* Teddy Heart Image - Now bigger and perfectly centered */
+.teddy-heart {
+  width: 300px;           /* ඔයාට ඕන නම් වෙනස් කරන්න */
+  height: 300px;
+  animation: bounce 1.8s infinite;
+  filter: drop-shadow(0 20px 30px rgba(255, 156, 207, 0.7));
+}
+
+/* Play Button - Perfectly centered */
+.play-btn {
+  background: linear-gradient(135deg, #ff4da6, #ff8ac4);
+  color: white;
+  border: none;
+  padding: 18px 70px;
+  font-size: 1.45rem;
+  font-weight: 700;
+  border-radius: 50px;
+  box-shadow: 0 12px 35px rgba(255, 77, 166, 0.6);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  z-index: 10;
+}
+
+.play-btn:hover {
+  transform: scale(1.12) translateY(-6px);
+  box-shadow: 0 20px 45px rgba(255, 77, 166, 0.8);
+}
+
+/* Tagline */
+.tagline {
+  color: #fff;
+  font-size: 1.15rem;
+  opacity: 0.95;
+  text-shadow: 0 0 15px rgba(255, 156, 207, 0.6);
+  margin-top: 10px;
+}
+
+/* Bounce animation */
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-22px); }
+}

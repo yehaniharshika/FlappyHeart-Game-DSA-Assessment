@@ -13,64 +13,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.10.6/sweetalert2.all.min.js"></script>
     <link rel="stylesheet" href="src/style/game.css" />
     <style>
-      .winner-overlay {
-        position: fixed;
-        inset: 0;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        background: rgba(0, 0, 0, 0.75);
-        z-index: 9999;
-        pointer-events: none;
-      }
-      .winner-hearts {
-        position: absolute;
-        inset: 0;
-        overflow: hidden;
-      }
-      .winner-content {
-        position: relative;
-        text-align: center;
-        z-index: 1;
-        animation: winPop 0.5s cubic-bezier(0.17, 0.67, 0.39, 1.4) both;
-      }
-      .winner-title {
-        font-family: "Press Start 2P", monospace;
-        font-size: clamp(14px, 4vw, 22px);
-        color: #f9c74f;
-        text-shadow:
-          0 0 20px #f9c74f,
-          0 0 40px #f9c74f88;
-        margin-bottom: 12px;
-        line-height: 1.6;
-      }
-      .winner-sub {
-        font-family: "Nunito", sans-serif;
-        font-size: 18px;
-        color: #fff;
-        font-weight: 700;
-      }
-      @keyframes winPop {
-        from {
-          transform: scale(0.4);
-          opacity: 0;
-        }
-        to {
-          transform: scale(1);
-          opacity: 1;
-        }
-      }
-      @keyframes winFloat {
-        0% {
-          transform: translateY(0) rotate(0deg);
-          opacity: 1;
-        }
-        100% {
-          transform: translateY(-90vh) rotate(360deg);
-          opacity: 0;
-        }
-      }
+      
     </style>
   </head>
   <body>
@@ -212,7 +155,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
     <script src="src/js/config/firebase.config.js"></script>
-
+    <script src="src/js/api/heartAPI.js"></script>
     <script src="src/js/game.js"></script>
   </body>
 </html>

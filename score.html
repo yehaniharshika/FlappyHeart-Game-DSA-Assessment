@@ -1,52 +1,52 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>FlappyHeart</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Nunito:wght@400;600;700;800&family=Fredoka:wght@300..700&family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet" />
-    <link rel="icon" type="image/png" href="src/assets/images/heart.png">
-    <link rel="stylesheet" href="src/style/score.css" />
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>FlappyHeart — Top Scores</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="icon" type="image/png" href="src/assets/images/heart.png">
+  <link href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Nunito:wght@400;600;700;800&family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="src/style/score.css"/>
 </head>
 <body>
 
-<!-- Floating hearts background -->
+<!-- Floating hearts -->
 <div class="hearts-bg" id="heartsBg"></div>
 
 <div class="page-wrap">
 
-    <!-- Trophy header -->
-    <div class="trophy-header">
-        <span class="trophy-icon">🏆</span>
-        <h1 class="page-title">TOP SCORES</h1>
-        <p class="page-sub">Flappy Heart Champions</p>
-    </div>
+  <!-- Trophy header -->
+  <div class="trophy-header">
+    <span class="trophy-icon">🏆</span>
+    <h1 class="page-title">TOP SCORES</h1>
+    <p class="page-sub">💗 Flappy Heart Champions 💗</p>
+  </div>
 
-    <!-- My rank banner -->
-    <div class="my-rank-banner" id="myRankBanner">
-        <span class="rank-icon"></span>
-        <span id="myRankText">Your Rank: —</span>
-    </div>
+  <!-- My rank banner -->
+  <div class="my-rank-banner" id="myRankBanner">
+    <span class="rank-icon"></span>
+    <span id="myRankText">Your Rank: —</span>
+  </div>
 
-    <!-- Leaderboard card -->
-    <div class="lb-card">
-        <div class="lb-card-header">
-            <span class="lb-card-title">LEADERBOARD</span>
-            <span class="lb-card-sub">Top 10 Players</span>
-        </div>
-        <div class="lb-loading-wrap" id="lbLoading">
-            <div class="spinner"></div>
-            <p>Loading scores…</p>
-        </div>
-        <div class="lb-list" id="lbList" style="display:none"></div>
+  <!-- Leaderboard golden card -->
+  <div class="lb-card">
+    <div class="lb-card-header">
+      <span class="lb-card-title">🏆 LEADERBOARD</span>
+      <span class="lb-card-sub">Top 10 Players</span>
     </div>
+    <div class="lb-loading-wrap" id="lbLoading">
+      <div class="spinner"></div>
+      <p>Loading scores…</p>
+    </div>
+    <div class="lb-list" id="lbList" style="display:none"></div>
+  </div>
 
-    <!-- Action buttons -->
-    <div class="action-btns">
-        <a href="game.html" class="btn-play">PLAY AGAIN</a>
-        <button class="btn-logout" onclick="logout()">LOGOUT</button>
-    </div>
+  <!-- Action buttons -->
+  <div class="action-btns">
+    <a href="game.html" class="btn-play">▶ PLAY AGAIN</a>
+    <button class="btn-logout" onclick="logout()">✕ LOGOUT</button>
+  </div>
 
 </div>
 

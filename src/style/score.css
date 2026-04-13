@@ -1,332 +1,345 @@
+@import url('https://fonts.googleapis.com/css2?family=Lilita+One&family=Nunito:wght@400;600;700;800&family=Fredoka:wght@400;500;600;700&display=swap');
+
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-html, body {
-    min-height: 100%;
-    font-family: 'Nunito', sans-serif;
-    background: #07122a;
-    color: #fff;
-    overflow-x: hidden;
+:root {
+  --rose:    #FF3D7F;
+  --rose-dk: #C41E5A;
+  --gold:    #FFD700;
+  --gold-dk: #A67C00;
+  --cream:   #FFF5F8;
+  --purple:  #4A0060;
 }
 
-/* Animated star background */
+html, body { min-height: 100%; overflow-x: hidden; }
+
+body {
+  font-family: 'Nunito', sans-serif;
+  min-height: 100vh;
+  background: #0d1b3e;
+  color: #fff;
+  position: relative;
+}
+
+/* ── Radial glows ── */
 body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background:
-        radial-gradient(ellipse at 20% 50%, rgba(176,46,90,0.18) 0%, transparent 55%),
-        radial-gradient(ellipse at 80% 20%, rgba(42,82,152,0.25) 0%, transparent 55%),
-        radial-gradient(ellipse at 60% 80%, rgba(138,21,64,0.15) 0%, transparent 50%);
-    pointer-events: none;
-    z-index: 0;
+  content: '';
+  position: fixed; inset: 0;
+  background:
+    radial-gradient(ellipse 65% 45% at 20% 8%,  rgba(255,61,127,0.17) 0%, transparent 55%),
+    radial-gradient(ellipse 50% 60% at 82% 88%, rgba(123,47,190,0.16) 0%, transparent 55%);
+  pointer-events: none; z-index: 0;
 }
 
-/* Page wrapper */
+/* ── Stars ── */
+.hearts-bg { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+.float-heart {
+  position: absolute; bottom: -40px;
+  animation: floatUp linear forwards; opacity: 0;
+  pointer-events: none; user-select: none;
+}
+@keyframes floatUp {
+  0%   { transform: translateY(0) rotate(-10deg); opacity: 0; }
+  10%  { opacity: 0.5; }
+  90%  { opacity: 0.15; }
+  100% { transform: translateY(-110vh) rotate(20deg); opacity: 0; }
+}
+
+/* Page wrapper*/
 .page-wrap {
-    position: relative;
-    z-index: 1;
-    max-width: 560px;
-    margin: 0 auto;
-    padding: 24px 16px 48px;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 20px;
+  position: relative;
+  z-index: 1;
+  max-width: 520px;
+  margin: 0 auto;
+  padding: 24px 16px 56px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
 }
 
-/* Trophy header */
+/* ── Trophy header ── */
 .trophy-header {
-    text-align: center;
-    padding: 8px 0 4px;
+  text-align: center;
+  padding: 8px 0 4px;
+  animation: headerDrop 0.6s cubic-bezier(0.34,1.56,0.64,1) both;
+}
+@keyframes headerDrop {
+  from { transform: translateY(-30px) scale(0.85); opacity: 0; }
+  to   { transform: translateY(0) scale(1); opacity: 1; }
 }
 
 .trophy-icon {
-    font-size: 56px;
-    display: block;
-    margin-bottom: 12px;
-    filter: drop-shadow(0 0 20px rgba(249,199,79,0.7));
-    animation: trophyFloat 3s ease-in-out infinite;
+  font-size: 64px;
+  display: block;
+  margin-bottom: 8px;
+  filter: drop-shadow(0 0 24px rgba(255,215,0,0.8));
+  animation: trophyFloat 2.8s ease-in-out infinite;
 }
-
 @keyframes trophyFloat {
-    0%, 100% { transform: translateY(0); }
-    50%       { transform: translateY(-8px); }
+  0%,100% { transform: translateY(0) rotate(-3deg); }
+  50%      { transform: translateY(-10px) rotate(3deg); }
 }
 
 .page-title {
-    font-family: 'Press Start 2P', monospace;
-    font-size: clamp(13px, 3.5vw, 20px);
-    color: #f9c74f;
-    text-shadow: 0 0 24px rgba(249,199,79,0.6);
-    letter-spacing: 2px;
-    line-height: 1.5;
+  font-family: 'Lilita One', cursive;
+  font-size: clamp(1.6rem, 5vw, 2.2rem);
+  color: var(--gold);
+  -webkit-text-stroke: 3px var(--gold-dk);
+  paint-order: stroke fill;
+  text-shadow: 0 4px 0 var(--gold-dk), 0 0 30px rgba(255,215,0,0.5);
+  letter-spacing: 3px;
+  line-height: 1;
 }
 
 .page-sub {
-    margin-top: 8px;
-    font-size: 15px;
-    color: rgba(255,255,255,0.45);
-    letter-spacing: 1px;
-    font-family: 'Fredoka', sans-serif;
-    font-weight: 600;
+  margin-top: 8px;
+  font-family: 'Fredoka', sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  color: rgba(255,220,240,0.65);
+  letter-spacing: 1.5px;
 }
 
-/* My rank banner */
+/* ── My rank banner ── */
 .my-rank-banner {
-    display: none;
-    width: 100%;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    background: linear-gradient(135deg, rgba(176,46,90,0.35), rgba(138,21,64,0.35));
-    border: 1px solid rgba(232,67,147,0.4);
-    border-radius: 24px;
-    padding: 14px 20px;
-    font-family: 'Fredoka', sans-serif;
-    font-size: 16px;
-    font-weight: 700;
-    letter-spacing: 1px;
-    color: #ff9abf;
-    text-align: center;
-    box-shadow: 0 4px 20px rgba(176,46,90,0.25);
+  display: none;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: linear-gradient(135deg, rgba(255,61,127,0.25), rgba(196,30,90,0.25));
+  border: 2.5px solid rgba(255,215,0,0.5);
+  border-radius: 50px;
+  padding: 12px 24px;
+  font-family: 'Fredoka', sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: var(--gold);
+  text-align: center;
+  box-shadow: 0 4px 20px rgba(120,0,48,0.35), inset 0 1px 0 rgba(255,255,255,0.1);
 }
-.my-rank-banner span.rank-icon { font-size: 20px; }
 
-/* Leaderboard card */
+/* ── Leaderboard CARD (golden frame panel) ── */
 .lb-card {
-    width: 100%;
-    background: rgba(255,255,255,0.04);
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 20px;
-    overflow: hidden;
-    box-shadow: 0 8px 40px rgba(0,0,0,0.4);
+  width: 100%;
+  border-radius: 24px;
+  overflow: hidden;
+  border: 3px solid var(--gold);
+  box-shadow:
+    0 0 0 6px rgba(255,215,0,0.15),
+    0 0 0 8px rgba(196,30,90,0.10),
+    0 20px 50px rgba(0,0,0,0.55);
+  animation: cardUp 0.5s 0.1s ease both;
+}
+@keyframes cardUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
+/* Card header: "LEADERBOARD" banner */
 .lb-card-header {
-    background: linear-gradient(135deg, #b02e5a, #8a1540);
-    padding: 14px 20px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    border-bottom: 1px solid rgba(255,255,255,0.1);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: linear-gradient(135deg, var(--rose-dk) 0%, #8A0030 100%);
+  padding: 14px 22px;
+  border-bottom: 3px solid var(--gold);
+  position: relative;
 }
-
+.lb-card-header::after {
+  content: '';
+  position: absolute;
+  bottom: -2px; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+}
 .lb-card-title {
-    font-family: 'Press Start 2P', monospace;
-    font-size: 10px;
-    color: #fff;
-    letter-spacing: 2px;
+  font-family: 'Lilita One', cursive;
+  font-size: 1rem;
+  color: var(--gold);
+  letter-spacing: 1px;
+  text-shadow: 0 2px 0 rgba(100,50,0,0.5);
+}
+.lb-card-sub {
+  font-family: 'Fredoka', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: rgba(255,220,230,0.65);
+  letter-spacing: 1px;
 }
 
-.lb-card-sub { 
-    font-size: 11px; 
-    color: rgba(255,255,255,0.55); 
-    font-family: 'Montserrat', sans-serif;
-    font-weight: 550;
+/* Rows container */
+.lb-list {
+  background: linear-gradient(180deg, #FFF0F6 0%, #FFE8F0 100%);
+  padding: 6px 0;
 }
 
-/* Loading spinner */
+/* Loading state */
 .lb-loading-wrap {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 48px 20px;
-    gap: 16px;
-    color: rgba(255,255,255,0.5);
-    font-family: 'Fredoka', sans-serif;
-    font-size: 13px;
+  background: linear-gradient(180deg, #FFF0F6, #FFE8F0);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 20px;
+  gap: 14px;
+  color: rgba(100,0,60,0.5);
+  font-family: 'Fredoka', sans-serif;
+  font-size: 0.95rem;
 }
-
 .spinner {
-    width: 36px; height: 36px;
-    border: 3px solid rgba(249,199,79,0.15);
-    border-top-color: #f9c74f;
-    border-radius: 50%;
-    animation: spin .8s linear infinite;
+  width: 38px; height: 38px;
+  border: 3.5px solid rgba(255,61,127,0.15);
+  border-top-color: var(--rose);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
 }
-
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* Score list styles */
-.lb-list { 
-    padding: 10px 0; 
-    font-family: 'Fredoka', sans-serif;
-    letter-spacing: 1px;
-    font-size: 23px !important;
-    font-weight: none !important;
-}
-
+/* ── ROW styles ── */
 .lb-row {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 13px 20px;
-    border-bottom: 1px solid rgba(255,255,255,0.05);
-    transition: background .15s;
-    animation: rowSlide .35s ease both;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 18px;
+  border-bottom: 1.5px solid rgba(255,61,127,0.12);
+  transition: background 0.15s;
+  animation: rowSlide 0.35s ease both;
 }
 .lb-row:last-child { border-bottom: none; }
-.lb-row:hover { background: rgba(255,255,255,0.04); }
-
+.lb-row:hover { background: rgba(255,61,127,0.06); }
 @keyframes rowSlide {
-    from { opacity: 0; transform: translateX(-14px); }
-    to   { opacity: 1; transform: translateX(0); }
+  from { opacity: 0; transform: translateX(-12px); }
+  to   { opacity: 1; transform: translateX(0); }
 }
 
-/* Top #1 row — golden glow */
+/* #1 row — gold shimmer */
 .lb-top {
-    background: rgba(249,199,79,0.07);
+  background: linear-gradient(90deg, rgba(255,215,0,0.12) 0%, rgba(255,215,0,0.05) 100%);
+  border-left: 4px solid var(--gold);
 }
-.lb-top .lb-name { color: #f9c74f; }
+.lb-top .lb-name { color: #8A5C00 !important; }
+.lb-top .lb-score { color: #B8860B !important; }
 
-/* Current player row */
+/* Current player row — rose accent */
 .lb-me {
-    background: rgba(176,46,90,0.2);
-    border-left: 3px solid #e8437a;
+  background: linear-gradient(90deg, rgba(255,61,127,0.14) 0%, rgba(255,61,127,0.05) 100%);
+  border-left: 4px solid var(--rose);
 }
-.lb-me .lb-name { color: #ff9abf; font-weight: 800; }
+.lb-me .lb-name { color: var(--rose-dk) !important; font-weight: 800; }
+.lb-me .lb-score { color: var(--rose-dk) !important; }
 
-.lb-rank  {
-    font-size: 22px;
-    min-width: 38px;
-    text-align: center;
-    flex-shrink: 0;
+.lb-rank {
+  font-size: 22px;
+  min-width: 36px;
+  text-align: center;
+  flex-shrink: 0;
 }
 .lb-rank-num {
-    font-family: 'Press Start 2P', monospace;
-    font-size: 11px;
-    font-weight: 700;
-    color: rgba(255,255,255,0.6);
+  font-family: 'Lilita One', cursive;
+  font-size: 1rem;
+  color: rgba(80,0,50,0.5);
+  display: inline-block;
+  background: rgba(255,61,127,0.1);
+  border-radius: 8px;
+  width: 32px; height: 32px;
+  line-height: 32px;
+  text-align: center;
 }
-.lb-name  {
-    flex: 1;
-    font-size: 18px;
-    font-weight: 600;
-    font-family: 'Fredoka', sans-serif;
-    letter-spacing: 0.5px;
-    color: rgba(255,255,255,0.9);
-    display: flex;
-    align-items: center;
-    gap: 8px;
+.lb-name {
+  flex: 1;
+  font-family: 'Fredoka', sans-serif;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #4A0060;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 .lb-you-badge {
-    font-family: 'Press Start 2P', monospace;
-    font-size: 7px;
-    background: #e8437a;
-    color: #fff;
-    border-radius: 6px;
-    padding:5px 7px;
-    vertical-align: middle;
+  font-family: 'Lilita One', cursive;
+  font-size: 0.52rem;
+  background: linear-gradient(135deg, var(--rose), var(--rose-dk));
+  color: #fff;
+  border-radius: 8px;
+  padding: 3px 7px;
+  letter-spacing: 1px;
+  box-shadow: 0 2px 0 #7A0030;
 }
 .lb-score {
-    font-family: 'Press Start 2P', monospace;
-    font-size: 13px;
-    color: #f9c74f;
-    flex-shrink: 0;
+  font-family: 'Lilita One', cursive;
+  font-size: 1.05rem;
+  color: var(--rose-dk);
+  flex-shrink: 0;
 }
-.lb-me .lb-score { color: #ffcce0; }
 
-/* Empty state*/
+/* Empty state */
 .lb-empty {
-    text-align: center;
-    padding: 48px 24px;
-    color: rgba(255,255,255,0.4);
-    font-size: 14px;
-    line-height: 2;
+  background: linear-gradient(180deg, #FFF0F6, #FFE8F0);
+  text-align: center;
+  padding: 48px 24px;
+  color: rgba(100,0,60,0.45);
+  font-family: 'Fredoka', sans-serif;
+  font-size: 1rem;
+  line-height: 2;
 }
-.lb-empty-icon { font-size: 48px; margin-bottom: 16px; display: block; }
+.lb-empty-icon { font-size: 52px; margin-bottom: 12px; display: block; }
 
-/* Action buttons row styles */
+/* ── Action buttons ── */
 .action-btns {
-    width: 100%;
-    display: flex;
-    gap: 12px;
+  width: 100%;
+  display: flex;
+  gap: 12px;
 }
 
-/* Play Again button styles */
+/* Play Again — rose 3D */
 .btn-play {
-    flex: 1;
-    padding: 16px;
-    background: linear-gradient(135deg, #e8437a, #b02e5a);
-    color: #fff;
-    font-family: 'Press Start 2P', monospace;
-    font-size: 11px;
-    border: none;
-    border-radius: 10px;
-    cursor: pointer;
-    letter-spacing: 1px;
-    box-shadow: 0 6px 24px rgba(232,67,122,0.45);
-    transition: transform .15s, box-shadow .15s;
-    text-decoration: none;
-    display: block;
-    text-align: center;
+  flex: 1;
+  padding: 15px;
+  background: linear-gradient(180deg, #FF80AB 0%, var(--rose) 50%, var(--rose-dk) 100%);
+  color: #fff;
+  font-family: 'Lilita One', cursive;
+  font-size: 0.85rem;
+  letter-spacing: 2px;
+  border: none;
+  border-radius: 16px;
+  cursor: pointer;
+  box-shadow: 0 6px 0 #7A0030, 0 10px 22px rgba(120,0,48,0.4);
+  text-shadow: 0 2px 0 rgba(100,0,30,0.3);
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.1s, box-shadow 0.1s;
 }
-.btn-play:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 10px 32px rgba(232,67,122,0.55);
-}
-.btn-play:active { transform: translateY(0); }
+.btn-play:hover  { transform: translateY(-2px); box-shadow: 0 8px 0 #7A0030, 0 14px 26px rgba(120,0,48,0.4); }
+.btn-play:active { transform: translateY(4px);  box-shadow: 0 2px 0 #7A0030, 0 4px 10px rgba(120,0,48,0.3); }
 
-/* Logout button */
+/* Logout — ghost */
 .btn-logout {
-    flex: 1;
-    padding: 16px;
-    background: rgba(255,255,255,0.06);
-    border: 2px solid rgba(232, 67, 147, 0.5);
-    color: rgba(255,255,255,0.75);
-    font-family: 'Press Start 2P', monospace;
-    font-size: 11px;
-    border-radius: 10px;
-    cursor: pointer;
-    letter-spacing: 1px;
-    transition: background .2s, transform .15s, color .2s;
-    text-decoration: none;
-    display: block;
-    text-align: center;
+  flex: 1;
+  padding: 15px;
+  background: rgba(255,240,248,0.10);
+  border: 2px solid rgba(255,215,0,0.35);
+  border-radius: 16px;
+  color: rgba(255,215,0,0.8);
+  font-family: 'Fredoka', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
 }
-.btn-logout:hover {
-    background: rgba(232, 67, 147, 0.18); 
-    transform: translateY(-3px);  
-    border-color: rgba(232, 67, 147, 0.4);
-    color: #e8437a;
-}
-.btn-logout:active { 
-    transform: translateY(0); 
-}
+.btn-logout:hover  { background: rgba(255,240,248,0.16); transform: translateY(-1px); }
+.btn-logout:active { transform: translateY(1px); }
 
-/* Floating hearts background */
-.hearts-bg {
-    position: fixed;
-    inset: 0;
-    pointer-events: none;
-    z-index: 0;
-    overflow: hidden;
-}
-.float-heart {
-    position: absolute;
-    animation: floatUp linear forwards;
-    opacity: 0;
-    user-select: none;
-}
-@keyframes floatUp {
-    0%   { transform: translateY(0)   rotate(0deg);   opacity: .7; }
-    100% { transform: translateY(-105vh) rotate(25deg); opacity: 0; }
-}
-
-/* Responsive styles */
+/* ── Responsive ── */
 @media (max-width: 400px) {
-    .lb-name  { 
-        font-size: 13px; 
-    }
-
-    .lb-score { 
-        font-size: 11px; 
-    }
-
-    .lb-rank  { 
-        font-size: 18px; 
-        min-width: 30px; 
-    }
+  .lb-name  { font-size: 0.9rem; }
+  .lb-score { font-size: 0.9rem; }
+  .lb-rank  { font-size: 18px; min-width: 30px; }
+  .page-title { font-size: 1.4rem; }
 }

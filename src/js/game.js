@@ -1,4 +1,4 @@
-//  1. Software Design  – 9 modules, single-responsibility
+//  1. Software Design  – 9 IIFE modules, single-responsibility
 //  2. Event-Driven     – keydown, click, rAF, setInterval
 //  3. Interoperability – Heart API HTTP GET → JSON
 //  4. Virtual Identity – session cookie auth guard
@@ -77,25 +77,7 @@ const Session = (() => {
     return { getPlayer, guard, deleteSession };
 })();
 
-// MODULE 2 - HeartAPI  (Interoperability)
-// use the heart game api to get puzzle question and answer
-const HeartAPI = (() => {
-    const ENDPOINT = 'https://marcconrad.com/uob/heart/api.php?out=json&decode=yes';
-    async function fetchPuzzle() {
-        try {
-            const res  = await fetch(ENDPOINT);
-            if (!res.ok) throw new Error('HTTP ' + res.status);
-            const data = await res.json();
-            return { imageUrl: data.question, solution: Number(data.solution) };
-        } catch (e) {
-            console.warn('[HeartAPI]', e.message);
-            return null;
-        }
-    }
-    return { fetchPuzzle };
-})();
-
-// MODULE 3 – GameTimer  (1-minute countdown)-High Cohesion
+// MODULE 2 – GameTimer  (1-minute countdown)
 const GameTimer = (() => {
     const TOTAL = 60;
     let remaining = TOTAL, id = null, _onTick, _onEnd;
@@ -126,7 +108,7 @@ const GameTimer = (() => {
     return { start, stop, pause, resume, fmt, get, deduct };
 })();
 
-// MODULE 4  –  PuzzleTimer  (10-second countdown)-High Cohesion
+// MODULE 3  –  PuzzleTimer  (10-second countdown)
 const PuzzleTimer = (() => {
     const TOTAL   = 10;
     const CIRCUMF = 2 * Math.PI * 26;  // ≈ 163.4
@@ -155,7 +137,7 @@ const PuzzleTimer = (() => {
     return { start, stop, getElapsed };
 })();
 
-// MODULE 5  –  Renderer
+// MODULE 4  –  Renderer
 const Renderer = (() => {
     let ctx, W, H;
     function init(canvas) {
@@ -172,7 +154,7 @@ const Renderer = (() => {
     return { init, image, rect, get, size };
 })();
 
-//  MODULE 6  –  Heart Collision Logic-High Cohesion
+//  MODULE 5  –  Heart Collision Logic
 const Collision = (() => {
     function hit(a, b) {
         return a.x < b.x + b.w && a.x + a.w > b.x &&
@@ -181,7 +163,7 @@ const Collision = (() => {
     return { hit };
 })();
 
-// MODULE 7  –  PipeManager Logics
+// MODULE 6  –  PipeManager Logics
 // Move the pipes, spawn new ones, draw them, and handle pipe-passing logic for scoring.
 const PipeManager = (() => {
     let pipes = [], topImg, botImg;
@@ -249,7 +231,7 @@ const PipeManager = (() => {
     return { init, reset, spawn, update, getAll, removeOverlapping, setScale };
 })();
 
-// MODULE 8  –  HeartState
+// MODULE 7  –  HeartState
 // Bird size and physics constants scale with SCALE.
 const HeartState = (() => {
     let HeartWidth = 42, HeartHeight = 30, GRAVITY = 0.40, JUMP_V = -6.2;
@@ -312,7 +294,7 @@ const HeartState = (() => {
     return { resetGame, flapHeart, updatePhysics, getHeartRect, addPoints, getGameState, markStarted, markGameOver, markPaused, setScale, getHeartSize };
 })();
 
-// MODULE 9  –  GameDisplay Logic
+// MODULE 8  –  GameDisplay Logic
 const GameDisplay = (() => {
     function refreshDisplay(player, score, timeSec) {
         const p = document.getElementById('hudPlayer');
@@ -329,7 +311,7 @@ const GameDisplay = (() => {
     return { refreshDisplay };
 })();
 
-// MODULE 10  –  ScoreBoard Logics (High Cohesion: score persistence only) 
+// MODULE 9  –  ScoreBoard Logics (High Cohesion: score persistence only) 
 const ScoreBoard = (() => {
 
     // Save or update player's best score in Firestore
@@ -341,7 +323,7 @@ const ScoreBoard = (() => {
             const snap  = await ref.get();
             const prev  = snap.exists ? (snap.data().bestScore || 0) : 0;
 
-            // Get current #1 score on leaderboard Before saving
+            // Get current #1 score on leaderboard BEFORE saving
             const topSnap = await db.collection('scores')
                 .orderBy('bestScore', 'desc')
                 .limit(1)
@@ -540,7 +522,6 @@ function onKeyDown(e) {
         e.preventDefault(); flap();
     }
 }
-
 function onTap()  { flap(); }
 
 function flap() {
@@ -659,7 +640,7 @@ async function onTimeUp() {
     if (result.isTopScore && score > 0) showWinner();
 }
 
-/* Winner Animation Part - High Cohesion */
+/* Winner Animation Part */
 function showWinner() {
     const overlay = document.getElementById('winnerOverlay');
     if (!overlay) return;
