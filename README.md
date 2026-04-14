@@ -21,23 +21,30 @@ flappy-heart-game/
 ├── menu.html           # Main menu
 ├── game.html           # Game page
 ├── score.html          # Leaderboard page
+├── welcome.html        # Welcome page
 │
 ├── src/
 │   ├── style/
-│   │   ├── auth.css
-│   │   ├── menu.css
-│   │   ├── game.css
-│   │   └── score.css
+│   │   ├── auth.css    # Login/Register page styles
+│   │   ├── menu.css    # Menu page styles
+│   │   ├── game.css    # Game page styles
+│   │   |── score.css   # Leaderboard page styles
+|   |   └── welcome.css # Welcome page styles
 │   │
 │   ├── js/
 │   │   ├── auth.js         # Login / Register logic
 │   │   ├── menu.js         # Menu logic
 │   │   ├── game.js         # Game engine (10 modules)
 │   │   ├── score.js        # Leaderboard logic
-│   │   └── config/
-│   │       └── firebase.config.js   # Firebase setup
-│   │
+|   |   ├── welcome.js      # welcome page logic
+│   │   ├── config/
+│   │   |   └── firebase.config.js   # Firebase setup
+|   |   |
+│   │   └── api/
+│   │       └── heartAPI.js    # Heart Puzzle API (Interoperability)
+|   |
 │   └── assets/
+|       ├── icon/
 │       └── images/         # Game sprites
 ```
 
@@ -57,7 +64,7 @@ flappy-heart-game/
 
 ## 🧩 CIS045-3 Themes Covered
 
-1. **Software Design**
+1. **Software Design principles (High Cohesion, Low Coupling)**
 2. **Event-Driven Programming**
 3. **Interoperability**
 4. **Virtual Identity**
@@ -68,7 +75,7 @@ flappy-heart-game/
 
 1. Open the project folder in **VS Code**
 2. Use **Live Server** extension to run
-3. Open `http://127.0.0.1:5500/index.html`
+3. Open `http://127.0.0.1:5500/welcome.html`
 4. Register an account and start playing
 
 > ⚠️ Firebase config values must be filled in `src/js/config/firebase.config.js`
