@@ -40,7 +40,7 @@ function startGame() {
 function logout() {
   deleteCookie("fh_session");
   sessionStorage.removeItem("fh_player");
-  window.location.href = "./index.html";
+  window.location.href = "./welcome.html";
 }
 
 function handleOverlayClick(e) {

@@ -143,7 +143,7 @@ function logout() {
     // Clear cookie
     document.cookie = "fh_session=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/";
     sessionStorage.removeItem("fh_player");
-    window.location.href = "./index.html";
+    window.location.href = "./welcome.html";
 }
 
 /* Boot */
