@@ -5,39 +5,39 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Flappy Heart</title>
   <link rel="icon" type="image/png" href="src/assets/images/heart.png" />
-  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Fredoka:wght@400;600;700&family=Bubblegum+Sans&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="src/style/welcome.css" />
 </head>
 <body>
-  <div class="dark-blue-bg">
-    <!-- Floating Hearts Container -->
-    <div class="floating-hearts" id="heartsBg"></div>
 
-    <div class="content">
-      <!-- Title with Butterflies -->
-      <div class="title-container">
-        <h1 class="game-title">
-          FLAPPY
-        </h1>
-        <h1 class="game-title heart-title">
-          HEART
-        </h1>
-        <div class="subtitle">TAP TO LOVE 💗</div>
-      </div>
+  <!-- Floating hearts container -->
+  <div class="floating-hearts" id="heartsBg"></div>
 
-      <!-- Teddy Heart Character (replaces simple heart) -->
-      <img src="src/assets/images/heart-teddy.png" alt="Teddy Heart" class="teddy-heart">
+  <div class="content">
 
-      <!-- Play Button -->
-      <button onclick="window.location.href='index.html'" class="play-btn">
-        <span>START ADVENTURE</span>
-      </button>
-
-      <p class="tagline">Help the little teddy heart fly through the night sky!</p>
+    <!-- Title -->
+    <div class="title-container">
+      <h1 class="game-title">FLAPPY</h1>
+      <h1 class="game-title heart-title">HEART</h1>
+      <div class="subtitle"><span class="title-heart">💗</span>TAP TO LOVE<span class="title-heart">💗</span></div>
     </div>
+
+    <!-- Teddy Heart -->
+    <img src="src/assets/images/heart-teddy.png" 
+         alt="Flappy Heart character" 
+         class="teddy-heart"
+         onerror="this.style.display='none'; document.getElementById('teddyFallback').style.display='block';">
+
+    <div id="teddyFallback" class="teddy-fallback" style="display:none">💗</div>
+
+    <!-- Start Button -->
+    <button onclick="window.location.href='index.html'" class="play-btn">
+      <span>START ADVENTURE</span>
+    </button>
+
+    <p class="tagline">Help the little heart fly through the night sky!</p>
+
   </div>
 
-  <!-- Welcome JS -->
   <script src="src/js/welcome.js"></script>
 </body>
 </html>

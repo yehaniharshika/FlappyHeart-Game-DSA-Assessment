@@ -53,7 +53,6 @@ function getCurrentPlayer() {
 }
 
 /* Rank label helper */
-// 1→🥇  2→🥈  3→🥉  4→04  5→05 ... 10→10
 function rankLabel(n) {
     if (n === 1) return "🥇";
     if (n === 2) return "🥈";

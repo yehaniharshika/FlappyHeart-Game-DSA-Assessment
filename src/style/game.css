@@ -23,7 +23,7 @@ body {
   flex-direction: column;
 }
 
-/* ── HUD ── */
+/* HUD styles */
 .detail-container {
   flex-shrink: 0;
   display: flex;

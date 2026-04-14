@@ -1,107 +1,286 @@
-* { margin:0; padding:0; box-sizing:border-box; }
+@import url("https://fonts.googleapis.com/css2?family=Lilita+One&family=Bubblegum+Sans&family=Fredoka:wght@400;600;700&family=Press+Start+2P&display=swap");
 
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
 body {
-  font-family: 'Fredoka', sans-serif;
+  height: 100%;
   overflow: hidden;
 }
 
-/* Dark Blue Background */
-.dark-blue-bg {
+body {
+  font-family: "Fredoka", sans-serif;
   min-height: 100vh;
-  background: linear-gradient(#0d1b3e, #1a2a5e);
-  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
+  position: relative;
+  background: radial-gradient(
+    ellipse at 50% 0%,
+    #2a1040 0%,
+    #0d1b3e 45%,
+    #060d22 100%
+  );
 }
 
-/* Floating Hearts */
-.floating-hearts {
-  position: absolute;
+/* Glowing orbs + Star field */
+body::before {
+  content: "";
+  position: fixed;
   inset: 0;
+  background:
+    radial-gradient(
+      ellipse 55% 40% at 20% 15%,
+      rgba(255, 61, 127, 0.22) 0%,
+      transparent 60%
+    ),
+    radial-gradient(
+      ellipse 45% 55% at 80% 80%,
+      rgba(123, 47, 190, 0.18) 0%,
+      transparent 60%
+    );
   pointer-events: none;
-  overflow: hidden;
-  z-index: 1;
+  z-index: 0;
 }
 
-@keyframes floatUp {
-  to { 
-    transform: translateY(-900px) rotate(360deg); 
-    opacity: 0; 
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background-image:
+    radial-gradient(
+      1.5px 1.5px at 6% 9%,
+      rgba(255, 255, 255, 0.9) 0%,
+      transparent 100%
+    ),
+    radial-gradient(
+      1px 1px at 18% 32%,
+      rgba(255, 220, 240, 0.8) 0%,
+      transparent 100%
+    ),
+    radial-gradient(
+      2px 2px at 34% 5%,
+      rgba(255, 215, 0, 0.85) 0%,
+      transparent 100%
+    );
+  animation: starTwinkle 4s ease-in-out infinite alternate;
+  pointer-events: none;
+  z-index: 0;
+}
+@keyframes starTwinkle {
+  from {
+    opacity: 0.6;
+  }
+  to {
+    opacity: 1;
   }
 }
 
-/* Main Content - Now Perfectly Centered */
+/* Floating hearts */
+.floating-hearts {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  overflow: hidden;
+}
+.float-heart {
+  position: absolute;
+  bottom: -40px;
+  animation: floatUp linear forwards;
+  opacity: 0;
+}
+@keyframes floatUp {
+  0% {
+    transform: translateY(0) rotate(-15deg) scale(0.8);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.85;
+  }
+  100% {
+    transform: translateY(-115vh) rotate(25deg) scale(1.15);
+    opacity: 0;
+  }
+}
+
+/* Main Content */
 .content {
+  position: relative;
+  z-index: 10;
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
-  z-index: 10;
-  gap: 25px;          
-  max-width: 90%;
+  gap: 15px;
+  padding: 20px;
+  width: 100%;
+  max-width: 620px;
 }
 
-/* Title */
+/* Title - More Attractive with #ff3d7f */
 .title-container {
-  text-align: center;
+  margin-bottom: 10px;
 }
 
 .game-title {
-  font-family: 'Bubblegum Sans', cursive;
-  font-size: clamp(3.2rem, 9vw, 6.5rem);
-  font-weight: 700;
-  background: linear-gradient(90deg, #ff9ecf, #ffffff, #ff9ecf);
+  font-family: "Bubblegum Sans", cursive;
+  font-size: clamp(3.4rem, 9.5vw, 6.8rem);
+  font-weight: bold;
+  background: linear-gradient(
+    90deg,
+    #ff3d7f,
+    #ff9ecf,
+    #ffffff,
+    #ff9ecf,
+    #ff3d7f
+  );
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  text-shadow: 0 0 40px #ff4da6, 0 0 80px #ff4da6;
-  letter-spacing: 6px;
+  background-clip: text;
+  letter-spacing: 2px;
+  line-height: 1.1;
+  filter: drop-shadow(0 0 15px #ff3d7f) drop-shadow(0 0 30px #ff3d7f)
+    drop-shadow(0 0 50px rgba(255, 61, 127, 0.6));
 }
 
 .heart-title {
-  margin-top: -35px;
-  font-size: clamp(3.8rem, 10vw, 7.5rem);
+  font-size: clamp(4rem, 11vw, 7.8rem);
+  margin-top: -28px;
+  filter: drop-shadow(0 0 20px #ff3d7f);
 }
 
-/* Teddy Heart Image - Now bigger and perfectly centered */
+.title-heart {
+  font-size: 20px;
+  line-height: 1;
+  display: inline-block;
+  filter: drop-shadow(0 0 6px rgba(255, 100, 150, 0.85));
+}
+
+.subtitle {
+  font-family: "Press Start 2P", monospace;
+  font-size: 0.7rem;
+  letter-spacing: 1px;
+  font-weight: bold;
+  color: #ffd700;
+  text-shadow: 0 0 15px #ff3d7f;
+  margin-top: -8px;
+}
+
+/* Teddy Heart */
 .teddy-heart {
-  width: 300px;           /* ඔයාට ඕන නම් වෙනස් කරන්න */
-  height: 300px;
-  animation: bounce 1.8s infinite;
-  filter: drop-shadow(0 20px 30px rgba(255, 156, 207, 0.7));
+  width: clamp(300px, 90vw, 340px);
+  height: auto;
+  object-fit: contain;
+  animation: teddyBounce 2s ease-in-out infinite;
+  filter: drop-shadow(0 0 25px rgba(255, 61, 127, 0.7));
+  margin: 10px 0 15px;
+}
+@keyframes teddyBounce {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-3deg);
+  }
+  50% {
+    transform: translateY(-22px) rotate(3deg);
+  }
 }
 
-/* Play Button - Perfectly centered */
+/* Play Button styles */
 .play-btn {
-  background: linear-gradient(135deg, #ff4da6, #ff8ac4);
-  color: white;
+  background: linear-gradient(180deg, #ff80ab 0%, #ff3d7f 50%, #c41e5a 100%);
   border: none;
-  padding: 18px 70px;
-  font-size: 1.45rem;
-  font-weight: 700;
   border-radius: 50px;
-  box-shadow: 0 12px 35px rgba(255, 77, 166, 0.6);
+  color: #fff;
+  font-family: "Lilita One", cursive;
+  font-size: 1.3rem;
+  letter-spacing: 3px;
+  padding: 18px 60px;
   cursor: pointer;
-  transition: all 0.3s ease;
-  z-index: 10;
+  box-shadow:
+    0 8px 0 #7a0030,
+    0 14px 30px rgba(255, 61, 127, 0.55);
+  text-shadow: 0 2px 0 rgba(100, 0, 30, 0.4);
+  transition:
+    transform 0.12s,
+    box-shadow 0.12s;
+  position: relative;
+  overflow: hidden;
+  margin: 6px 0;
 }
 
+/* Sheen */
+.play-btn::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  animation: btnSheen 2.5s ease-in-out 1.5s infinite;
+}
+
+@keyframes btnSheen {
+  to {
+    left: 200%;
+  }
+}
 .play-btn:hover {
-  transform: scale(1.12) translateY(-6px);
-  box-shadow: 0 20px 45px rgba(255, 77, 166, 0.8);
+  transform: translateY(-3px);
+  box-shadow:
+    0 11px 0 #7a0030,
+    0 18px 36px rgba(255, 61, 127, 0.65);
+}
+.play-btn:active {
+  transform: translateY(5px);
+  box-shadow: 0 3px 0 #7a0030;
+}
+
+.play-btn span {
+  position: relative;
+  z-index: 1;
 }
 
 /* Tagline */
 .tagline {
-  color: #fff;
-  font-size: 1.15rem;
-  opacity: 0.95;
-  text-shadow: 0 0 15px rgba(255, 156, 207, 0.6);
-  margin-top: 10px;
+  font-family: "Fredoka", sans-serif;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #ff9ecf;
+  text-shadow: 0 0 12px #ff3d7f;
+  margin-top: 8px;
 }
 
-/* Bounce animation */
-@keyframes bounce {
-  0%, 100% { transform: translateY(0); }
-  50%      { transform: translateY(-22px); }
+/* Responsive */
+@media (max-width: 480px) {
+  .game-title {
+    font-size: 3rem;
+    letter-spacing: 3px;
+  }
+  .heart-title {
+    font-size: 3.5rem;
+    margin-top: -14px;
+  }
+  .play-btn {
+    font-size: 1.05rem;
+    padding: 15px 40px;
+  }
+  .teddy-heart {
+    width: 190px;
+  }
+  .tagline {
+    font-size: 0.9rem;
+  }
 }

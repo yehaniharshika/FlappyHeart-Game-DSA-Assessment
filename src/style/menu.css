@@ -224,7 +224,7 @@ body::before {
   font-family: 'Lilita One', cursive;
   font-size: 1.05rem;
   color: #FFD700;
-  letter-spacing: 1px;
+  letter-spacing: px;
   text-shadow: 0 2px 0 rgba(100,50,0,0.5);
   line-height: 1;
 }
