@@ -5,19 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>FlappyHeart</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="icon" type="image/png" href="src/assets/images/heart.png">
+    <link rel="icon" type="image/png" href="src/assets/images/heart.png" />
     <link
-      href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Nunito:wght@400;600;700;800&family=Fredoka:wght@300..700&family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Press+Start+2P&family=Nunito:wght@400;600;700;800&family=Fredoka:wght@300..700&family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap"
       rel="stylesheet"
     />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.10.6/sweetalert2.all.min.js"></script>
     <link rel="stylesheet" href="src/style/game.css" />
-    <style>
-      
-    </style>
   </head>
   <body>
-    <!-- Detail Container -->
+    <!-- ── HUD ── -->
     <div class="detail-container" id="hud">
       <div class="detail-box">
         <div class="detail-label">PLAYER</div>
@@ -33,7 +30,7 @@
       </div>
     </div>
 
-    <!-- Game Area -->
+    <!-- ── Game Canvas ── -->
     <div class="game-main" id="canvasWrap">
       <div class="game-container" id="canvasContainer">
         <canvas id="board"></canvas>
@@ -43,11 +40,21 @@
       </div>
     </div>
 
-    <!--  Heart Game API Puzzle Modal -->
+    <!-- ════════════════════════════════════════════
+         HEART API PUZZLE MODAL
+    ════════════════════════════════════════════ -->
     <div class="modal-overlay" id="puzzleModal" style="display: none">
       <div class="modal-box puzzle-box">
+        <!-- Rose/Gold header with gold timer ring -->
         <div class="puzzle-header">
-          <h1 class="puzzle-title">FlappyHeart</h1>
+          <div class="puzzle-header-left">
+            <span class="puzzle-header-icon">💗</span>
+            <div>
+              <h1 class="puzzle-title">FlappyHeart</h1>
+              <p class="puzzle-subtitle">Heart Puzzle Quest</p>
+            </div>
+          </div>
+          <!-- Countdown ring -->
           <div class="puzzle-timer-wrap">
             <svg class="timer-ring" viewBox="0 0 60 60">
               <circle class="timer-ring-bg" cx="30" cy="30" r="26" />
@@ -63,91 +70,116 @@
           </div>
         </div>
 
+        <!-- Loading state -->
         <div id="puzzleLoading" class="puzzle-loading">
-          <div class="spinner"></div>
+          <div class="puzzle-spinner"></div>
           <p class="loading-text">Loading puzzle…</p>
         </div>
 
+        <!-- Puzzle content -->
         <div id="puzzleContent" style="display: none" class="puzzle-body">
           <img id="puzzleImage" src="" alt="Heart puzzle" class="puzzle-img" />
           <hr class="puzzle-hr" />
-          <h2 class="puzzle-note" id="puzzleNote">Quest is ready.</h2>
-          <h2 class="puzzle-question">
-            Enter the number of hearts in the picture:
-            <input
-              type="number"
-              id="puzzleAnswer"
-              class="puzzle-input"
-              step="1"
-              min="0"
-              max="9"
-              placeholder=""
-              onkeydown="if (event.key === 'Enter') submitPuzzle();"
-            />
-          </h2>
+
+          <div class="puzzle-question-wrap">
+            <h2 class="puzzle-note" id="puzzleNote">Quest is ready.</h2>
+            <div class="puzzle-input-row">
+              <span class="puzzle-input-label">Enter the number of hearts in the picture:</span>
+              <input
+                type="number"
+                id="puzzleAnswer"
+                class="puzzle-input"
+                step="1"
+                min="0"
+                max="9"
+                placeholder="?"
+                onkeydown="if (event.key === 'Enter') submitPuzzle();"
+              />
+            </div>
+          </div>
+
           <p class="error-msg" id="puzzleError"></p>
           <button class="btn-submit" onclick="submitPuzzle()">
-            SUBMIT ANSWER
+            ✓ SUBMIT ANSWER
           </button>
         </div>
       </div>
     </div>
 
-    <!--  Game Over Modal -->
+    <!-- GAME OVER MODAL -->
     <div class="modal-overlay" id="gameOverModal" style="display: none">
       <div class="modal-box result-box">
-        <div class="result-icon">💔</div>
-        <h2 class="result-title">GAME OVER!</h2>
-        <div class="result-stats">
-          <div class="stat-box">
-            <div class="stat-label">SCORE</div>
-            <div class="stat-value" id="finalScore">0</div>
+        <!-- Rainbow shimmer -->
+        <div class="result-shimmer"></div>
+
+        <div class="result-inner">
+          <div class="result-icon">💔</div>
+          <h2 class="result-title result-title--gameover">GAME OVER!</h2>
+
+          <div class="result-stats">
+            <div class="stat-box">
+              <div class="stat-label">SCORE</div>
+              <div class="stat-value" id="finalScore">0</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-label">PLAYER</div>
+              <div class="stat-value" id="finalPlayer">—</div>
+            </div>
           </div>
-          <div class="stat-box">
-            <div class="stat-label">PLAYER</div>
-            <div class="stat-value" id="finalPlayer">—</div>
-          </div>
+
+          <button class="btn-main" onclick="restartGame()">▶ PLAY AGAIN</button>
+          <button
+            class="btn-secondary"
+            onclick="window.location.href = 'score.html'"
+          >
+            VIEW SCORES
+          </button>
         </div>
-        <button class="btn-main" onclick="restartGame()">PLAY AGAIN</button>
-        <button
-          class="btn-secondary"
-          onclick="window.location.href = 'score.html'"
-        >
-          VIEW SCORES
-        </button>
       </div>
     </div>
 
-    <!--  Time Up Modal -->
+    <!-- TIME'S UP MODAL -->
     <div class="modal-overlay" id="timeUpModal" style="display: none">
       <div class="modal-box result-box">
-        <div class="result-icon">⏰</div>
-        <h2 class="result-title" style="color: #f9c74f">TIME'S UP!</h2>
-        <div class="result-stats">
-          <div class="stat-box">
-            <div class="stat-label">FINAL SCORE</div>
-            <div class="stat-value" id="timeUpScore">0</div>
+        <div class="result-shimmer"></div>
+
+        <div class="result-inner">
+          <div class="result-icon">⏰</div>
+          <h2 class="result-title result-title--timeup">TIME'S UP!</h2>
+
+          <div class="result-stats">
+            <div class="stat-box">
+              <div class="stat-label">FINAL SCORE</div>
+              <div class="stat-value" id="timeUpScore">0</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-label">PLAYER</div>
+              <div class="stat-value" id="timeUpPlayer">—</div>
+            </div>
           </div>
-          <div class="stat-box">
-            <div class="stat-label">PLAYER</div>
-            <div class="stat-value" id="timeUpPlayer">—</div>
-          </div>
+
+          <button class="btn-main" onclick="restartGame()">▶ PLAY AGAIN</button>
+          <button
+            class="btn-secondary"
+            onclick="window.location.href = 'score.html'"
+          >
+            VIEW SCORES
+          </button>
         </div>
-        <button class="btn-main" onclick="restartGame()">PLAY AGAIN</button>
-        <button
-          class="btn-secondary"
-          onclick="window.location.href = 'score.html'"
-        >
-          VIEW SCORES
-        </button>
       </div>
     </div>
 
-    <!--  Winner Overlay  -->
+    <!-- WINNER OVERLAY -->
     <div id="winnerOverlay" class="winner-overlay" style="display: none">
       <div class="winner-hearts" id="winnerHearts"></div>
       <div class="winner-content">
-        <p class="winner-title">🏆 YOU ARE A WINNER! 🏆</p>
+        <img
+          src="src/assets/images/winner.png"
+          alt="Winner"
+          class="winner-trophy-img"
+        />
+        <p class="winner-title">🏆 YOU ARE A<br />WINNER! 🏆</p>
+        <p class="winner-sub">✦ NEW HIGH SCORE! ✦</p>
       </div>
     </div>
 

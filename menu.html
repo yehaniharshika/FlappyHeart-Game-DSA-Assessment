@@ -7,7 +7,7 @@
     <link rel="icon" type="image/png" href="src/assets/images/heart.png">
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link
-      href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Nunito:wght@400;600;700;800&family=Fredoka:wght@300..700&family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Press+Start+2P&family=Nunito:wght@400;600;700;800&family=Fredoka:wght@300..700&family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap"
       rel="stylesheet"
     />
     <link rel="stylesheet" href="src/style/menu.css" />
@@ -38,64 +38,71 @@
 
       <!-- Buttons -->
       <div class="menu-btns">
-        <button class="btn-secondary" onclick="showHowToPlay()">
-          HOW TO PLAY
-        </button>
-        <button class="btn-main" onclick="startGame()">PLAY</button>
-        <button class="btn-logout" onclick="logout()">LOGOUT</button>
+        <button class="btn-secondary" onclick="showHowToPlay()">HOW TO PLAY</button>
+        <button class="btn-main"      onclick="startGame()">PLAY</button>
+        <button class="btn-logout"    onclick="logout()">LOGOUT</button>
       </div>
     </div>
 
     <!-- HOW TO PLAY MODAL -->
-    <div class="modal-overlay" id="howToPlayModal" style="display: none">
+    <div class="modal-overlay" id="howToPlayModal" style="display: none"
+         onclick="handleOverlayClick(event)">
       <div class="modal-box">
-        <!-- Mini title inside modal -->
-        <div class="modal-title-sign">
-          <div class="title-row">
-            <span class="title-heart left-heart" style="font-size: 18px"
-              >💗</span
-            >
-            <div class="title-text-block">
-              <div
-                class="game-title"
-                style="font-size: 0.72rem; letter-spacing: 2px"
-              >
-                FLAPPY HEART
-              </div>
-              <div class="game-sub" style="font-size: 0.34rem">TAP TO LOVE</div>
+
+        <!-- ── Gold header banner ── -->
+        <div class="modal-header">
+          <div class="modal-header-left">
+            <span class="modal-header-icon">💗</span>
+            <div>
+              <div class="modal-header-title">GUIDELINES</div>
+              <div class="modal-header-sub">FLAPPY HEART</div>
             </div>
-            <span class="title-heart right-heart" style="font-size: 18px"
-              >💗</span
-            >
           </div>
+          <!-- ── CLOSE BUTTON ── -->
+          <button class="modal-close-btn" onclick="closeHowToPlay()" aria-label="Close">
+            <span class="close-x">✕</span>
+          </button>
         </div>
 
-        <!-- Instructions -->
-        <ol class="instructions">
-          <li>
-            Press the Spacebar or the Up Arrow key to make the heart fly upward.
-          </li>
-          <li>
-            Navigate the heart through the gaps in the pipes to collect points.
-          </li>
-          <li>You will earn 25 points for every pipe you successfully pass.</li>
-          <li>
-            If you hit a pipe or the ground, a Heart API Puzzle will appear, you
-            must answer correctly to continue.
-          </li>
-          <li>
-            You have only 10 seconds to solve the puzzle, A wrong answer or a
-            timeout results in a Game Over.
-          </li>
-          <li>
-            The game lasts for 60 seconds, making it a fast-paced competition to
-            reach the highest score.
-          </li>
-        </ol>
+        <!-- ── Instructions body ── -->
+        <div class="modal-body">
 
-        <button class="btn-main done-btn" onclick="closeHowToPlay()">
-          DONE
-        </button>
+          <!-- Tip banner -->
+          <div class="modal-tip-banner">
+            💡 Master these rules to reach the top of the leaderboard!
+          </div>
+
+          <ol class="instructions">
+            <li>
+              <div class="inst-icon">🎮</div>
+              <div>Press <kbd>SPACE</kbd> or <kbd>↑</kbd> Arrow key to make the heart fly upward.</div>
+            </li>
+            <li>
+              <div class="inst-icon">❤️</div>
+              <div>Navigate the heart through the <strong>gaps in the pipes</strong> to collect points.</div>
+            </li>
+            <li>
+              <div class="inst-icon">⭐</div>
+              <div>You earn <strong>25 points</strong> for every pipe you successfully pass!</div>
+            </li>
+            <li>
+              <div class="inst-icon">🧩</div>
+              <div>Hit a pipe or ground? A <strong>Heart API Puzzle</strong> appears - answer correctly to continue!</div>
+            </li>
+            <li>
+              <div class="inst-icon">⏱️</div>
+              <div>Only <strong>10 seconds</strong> to solve the puzzle - wrong or timeout,Game will Over!</div>
+            </li>
+            <li>
+              <div class="inst-icon">🏆</div>
+              <div>The game lasts <strong>60 seconds</strong> - reach the highest score to top the leaderboard!</div>
+            </li>
+          </ol>
+
+          <!-- DONE button -->
+          <button class="btn-done" onclick="closeHowToPlay()">✓  GOT IT!</button>
+        </div>
+
       </div>
     </div>
 

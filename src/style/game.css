@@ -1,3 +1,5 @@
+@import url("https://fonts.googleapis.com/css2?family=Lilita+One&family=Press+Start+2P&family=Nunito:wght@400;600;700;800&family=Fredoka:wght@300..700&family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap");
+
 *,
 *::before,
 *::after {
@@ -21,7 +23,7 @@ body {
   flex-direction: column;
 }
 
-/* Detail Container Styles */
+/* ── HUD ── */
 .detail-container {
   flex-shrink: 0;
   display: flex;
@@ -32,17 +34,14 @@ body {
   padding: 18px 40px;
   box-shadow: 0 4px 18px rgba(232, 67, 147, 0.3);
 }
-
 .detail-box {
   text-align: center;
   flex: 1;
 }
-
 .detail-box.center {
   border-left: 1px solid rgba(255, 255, 255, 0.18);
   border-right: 1px solid rgba(255, 255, 255, 0.18);
 }
-
 .detail-label {
   font-size: 9px;
   letter-spacing: 1px;
@@ -50,7 +49,6 @@ body {
   margin-bottom: 4px;
   text-transform: uppercase;
 }
-
 .detail-value {
   font-size: clamp(1.2rem, 2.8vw, 0.95rem);
   font-family: "Fredoka", sans-serif;
@@ -58,19 +56,17 @@ body {
   color: #fff;
   letter-spacing: 1px;
 }
-
 .detail-value.danger {
   color: #ff6b6b;
   animation: blinkDanger 0.5s step-end infinite;
 }
-
 @keyframes blinkDanger {
   50% {
     opacity: 0;
   }
 }
 
-/* Game area styles */
+/* ── Game canvas area ── */
 .game-main {
   flex: 1;
   display: flex;
@@ -80,17 +76,15 @@ body {
   overflow: hidden;
   position: relative;
 }
-
 .game-container {
   position: relative;
   flex-shrink: 0;
 }
-
 canvas {
   display: block;
 }
 
-/* Start overlay — covers only the canvas-container ── */
+/* Start overlay */
 .game-overlay {
   position: absolute;
   inset: 0;
@@ -101,7 +95,6 @@ canvas {
   pointer-events: all;
   cursor: pointer;
 }
-
 .overlay-text {
   font-family: "Press Start 2P", monospace;
   font-size: 10px;
@@ -110,7 +103,6 @@ canvas {
   padding: 0 24px;
   animation: blinkMsg 0.7s step-end infinite;
 }
-
 @keyframes blinkMsg {
   50% {
     opacity: 0;
@@ -127,28 +119,31 @@ kbd {
   color: #f48cb6;
 }
 
-/* Heart game API popup modal styles */
+/* SHARED MODAL OVERLAY + BOX */
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.72);
+  background: rgba(10, 0, 25, 0.1);
   z-index: 300;
   display: flex;
   align-items: center;
   justify-content: center;
-  backdrop-filter: blur(6px);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   padding: 16px;
 }
 .modal-box {
   width: 100%;
-  border-radius: 16px;
-  animation: modalPop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-  box-shadow: 0 12px 60px rgba(0, 0, 0, 0.7);
+  border-radius: 20px;
+  animation: modalPop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.7);
+  overflow: hidden;
 }
+
 @keyframes modalPop {
   from {
     opacity: 0;
-    transform: scale(0.85);
+    transform: scale(0.82);
   }
   to {
     opacity: 1;
@@ -156,48 +151,101 @@ kbd {
   }
 }
 
-/* Puzzle Modal */
+/* Rainbow slide utility */
+@keyframes rainbowSlide {
+  from {
+    background-position: 0% 0%;
+  }
+  to {
+    background-position: 200% 0%;
+  }
+}
+
+/* PUZZLE MODAL */
 .puzzle-box {
   max-width: 460px;
-  background: #fff;
-  color: #222;
-  border: none;
-  padding: 0;
-  overflow: hidden;
+  background: linear-gradient(180deg, #fff0f6 0%, #ffe4ef 100%);
+  border: 3px solid #ffd700;
 }
+
+/* Rainbow shimmer top */
+.puzzle-box::before {
+  content: "";
+  display: block;
+  height: 5px;
+  background: linear-gradient(
+    90deg,
+    #ff3d7f,
+    #ffd700,
+    #ff80ab,
+    #ffd700,
+    #ff3d7f
+  );
+  background-size: 200% 100%;
+  animation: rainbowSlide 3s linear infinite;
+}
+
+/* Puzzle header */
 .puzzle-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: linear-gradient(135deg, #e8437a, #b02e5a);
-  padding: 14px 18px 12px;
+  background: linear-gradient(135deg, #c41e5a 0%, #8a0030 100%);
+  padding: 14px 18px 13px;
+  border-bottom: 3px solid #ffd700;
 }
+
+.puzzle-header-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.puzzle-header-icon {
+  font-size: 24px;
+}
+
 .puzzle-title {
-  font-family: "Press Start 2P", monospace;
-  font-size: 0.65rem;
-  color: #fff;
-  letter-spacing: 1.5px;
-  text-shadow: 1px 2px 0 rgba(0, 0, 0, 0.35);
+  font-family: "Lilita One", cursive;
+  font-size: 1.05rem;
+  color: #ffd700;
+  letter-spacing: 2px;
+  text-shadow: 0 2px 0 rgba(100, 50, 0, 0.5);
+  line-height: 1;
 }
+
+.puzzle-subtitle {
+  font-family: "Fredoka", sans-serif;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: rgba(255, 220, 230, 0.7);
+  letter-spacing: 1px;
+  margin-top: 3px;
+}
+
+/* Timer ring */
 .puzzle-timer-wrap {
   position: relative;
-  width: 52px;
-  height: 52px;
+  width: 54px;
+  height: 54px;
   flex-shrink: 0;
 }
+
 .timer-ring {
-  width: 52px;
-  height: 52px;
+  width: 54px;
+  height: 54px;
   transform: rotate(-90deg);
 }
+
 .timer-ring-bg {
   fill: none;
-  stroke: rgba(255, 255, 255, 0.3);
+  stroke: rgba(255, 255, 255, 0.2);
   stroke-width: 5;
 }
+
 .timer-ring-fill {
   fill: none;
-  stroke: #fff;
+  stroke: #ffd700;
   stroke-width: 5;
   stroke-linecap: round;
   stroke-dasharray: 163.4;
@@ -206,103 +254,123 @@ kbd {
     stroke-dashoffset 0.9s linear,
     stroke 0.3s;
 }
+
 .timer-ring-fill.warn {
-  stroke: #ffe066;
+  stroke: #ff8c00;
 }
+
 .timer-ring-fill.urgent {
-  stroke: #ff4d4d;
+  stroke: #ff3d7f;
   animation: ringPulse 0.4s ease-in-out infinite alternate;
 }
+
 @keyframes ringPulse {
   to {
     stroke-width: 8;
   }
 }
+
 .timer-num {
   position: absolute;
   inset: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: "Press Start 2P", monospace;
-  font-size: 0.6rem;
+  font-family: "Lilita One", cursive;
+  font-size: 1rem;
   color: #fff;
 }
+
+/* Puzzle loading */
 .puzzle-loading {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 14px;
   padding: 32px 24px;
+  background: linear-gradient(180deg, #fff0f6, #ffe4ef);
 }
-.spinner {
-  width: 42px;
-  height: 42px;
-  border: 3px solid rgba(232, 67, 147, 0.18);
-  border-top-color: #e8437a;
+
+.puzzle-spinner {
+  width: 44px;
+  height: 44px;
+  border: 3.5px solid rgba(255, 61, 127, 0.18);
+  border-top-color: #ff3d7f;
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }
+
 @keyframes spin {
   to {
     transform: rotate(360deg);
   }
 }
 .loading-text {
-  font-family: "Nunito", sans-serif;
-  font-size: 0.9rem;
-  color: #888;
-  font-weight: 600;
+  font-family: "Fredoka", sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #c41e5a;
 }
 
+/* ── Puzzle body ── */
 .puzzle-body {
-  padding: 20px 22px 18px;
+  padding: 18px 20px 16px;
 }
 .puzzle-img {
   display: block;
   width: 100%;
-  max-height: 240px;
+  max-height: 230px;
   object-fit: contain;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  background: #f9f0f5;
-  margin-bottom: 14px;
+  border: 2px solid rgba(255, 61, 127, 0.2);
+  border-radius: 12px;
+  background: #fff5f8;
+  margin-bottom: 12px;
 }
 .puzzle-hr {
   border: none;
-  border-top: 1px solid #ddd;
-  margin: 12px 0;
+  border-top: 1.5px solid rgba(255, 61, 127, 0.15);
+  margin: 10px 0;
+}
+
+/* Question wrap */
+.puzzle-question-wrap {
+  background: rgba(255, 61, 127, 0.05);
+  border: 1.5px solid rgba(255, 61, 127, 0.14);
+  border-radius: 12px;
+  padding: 12px 14px;
+  margin-bottom: 12px;
 }
 .puzzle-note {
-  font-family: "Montserrat", sans-serif;
-  font-size: 1rem;
-  font-weight: 800;
-  color: #c0306a;
-  margin-bottom: 14px;
-}
-.puzzle-question {
-  font-family: "Montserrat", sans-serif;
-  font-size: 0.92rem;
+  font-family: "Fredoka", sans-serif;
+  font-size: 0.95rem;
   font-weight: 700;
-  color: #333;
-  line-height: 1.7;
-  margin-bottom: 14px;
+  color: #c41e5a;
+  margin-bottom: 10px;
+}
+/* Input row */
+.puzzle-input-row {
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
   gap: 10px;
+  flex-wrap: wrap;
+}
+.puzzle-input-label {
+  font-family: "Nunito", sans-serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #4a0060;
+  flex: 1;
 }
 .puzzle-input {
-  width: 80px;
+  width: 76px;
   text-align: center;
   background: #fff;
-  border: 2px solid #e8437a;
-  border-radius: 8px;
+  border: 2.5px solid #ff3d7f;
+  border-radius: 10px;
   padding: 9px 6px;
-  color: #222;
-  font-family: "Nunito", sans-serif;
-  font-size: 1.1rem;
-  font-weight: 700;
+  color: #4a0060;
+  font-family: "Lilita One", cursive;
+  font-size: 1.15rem;
   outline: none;
   transition:
     border-color 0.2s,
@@ -314,67 +382,83 @@ kbd {
   -webkit-appearance: none;
 }
 .puzzle-input:focus {
-  border-color: #b02e5a;
-  box-shadow: 0 0 10px rgba(232, 67, 147, 0.3);
+  border-color: #c41e5a;
+  box-shadow: 0 0 0 3px rgba(255, 61, 127, 0.2);
 }
 
 .error-msg {
   font-family: "Nunito", sans-serif;
   font-size: 0.84rem;
   font-weight: 700;
-  color: #e74c3c;
+  color: #e53935;
   min-height: 20px;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
   text-align: center;
 }
+
+/* Submit button — chunky 3D */
 .btn-submit {
   width: 100%;
-  background: linear-gradient(135deg, #e8437a, #b02e5a);
+  background: linear-gradient(180deg, #ff80ab 0%, #ff3d7f 50%, #c41e5a 100%);
   border: none;
-  border-radius: 8px;
+  border-radius: 12px;
   color: #fff;
-  font-family: "Press Start 2P", monospace;
-  font-size: 0.55rem;
-  letter-spacing: 2px;
-  padding: 13px;
+  font-family: "Lilita One", cursive;
+  font-size: 1rem;
+  letter-spacing: 3px;
+  padding: 14px;
   cursor: pointer;
-  box-shadow: 0 4px 16px rgba(232, 67, 147, 0.4);
+  box-shadow:
+    0 5px 0 #7a0030,
+    0 8px 18px rgba(120, 0, 48, 0.4);
+  text-shadow: 0 2px 0 rgba(100, 0, 30, 0.3);
   transition:
-    transform 0.12s,
-    box-shadow 0.2s;
-  margin-bottom: 14px;
+    transform 0.1s,
+    box-shadow 0.1s;
 }
 .btn-submit:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 22px rgba(232, 67, 147, 0.6);
+  box-shadow:
+    0 7px 0 #7a0030,
+    0 12px 22px rgba(120, 0, 48, 0.4);
 }
 .btn-submit:active {
-  transform: translateY(0);
+  transform: translateY(4px);
+  box-shadow: 0 1px 0 #7a0030;
 }
 
-.puzzle-credit strong {
-  color: #c0306a;
-}
-.puzzle-credit a {
-  color: #e8437a;
-  text-decoration: none;
-}
-.puzzle-credit a:hover {
-  text-decoration: underline;
-}
-
-/* Result showing Modal */
+/* ════════════════════════════════════════════════════
+   RESULT MODALS (Game Over + Time's Up)
+════════════════════════════════════════════════════ */
 .result-box {
   max-width: 380px;
-  background: rgba(8, 5, 22, 0.97);
-  border: 2px solid rgba(232, 67, 147, 0.4);
-  padding: 28px 24px 22px;
-  text-align: center;
+  background: linear-gradient(180deg, #1a0028 0%, #0d0018 100%);
+  border: 3px solid #ffd700;
+}
+
+/* Rainbow shimmer */
+.result-shimmer {
+  height: 5px;
+  background: linear-gradient(
+    90deg,
+    #ff3d7f,
+    #ffd700,
+    #ff80ab,
+    #ffd700,
+    #ff3d7f
+  );
+  background-size: 200% 100%;
+  animation: rainbowSlide 3s linear infinite;
+}
+
+.result-inner {
+  padding: 20px 22px 24px;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 14px;
 }
+
 .result-icon {
   font-size: 3rem;
   animation: iconDrop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
@@ -389,86 +473,121 @@ kbd {
     opacity: 1;
   }
 }
-.result-title {
-  font-family: "Press Start 2P", monospace;
-  font-size: 0.9rem;
+
+/* Game Over title */
+.result-title--gameover {
+  font-family: "Lilita One", cursive;
+  font-size: clamp(1.5rem, 5vw, 2rem);
+  color: #ff3d7f;
+  -webkit-text-stroke: 3px #7a0030;
+  paint-order: stroke fill;
+  text-shadow:
+    0 4px 0 #7a0030,
+    0 0 24px rgba(255, 61, 127, 0.5);
   letter-spacing: 2px;
-  color: #e8437a;
-  text-shadow: 0 0 20px rgba(232, 67, 147, 0.6);
+  text-align: center;
 }
+/* Time's Up title */
+.result-title--timeup {
+  font-family: "Lilita One", cursive;
+  font-size: clamp(1.5rem, 5vw, 2rem);
+  color: #ffd700;
+  -webkit-text-stroke: 3px #7a5000;
+  paint-order: stroke fill;
+  text-shadow:
+    0 4px 0 #7a5000,
+    0 0 24px rgba(255, 215, 0, 0.5);
+  letter-spacing: 2px;
+  text-align: center;
+}
+
+/* Stats row */
 .result-stats {
   display: flex;
-  gap: 14px;
+  gap: 12px;
   width: 100%;
 }
 .stat-box {
   flex: 1;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(232, 67, 147, 0.3);
-  border-radius: 10px;
+  background: rgba(255, 61, 127, 0.1);
+  border: 1.5px solid rgba(255, 215, 0, 0.3);
+  border-radius: 12px;
   padding: 12px 8px;
+  text-align: center;
 }
 .stat-label {
-  font-size: 0.4rem;
+  font-family: "Press Start 2P", monospace;
+  font-size: 0.35rem;
   letter-spacing: 1px;
-  color: rgba(255, 255, 255, 0.45);
+  color: rgba(255, 215, 0, 0.6);
   margin-bottom: 6px;
+  text-transform: uppercase;
 }
-
 .stat-value {
-  font-size: 1rem;
-  font-family: "Fredoka", sans-serif;
-  font-weight: 500;
+  font-family: "Lilita One", cursive;
+  font-size: 1.3rem;
   color: #fff;
   word-break: break-all;
 }
 
+/* Play Again — chunky rose */
 .btn-main {
   width: 100%;
-  background: linear-gradient(135deg, #e8437a, #b02e5a);
+  background: linear-gradient(180deg, #ff80ab 0%, #ff3d7f 50%, #c41e5a 100%);
   border: none;
-  border-radius: 9px;
+  border-radius: 14px;
   color: #fff;
-  font-family: "Press Start 2P", monospace;
-  font-size: 0.58rem;
-  letter-spacing: 2px;
-  padding: 13px;
+  font-family: "Lilita One", cursive;
+  font-size: 1rem;
+  letter-spacing: 3px;
+  padding: 14px;
   cursor: pointer;
-  box-shadow: 0 4px 18px rgba(232, 67, 147, 0.45);
+  box-shadow:
+    0 6px 0 #7a0030,
+    0 10px 20px rgba(120, 0, 48, 0.4);
+  text-shadow: 0 2px 0 rgba(100, 0, 30, 0.3);
   transition:
-    transform 0.12s,
-    box-shadow 0.2s;
+    transform 0.1s,
+    box-shadow 0.1s;
 }
 .btn-main:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(232, 67, 147, 0.65);
+  box-shadow:
+    0 8px 0 #7a0030,
+    0 14px 24px rgba(120, 0, 48, 0.4);
 }
 .btn-main:active {
-  transform: translateY(0);
+  transform: translateY(4px);
+  box-shadow: 0 2px 0 #7a0030;
 }
 
+/* View Scores — gold ghost */
 .btn-secondary {
   width: 100%;
-  background: rgba(255, 255, 255, 0.07);
-  border: 1.5px solid rgba(232, 67, 147, 0.4);
-  border-radius: 9px;
-  color: #f48cb6;
-  font-family: "Press Start 2P", monospace;
-  font-size: 0.52rem;
+  background: rgba(255, 215, 0, 0.08);
+  border: 2px solid rgba(255, 215, 0, 0.45);
+  border-radius: 14px;
+  color: #ffd700;
+  font-family: "Lilita One", cursive;
+  font-size: 0.85rem;
   letter-spacing: 2px;
-  padding: 11px;
+  padding: 12px;
   cursor: pointer;
-  transition: transform 0.12s;
+  transition:
+    background 0.2s,
+    transform 0.1s;
 }
 .btn-secondary:hover {
-  background: rgba(232, 67, 147, 0.18);
-  transform: translateY(-2px);
+  background: rgba(255, 215, 0, 0.16);
+  transform: translateY(-1px);
 }
 .btn-secondary:active {
-  transform: translateY(0);
+  transform: translateY(1px);
 }
 
-/* Winner Overlay Styles  */
+/* ════════════════════════════════════════════════════
+   WINNER OVERLAY
+════════════════════════════════════════════════════ */
 .winner-overlay {
   position: fixed;
   inset: 0;
@@ -476,59 +595,129 @@ kbd {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: rgba(0, 0, 0, 0.75);
+  background: rgba(10, 0, 25, 0.88);
   z-index: 9999;
+  pointer-events: none;
+}
+.winner-overlay::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(
+      ellipse 60% 60% at 50% 50%,
+      rgba(255, 215, 0, 0.18) 0%,
+      transparent 65%
+    ),
+    radial-gradient(
+      ellipse 80% 40% at 50% 30%,
+      rgba(255, 61, 127, 0.1) 0%,
+      transparent 55%
+    );
   pointer-events: none;
 }
 .winner-hearts {
   position: absolute;
   inset: 0;
   overflow: hidden;
+  pointer-events: none;
 }
+
 .winner-content {
   position: relative;
-  text-align: center;
   z-index: 1;
-  animation: winPop 0.5s cubic-bezier(0.17, 0.67, 0.39, 1.4) both;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  animation: winnerReveal 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) both;
 }
-.winner-title {
-  font-family: "Press Start 2P", monospace;
-  font-size: clamp(14px, 4vw, 22px);
-  color: #f9c74f;
-  text-shadow:
-    0 0 20px #f9c74f,
-    0 0 40px #f9c74f88;
-  margin-bottom: 12px;
-  line-height: 1.6;
-}
-.winner-sub {
-  font-family: "Nunito", sans-serif;
-  font-size: 18px;
-  color: #fff;
-  font-weight: 700;
-}
-@keyframes winPop {
+@keyframes winnerReveal {
   from {
-    transform: scale(0.4);
+    transform: scale(0.5) translateY(30px);
     opacity: 0;
   }
   to {
-    transform: scale(1);
+    transform: scale(1) translateY(0);
     opacity: 1;
   }
 }
+
+/* Crown + heart medallion image */
+.winner-trophy-img {
+  width: clamp(140px, 38vw, 200px);
+  height: auto;
+  filter: drop-shadow(0 0 30px rgba(255, 215, 0, 0.75))
+    drop-shadow(0 0 60px rgba(255, 215, 0, 0.3));
+  animation: trophyFloat 1.8s ease-in-out infinite;
+}
+@keyframes trophyFloat {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-2deg);
+  }
+  50% {
+    transform: translateY(-12px) rotate(2deg);
+  }
+}
+
+/* Winner text */
+.winner-title {
+  font-family: "Lilita One", cursive;
+  font-size: clamp(1.5rem, 6vw, 2.2rem);
+  color: #ffd700;
+  -webkit-text-stroke: 4px #7a5000;
+  paint-order: stroke fill;
+  text-shadow:
+    0 5px 0 #7a5000,
+    0 0 30px rgba(255, 215, 0, 0.7),
+    0 0 60px rgba(255, 215, 0, 0.3);
+  letter-spacing: 2px;
+  text-align: center;
+  line-height: 1.2;
+  animation: titleGlow 1.5s ease-in-out infinite alternate;
+}
+@keyframes titleGlow {
+  from {
+    text-shadow:
+      0 5px 0 #7a5000,
+      0 0 20px rgba(255, 215, 0, 0.5);
+  }
+  to {
+    text-shadow:
+      0 5px 0 #7a5000,
+      0 0 50px rgba(255, 215, 0, 0.9),
+      0 0 80px rgba(255, 215, 0, 0.4);
+  }
+}
+.winner-sub {
+  font-family: "Fredoka", sans-serif;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: rgba(255, 220, 240, 0.85);
+  letter-spacing: 2px;
+  text-align: center;
+}
+
+/* Particle animation for winner */
 @keyframes winFloat {
   0% {
-    transform: translateY(0) rotate(0deg);
+    transform: translateY(0) rotate(0deg) scale(0.8);
+    opacity: 0;
+  }
+  10% {
     opacity: 1;
   }
+  90% {
+    opacity: 0.4;
+  }
   100% {
-    transform: translateY(-90vh) rotate(360deg);
+    transform: translateY(-95vh) rotate(360deg) scale(1.1);
     opacity: 0;
   }
 }
 
-/* Responsive styles */
+/* ── Responsive ── */
 @media (max-width: 480px) {
   .detail-container {
     padding: 8px 16px;
@@ -543,39 +732,21 @@ kbd {
     max-width: 100%;
   }
   .puzzle-body {
-    padding: 14px 12px;
-  }
-  .puzzle-question {
-    font-size: 0.85rem;
-    gap: 8px;
+    padding: 14px 14px 12px;
   }
   .puzzle-input {
-    width: 70px;
-    padding: 7px 4px;
-    font-size: 1rem;
+    width: 66px;
   }
   .btn-submit {
-    font-size: 0.5rem;
-    padding: 11px;
+    font-size: 0.85rem;
   }
-  .result-box {
-    padding: 20px 16px 16px;
-  }
-  .result-title {
-    font-size: 0.8rem;
-  }
-  .stat-label {
-    font-size: 0.32rem;
+  .result-inner {
+    padding: 16px 16px 20px;
   }
   .stat-value {
-    font-size: 0.65rem;
+    font-size: 1.1rem;
   }
-  .btn-main {
-    font-size: 0.52rem;
-    padding: 11px;
-  }
-  .btn-secondary {
-    font-size: 0.48rem;
-    padding: 9px;
+  .winner-title {
+    font-size: 1.3rem;
   }
 }
